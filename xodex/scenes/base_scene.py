@@ -1,7 +1,7 @@
 import os
 from abc import ABC, abstractmethod
 from importlib import import_module
-from typing import Generator, Callable
+from typing import Generator
 
 import pygame
 from pygame.event import Event
@@ -24,10 +24,6 @@ class BaseScene(ABC):
         self._screen = pygame.Surface(self._size)
         self._objects = Objects()
 
-        self._on_enter_callbacks = []
-        self._on_exit_callbacks = []
-        self._on_update_callbacks = []
-        self._on_draw_callbacks = []
         self.object = ObjectsManager()
 
     # region Private
@@ -54,16 +50,12 @@ class BaseScene(ABC):
 
     def draw(self) -> pygame.Surface:
         """draw"""
-        self._screen.fill((0, 0, 0))
-        for cb in self._on_draw_callbacks:
-            cb(self._screen)
+        self._screen.fill((255, 255, 255))
         self._objects.draw(self._screen)
         return self._screen
 
     def update(self, delta: float = 0.0) -> None:
         """update"""
-        for cb in self._on_update_callbacks:
-            cb(delta)
         self._objects.update(delta)
 
     def handle(self, event: Event) -> None:
@@ -75,37 +67,26 @@ class BaseScene(ABC):
     def setup(self):
         """setup"""
         self._objects.clear()
-
         if obj := self._generate_objects_():
             self._objects.extend(list(obj))
 
         if self._debug:
             print(self._objects)
 
-    def add_on_enter(self, callback: Callable):
-        self._on_enter_callbacks.append(callback)
+    # endregion
 
-    def add_on_exit(self, callback: Callable):
-        self._on_exit_callbacks.append(callback)
+    # region Hooks
 
-    def add_on_update(self, callback: Callable):
-        self._on_update_callbacks.append(callback)
+    def on_enter(self, *args, **kwargs) -> None:
+        """Runs When Enter the Scene"""
 
-    def add_on_draw(self, callback: Callable):
-        self._on_draw_callbacks.append(callback)
+    def on_exit(self, *args, **kwargs) -> None:
+        """Runs When Exit the Scene"""
 
-    def on_enter(self) -> None:
-        for cb in self._on_enter_callbacks:
-            cb()
+    def on_first_enter(self, *args, **kwargs) -> None:
+        """Run when First Time Playing Scene"""
 
-    def on_exit(self) -> None:
-        for cb in self._on_exit_callbacks:
-            cb()
-
-    def on_first_enter(self) -> None:
-        pass
-
-    def on_last_exit(self) -> None:
-        pass
+    def on_last_exit(self, *args, **kwargs) -> None:
+        """Run when Last Time Playing Scene"""
 
     # endregion

@@ -1,8 +1,9 @@
 """Localization manager for handling multi-language support."""
 
-import json
 import os
+import json
 import locale
+import pathlib
 from xodex.core.singleton import Singleton
 
 __all__ = ("Localization", "localize")
@@ -52,7 +53,7 @@ class Localization(Singleton):
             return lang.split("_")[0]
         return self.fallback_lang
 
-    def load_language(self, lang, fallback=False):
+    def load_language(self, lang, fallback=False, folder=None):
         """
         Load translations for a given language.
 
@@ -60,7 +61,12 @@ class Localization(Singleton):
             lang (str): Language code.
             fallback (bool): If True, loads as fallback translations.
         """
-        path = os.path.join(self.folder, f"{lang}.json")
+
+        if folder:
+            path = os.path.join(folder, f"{lang}.json")
+        else:
+            path = os.path.join(self.folder, f"{lang}.json")
+
         try:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -71,7 +77,7 @@ class Localization(Singleton):
                 self.lang = lang
                 self.notify_observers()
         except FileNotFoundError:
-            print(f"[Localization] File not found: {path}")
+            # print(f"[Localization] File not found: {path}")
             if fallback:
                 self.fallback_translations = {}
             else:

@@ -5,6 +5,7 @@ import sys
 import pathlib
 import argparse
 import re
+import subprocess
 
 try:
     from colorama import Fore, Style, init as colorama_init
@@ -25,6 +26,86 @@ def cprint(text, color=None):
         print(getattr(Fore, color.upper(), "") + text + Style.RESET_ALL)
     else:
         print(text)
+
+
+class ProjectBuilder:
+    """
+    Handles creation of new projects, including directory structure, initial files,
+    and building standalone executables using PyInstaller.
+    """
+
+    def __init__(self, project_name):
+        self.project_name = project_name
+        self.project_dir = os.path.abspath(project_name)
+
+    def create_project_structure(self):
+        try:
+            os.makedirs(self.project_name, exist_ok=False)
+            with open(os.path.join(self.project_name, "main.py"), "w") as f:
+                f.write(
+                    "# Entry point for the project\n\n"
+                    "if __name__ == '__main__':\n"
+                    "    print('Hello, Xodex!')\n"
+                )
+            with open(os.path.join(self.project_name, "__init__.py"), "w") as f:
+                f.write("# Init file for project package\n")
+            cprint(f"Project '{self.project_name}' created successfully.", "GREEN")
+        except FileExistsError:
+            cprint(f"Error: Project '{self.project_name}' already exists.", "RED")
+        except Exception as e:
+            cprint(f"Error creating project: {e}", "RED")
+
+    def build_exe(self, onefile=True, console=True):
+        """
+        Build an executable from main.py using PyInstaller.
+        """
+        main_py = os.path.join(self.project_dir, "main.py")
+        if not os.path.exists(main_py):
+            cprint(f"main.py not found in {self.project_dir}.", "RED")
+            return
+
+        pyinstaller_cmd = [
+            sys.executable,
+            "-m",
+            "PyInstaller",
+            "--distpath",
+            os.path.join(self.project_dir, "dist"),
+            "--workpath",
+            os.path.join(self.project_dir, "build"),
+            "--specpath",
+            os.path.join(self.project_dir, "build"),
+        ]
+        if onefile:
+            pyinstaller_cmd.append("--onefile")
+        if not console:
+            pyinstaller_cmd.append("--noconsole")
+        pyinstaller_cmd.append(main_py)
+
+        cprint("Building executable with PyInstaller...", "CYAN")
+        try:
+            result = subprocess.run(
+                pyinstaller_cmd,
+                cwd=self.project_dir,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            cprint("Executable built successfully!", "GREEN")
+            exe_name = "main.exe" if os.name == "nt" else "main"
+            exe_path = os.path.join(self.project_dir, "dist", exe_name)
+            if os.path.exists(exe_path):
+                cprint(f"Executable located at: {exe_path}", "CYAN")
+            else:
+                cprint(
+                    "Build finished, but executable not found in expected location.",
+                    "YELLOW",
+                )
+        except subprocess.CalledProcessError as e:
+            cprint("PyInstaller failed to build the executable.", "RED")
+            cprint(e.stdout, "RED")
+            cprint(e.stderr, "RED")
+        except Exception as e:
+            cprint(f"Unexpected error: {e}", "RED")
 
 
 class ProjectGenerator:
@@ -212,23 +293,14 @@ class ManagementUtility:
         # run
         subparsers.add_parser("run", help="Run the game")
 
+        # help
+        subparsers.add_parser("help", help="Show this help message")
+
         # rungame
         parser_rungame = subparsers.add_parser(
             "rungame", help="Run a specific game game"
         )
         parser_rungame.add_argument("name", nargs="?", help="Name of the game to run")
-
-        # listapps
-        subparsers.add_parser("listapps", help="List all created apps")
-
-        # deleteapp
-        parser_deleteapp = subparsers.add_parser("deleteapp", help="Delete an game")
-        parser_deleteapp.add_argument(
-            "name", nargs="?", help="Name of the game to delete"
-        )
-
-        # help
-        subparsers.add_parser("help", help="Show this help message")
 
         args = parser.parse_args(self.argv[1:])
 

@@ -4,7 +4,7 @@ Xodex Game Engine Command-Line Entrypoint
 This module allows you to run Xodex management commands directly from the command line.
 
 Usage Examples:
-    python -m xodex startapp MyGame
+    python -m xodex startgame MyGame
     python -m xodex run
     python -m xodex help
 
@@ -13,6 +13,9 @@ How it works:
 - You can use it to scaffold new projects, run your game, or perform other management tasks.
 
 See the Xodex documentation for a full list of available commands and options.
+
+Author: Sackey Ezekiel Etrue (https://github.com/djoezeke) & Xodex Contributors
+License: MIT
 """
 
 from xodex.core import management

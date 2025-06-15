@@ -16,7 +16,6 @@ class SceneManager(Singleton):
 
         # for Rendering scenes
         self.__scenes: list[BaseScene] = []
-        self._current_index: int = 0
 
         # Register default scenes
         self.register(XodexMainScene, "XodexMainScene")
@@ -30,32 +29,19 @@ class SceneManager(Singleton):
     def __len__(self) -> int:
         return len(self.__scenes)
 
+    # region Public
+
     @property
     def current(self) -> BaseScene:
         """Current scene."""
         try:
-            return self.__scenes[self._current_index]
+            return self.__scenes[-1]
         except IndexError:
             print("List of scenes is empty")
 
     def get_scene(self, scene_name: str) -> BaseScene:
         """Get a registered scene class by name."""
         return self._get_scene_(scene_name)
-
-    def clear(self):
-        """Remove all scenes."""
-        self.__scenes.clear()
-        self.__scene_classes.clear()
-
-    def on_exit_scene(self) -> None:
-        """Call on_exit on current scene."""
-        if self.__scenes:
-            self.current.on_exit()
-
-    def on_last_exit_scene(self) -> None:
-        """Call on_last_exit on current scene."""
-        if self.__scenes:
-            self.current.on_last_exit()
 
     def process_update(self) -> None:
         """Update current scene."""
@@ -71,23 +57,28 @@ class SceneManager(Singleton):
 
     def append(self, scene: BaseScene) -> None:
         """Push a new scene onto the stack."""
-        self.on_exit_scene()
-        scene.setup()
-        scene.on_first_enter()
+        self._on_scene_exit_()
         self.__scenes.append(scene)
+        self._setup_scene_()
+        self._on_scene_first_enter_()
 
     def pop(self) -> BaseScene:
         """Pop the current scene and return it."""
-        self.on_last_exit_scene()
+        self._on_scene_last_exit_()
         pop_scene = self.__scenes.pop()
-        if self.__scenes:
-            self.current.on_enter()
+        self._on_scene_enter_()
         return pop_scene
+
+    def clear(self):
+        """Remove all scenes."""
+        self.__scenes.clear()
+        self.__scene_classes.clear()
 
     def play(self, name: str) -> None:
         """Play a Scene."""
+        self._on_scene_exit_()
         scene = self._get_scene_(name)
-        scene().setup()
+        scene.setup()
         scene().on_first_enter()
         return scene()
 
@@ -95,24 +86,23 @@ class SceneManager(Singleton):
         """Replace all scenes with a new one."""
         for s in self.__scenes:
             s.on_last_exit()
-        scene.setup()
-        scene.on_first_enter()
         self.__scenes = [scene]
+        self._setup_scene_()
+        self._on_scene_first_enter_()
 
     def transition_to(
         self,
         new_scene: BaseScene,
         transition_type: str = "fade",
         duration: float = 1.0,
-        name: str = None,
     ):
         """Transition to a new scene with an effect."""
         if transition_type == "fade":
-            self._fade_transition(new_scene, duration, name)
+            self._fade_transition(new_scene, duration)
         else:
-            self.append(new_scene, name=name)
+            self.append(new_scene)
 
-    def _fade_transition(self, new_scene: BaseScene, duration: float, name: str = None):
+    def _fade_transition(self, new_scene: BaseScene, duration: float):
         import pygame
 
         screen = pygame.display.get_surface()
@@ -125,7 +115,7 @@ class SceneManager(Singleton):
             screen.blit(alpha_surface, (0, 0))
             pygame.display.flip()
             clock.tick(60)
-        self.append(new_scene, name=name)
+        self.append(new_scene)
 
     def list_scenes(self) -> list[str]:
         """List all named scenes."""
@@ -147,6 +137,8 @@ class SceneManager(Singleton):
         """register a Scene Class"""
         self.__scene_classes[scene_name] = scene_class
 
+    # endregion
+
     # region Private
 
     def _get_scene_(self, scene_name: str) -> BaseScene:
@@ -155,6 +147,35 @@ class SceneManager(Singleton):
         if scene is not None:
             return scene
         raise KeyError(f"{scene_name} is not a valid Scene")
+
+    def _setup_scene_(self, *args, **kwargs) -> None:
+        """Run if Exiting Scene. Call on_exit on current scene."""
+        if self.__scenes:
+            self.current.setup(*args, **kwargs)
+
+    # endregion
+
+    # region Hooks
+
+    def _on_scene_exit_(self, *args, **kwargs) -> None:
+        """Run if Exiting Scene. Call on_exit on current scene."""
+        if self.__scenes:
+            self.current.on_exit(*args, **kwargs)
+
+    def _on_scene_last_exit_(self, *args, **kwargs) -> None:
+        """Run if Reseting(Deleting) Scene. Call on_last_exit on current scene."""
+        if self.__scenes:
+            self.current.on_last_exit(*args, **kwargs)
+
+    def _on_scene_enter_(self, *args, **kwargs) -> None:
+        """Run if Entering Scene. Call on_enter on current scene."""
+        if self.__scenes:
+            self.current.on_enter(*args, **kwargs)
+
+    def _on_scene_first_enter_(self, *args, **kwargs) -> None:
+        """Run if Creating(Appending) Scene. Call on_first_enter on current scene."""
+        if self.__scenes:
+            self.current.on_first_enter(*args, **kwargs)
 
     # endregion
 
