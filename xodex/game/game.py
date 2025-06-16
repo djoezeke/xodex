@@ -17,7 +17,8 @@ class Game:
     def __init__(self) -> None:
         pygame.init()
 
-        self.setting = import_module(os.getenv("XODEX_SETTINGS_MODULE"))
+        xodex_settings = os.getenv("XODEX_SETTINGS_MODULE")
+        self.setting = import_module(xodex_settings)
 
         self._size = self.setting.WINDOW_SIZE or (560, 480)
         self._caption = self.setting.TITLE or "Xodex"
@@ -51,7 +52,6 @@ class Game:
 
     def exit_game(self) -> None:
         """Cleanly exit the game."""
-        print("Bye bye")
         pygame.quit()
         raise SystemExit
 

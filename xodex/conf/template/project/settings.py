@@ -10,6 +10,8 @@ For advanced settings and detailed explanations, see the Xodex documentation or 
 
 from pathlib import Path
 
+PROJECT = {{ project_name }}
+
 # --- Paths ---
 # Root directory of your project
 BASE_DIR = Path(__file__).resolve().parent.parent

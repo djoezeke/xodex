@@ -25,5 +25,3 @@ class Version(tuple):
 
 
 vernum = Version(25, 6, 15)
-
-print(vernum)

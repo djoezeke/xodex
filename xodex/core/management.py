@@ -1,10 +1,11 @@
 """Management"""
 
 import os
+import re
 import sys
 import pathlib
 import argparse
-import re
+import platform
 import subprocess
 
 try:
@@ -16,6 +17,7 @@ except ImportError:
     COLOR_ENABLED = False
 
 from xodex.game.game import Game
+from xodex.version import vernum
 
 __all__ = ("ManagementUtility", "execute_from_command_line")
 
@@ -29,39 +31,32 @@ def cprint(text, color=None):
 
 
 class ProjectBuilder:
-    """
-    Handles creation of new projects, including directory structure, initial files,
-    and building standalone executables using PyInstaller.
-    """
+    """Handles building standalone executables using PyInstaller."""
 
-    def __init__(self, project_name):
+    def __init__(
+        self,
+        project_name: str,
+        *args,
+        build_name: str = None,
+        onefile=True,
+        console=False,
+        interactive=False,
+    ):
         self.project_name = project_name
         self.project_dir = os.path.abspath(project_name)
+        self.build_name = build_name or self.project_name
+        self.onefile = onefile
+        self.console = console
+        self.interactive = interactive
 
-    def create_project_structure(self):
-        try:
-            os.makedirs(self.project_name, exist_ok=False)
-            with open(os.path.join(self.project_name, "main.py"), "w") as f:
-                f.write(
-                    "# Entry point for the project\n\n"
-                    "if __name__ == '__main__':\n"
-                    "    print('Hello, Xodex!')\n"
-                )
-            with open(os.path.join(self.project_name, "__init__.py"), "w") as f:
-                f.write("# Init file for project package\n")
-            cprint(f"Project '{self.project_name}' created successfully.", "GREEN")
-        except FileExistsError:
-            cprint(f"Error: Project '{self.project_name}' already exists.", "RED")
-        except Exception as e:
-            cprint(f"Error creating project: {e}", "RED")
+    def build(self):
+        """Build an executable from main.py using PyInstaller."""
 
-    def build_exe(self, onefile=True, console=True):
-        """
-        Build an executable from main.py using PyInstaller.
-        """
-        main_py = os.path.join(self.project_dir, "main.py")
+        current_os = platform.system().lower()  # Determine the OS
+
+        main_py = os.path.join(self.project_dir, "__main__.py")
         if not os.path.exists(main_py):
-            cprint(f"main.py not found in {self.project_dir}.", "RED")
+            cprint(f"__main__.py not found in {self.project_dir}.", "RED")
             return
 
         pyinstaller_cmd = [
@@ -75,13 +70,27 @@ class ProjectBuilder:
             "--specpath",
             os.path.join(self.project_dir, "build"),
         ]
-        if onefile:
+
+        # Add OS-specific options if necessary
+        if current_os == "windows":
+            pyinstaller_cmd.append("--windowed")  # No console window for GUI apps
+        elif current_os == "linux":
+            # Add Linux-specific options if needed
+            pass
+        elif current_os == "darwin":  # macOS
+            # Add macOS-specific options if needed
+            pass
+
+        if self.onefile:
             pyinstaller_cmd.append("--onefile")
-        if not console:
+        if not self.console:
             pyinstaller_cmd.append("--noconsole")
         pyinstaller_cmd.append(main_py)
 
-        cprint("Building executable with PyInstaller...", "CYAN")
+        if self.build_name:
+            pyinstaller_cmd.append(f"--name {self.build_name}")
+
+        cprint(f"Building {self.build_name} executable...", "CYAN")
         try:
             result = subprocess.run(
                 pyinstaller_cmd,
@@ -90,18 +99,20 @@ class ProjectBuilder:
                 text=True,
                 check=True,
             )
-            cprint("Executable built successfully!", "GREEN")
-            exe_name = "main.exe" if os.name == "nt" else "main"
+            cprint(f"{self.build_name} executable built successfully!", "GREEN")
+            exe_name = (
+                f"{self.build_name}.exe" if os.name == "nt" else f"{self.build_name}"
+            )
             exe_path = os.path.join(self.project_dir, "dist", exe_name)
             if os.path.exists(exe_path):
-                cprint(f"Executable located at: {exe_path}", "CYAN")
+                cprint(f" {self.build_name} executable located at: {exe_path}", "CYAN")
             else:
                 cprint(
                     "Build finished, but executable not found in expected location.",
                     "YELLOW",
                 )
         except subprocess.CalledProcessError as e:
-            cprint("PyInstaller failed to build the executable.", "RED")
+            cprint(f"Failed to build '{self.build_name}'.", "RED")
             cprint(e.stdout, "RED")
             cprint(e.stderr, "RED")
         except Exception as e:
@@ -236,12 +247,6 @@ class ProjectGenerator:
                 with open(gitignore_path, "w", encoding="Utf-8") as f:
                     f.write("__pycache__/\n*.pyc\n*.pyo\n*.log\nsave/\n")
 
-            # # Add a README.md if not present
-            # readme_path = os.path.join(self.main_dir, "README.md")
-            # if not os.path.exists(readme_path) and not self.dry_run:
-            #     with open(readme_path, "w", encoding="utf-8") as f:
-            #         f.write(f"# {self.name}\n")
-
         # Run custom post-generation hooks
         for hook in self.post_hooks:
             hook(self)
@@ -277,37 +282,121 @@ class ManagementUtility:
             prog=self.prog_name,
             usage="%(prog)s <subcommand> [options] [args]",
             description="Xodex Management Utility",
+            add_help=False,
         )
-        parser.add_argument("--version", action="version", version="0.0.1")
 
         subparsers = parser.add_subparsers(dest="subcommand", help="Subcommands")
 
-        # startgame
-        parser_startgame = subparsers.add_parser(
-            "startgame", help="Create a new game/project from template"
+        # Parser Arguments
+        parser.add_argument(
+            "-v",
+            "--version",
+            action="version",
+            version=str(vernum),
+            help="Show program version info and exit.",
         )
-        parser_startgame.add_argument(
-            "name", nargs="?", help="Name of the game to create"
+        parser.add_argument(
+            "-h", "--help", dest="help", nargs="?", help="Show this help message"
         )
 
-        # run
-        subparsers.add_parser("run", help="Run the game")
-
-        # help
-        subparsers.add_parser("help", help="Show this help message")
-
-        # rungame
-        parser_rungame = subparsers.add_parser(
-            "rungame", help="Run a specific game game"
+        # Running Project Parser & Arguments.
+        parser_run = subparsers.add_parser("run", help="Run the project")
+        parser_run.add_argument(
+            "--debug", action="store_true", help="Create a single executable"
         )
-        parser_rungame.add_argument("name", nargs="?", help="Name of the game to run")
+        parser_run.add_argument(
+            "--verbose",
+            "-v",
+            dest="verbosity",
+            action="count",
+            default=1,
+            help="increase verbosity",
+        )
 
+        # Building Project Parser & Arguments.
+        parser_build = subparsers.add_parser(
+            "build", help="Build the game using PyInstaller"
+        )
+        parser_build.add_argument(
+            "--name",
+            "-n",
+            type=str,
+            nargs="?",
+            dest="name",
+            help="Name to assign to the bundled app (defaults to Project Name)",
+            metavar="-NAME",
+        )
+
+        build_group = parser.add_argument_group("Building Project")
+        build_group.add_argument(
+            "-i",
+            "--icon",
+            type=str,
+            dest="icon_file",
+            metavar="<FILE.ico>",
+            help="FILE.ico: apply the icon to a bundled app."
+            "some default (default: apply Xodex's icon). This option can be used multiple times.",
+        )
+
+        build_group.add_argument(
+            "--onefile", action="store_true", help="Create a single executable"
+        )
+        build_group.add_argument(
+            "--noconsole", action="store_true", help="Hide Console"
+        )
+        build_group.add_argument(
+            "--interactive", action="store_true", help="Interactivity"
+        )
+
+        # Creating Project Parser & Arguments.
+        create_parser = subparsers.add_parser("startgame", help="Create a new project.")
+        create_parser.add_argument(
+            "--name",
+            "-n",
+            type=str,
+            nargs="?",
+            dest="name",
+            help="Name of Executable (defaults to Project Name)",
+            metavar="NAME",
+        )
+
+        create_parser.add_argument(
+            "--template",
+            "-t",
+            type=str,
+            nargs="?",
+            dest="template",
+            help="Template to Generate Project From",
+            metavar="PATH",
+        )
+
+        create_parser.add_argument(
+            "--interactive", action="store_true", help="Run the game"
+        )
+        create_parser.add_argument("--dryrun", action="store_true", help="Run the game")
+        create_parser.add_argument(
+            "--extra", action="store_true", help=" Add extra files ie .gitignore"
+        )
+
+        # Project Help Parser & Arguments.
+        parser_help = subparsers.add_parser("help", help="Shows Help Menu.")
+        parser_help.add_argument(
+            "--name",
+            "-n",
+            type=str,
+            nargs="?",
+            dest="name",
+            help="What to help with.",
+        )
+
+        # Parse the CLI arguments
         args = parser.parse_args(self.argv[1:])
 
-        if not args.subcommand or args.subcommand == "help":
+        if args.help == "help":
             self.print_help()
             return
 
+        # Starting Project
         if args.subcommand == "startgame":
             name = args.name
             if not name:
@@ -315,68 +404,85 @@ class ManagementUtility:
             if not name:
                 cprint("Error: Game name is required.", "RED")
                 return
-            self.generate(name)
+            self.generate(name=name, interactive=args.interactive, dry_run=args.dryrun)
             return
 
-        if args.subcommand == "rungame":
-            name = args.name
-            if not name:
-                name = input("Enter the name of game to Run: ").strip()
-            if not name:
-                cprint("Error: Game name is required.", "RED")
-                return
-            self.run_game(name)
-            return
-
+        # Running Project
         if args.subcommand == "run":
             self.run_game()
             return
 
+        # Building Project
+        if args.subcommand == "build":
+            name = args.name
+            if not name:
+                name = input("Enter the name of the game to build: ").strip()
+            if not name:
+                cprint("Error: Game name is required.", "RED")
+                return
+
+            self.build(
+                project_name="",
+                build_name=name,
+                onefile=not args.onefile,
+                console=args.noconsole,
+                interactive=args.interactive,
+            )
+            return
+
+        # Help Utilities
+
     def run_game(self, name=None):
         """Run the main game loop."""
 
-        cwd = os.getcwd()
+        # cwd = os.getcwd()
 
-        if name:
-            app_dir = os.path.join(cwd, name, "manage.py")
-            if not os.path.exists(app_dir):
-                cprint(f"Game '{name}' does not exist.", "RED")
-                return
-        else:
-            app_dir = os.path.join(cwd, "manage.py")
-            if not os.path.exists(app_dir):
-                cprint("No Game to Run.", "RED")
-                return
+        # if name:
+        #     app_dir = os.path.join(cwd, name, "manage.py")
+        #     if not os.path.exists(app_dir):
+        #         cprint(f"Game '{name}' does not exist.", "RED")
+        #         return
+        # else:
+        #     name = os.environ.setdefault("XODEX_SETTINGS_MODULE", "hello.settings")
+        #     app_dir = os.path.join(cwd, "manage.py")
+        #     if not os.path.exists(app_dir):
+        #         cprint("No Game to Run.", "RED")
+        #         return
 
-        cprint("Starting the game...", "GREEN")
+        # cprint("Starting the game...", "GREEN")
         Game().main_loop()
 
-    def generate(self, name):
+    def build(self, project_name, build_name, onefile, console, interactive):
+        """build"""
+        builder = ProjectBuilder(
+            project_name=project_name,
+            build_name=build_name,
+            onefile=onefile,
+            console=console,
+            interactive=interactive,
+        )
+        builder.build()
+
+    def generate(self, name, interactive, dry_run):
         """Generate a new game/project from template using ProjectGenerator."""
-        # Example: add more context, enable interactive mode, dry-run, or custom hooks
         context = {
             "project_name": name,
             "xodex_argv": f"startgame {name}",
-            "xodex_version": "0.0.1",
+            "xodex_version": vernum,
             "author": os.getenv("USERNAME") or os.getenv("USER") or "Unknown",
         }
         generator = ProjectGenerator(
             name,
             context=context,
             extra_files=True,
-            interactive=True,  # Ask user on file conflicts
-            dry_run=False,  # Set to True for preview only
+            interactive=interactive,  # Ask user on file conflicts
+            dry_run=dry_run,  # Set to True for preview only
             post_hooks=[self.after_generate_hook],
         )
         generator.generate()
 
     def after_generate_hook(self, generator):
         """Custom post-generation hook example."""
-        # cprint(
-        #     f"Custom hook: Project '{generator.name}' generated at {generator.main_dir}",
-        #     "CYAN",
-        # )
-
         # You could add more automation here (e.g., git init, open in editor, etc.)
 
     def print_help(self):
@@ -386,8 +492,8 @@ Xodex Management Utility
 
 Available commands:
   startgame <name>     Create a new game/project from template
-  rungame <name>       Run a Specific Game.
   run                  Run the game
+  build                Build the game
   help                 Show this help message
   version              Show version information
 """
