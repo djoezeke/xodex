@@ -10,7 +10,7 @@ For advanced settings and detailed explanations, see the Xodex documentation or 
 
 from pathlib import Path
 
-PROJECT = {{ project_name }}
+PROJECT = "{{ project_name }}"
 
 # --- Paths ---
 # Root directory of your project

@@ -3,6 +3,7 @@ from pygame import Surface
 from xodex.core.singleton import Singleton
 from xodex.scenes.base_scene import BaseScene
 from xodex.contrib.main import XodexMainScene
+from xodex.core.exceptions import NotRegistered, AlreadyRegistered, SceneError
 
 __all__ = ("SceneManager", "register")
 
@@ -135,7 +136,25 @@ class SceneManager(Singleton):
 
     def register(self, scene_class: BaseScene, scene_name: str):
         """register a Scene Class"""
-        self.__scene_classes[scene_name] = scene_class
+
+        if isinstance(scene_class, BaseScene):
+            if self.isregistered(scene_class):
+                msg = "The Scene %s is already registered "
+                raise AlreadyRegistered(msg)
+
+            self.__scene_classes[scene_name] = scene_class
+        msg = "The Scene %s is not of type Scene."
+        raise SceneError(msg)
+
+    def unregister(self, scene_name: str) -> None:
+        """unregister a Scene Class"""
+        if not self.is_registered(scene_name):
+            raise NotRegistered(f"The Scene {scene_name} is not registered")
+        del self.__scene_classes[scene_name]
+
+    def isregistered(self, scene_name: str) -> bool:
+        """Return true if Scene is registered"""
+        return scene_name in self.__scene_classes
 
     # endregion
 

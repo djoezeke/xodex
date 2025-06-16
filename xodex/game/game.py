@@ -40,6 +40,7 @@ class Game:
         self.__clock = pygame.time.Clock()
         self._paused = False
 
+
         pygame.display.set_caption(self._caption)
         scene = SceneManager().get_scene(self._mainscene)
         SceneManager().reset(scene())
@@ -113,5 +114,10 @@ class Game:
 
     def post_draw(self):
         """Hook for logic after drawing."""
+
+    # endregion
+
+    # region Private
+
 
     # endregion

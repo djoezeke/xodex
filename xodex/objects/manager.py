@@ -3,10 +3,10 @@
 Provides scene-based registration and querying of game objects.
 """
 
-from typing import Any
-
+from xodex.objects import Object
 from xodex.core.singleton import Singleton
 from xodex.contrib.text import XodexText
+from xodex.core.exceptions import NotRegistered, AlreadyRegistered, ObjectError
 
 __all__ = ("ObjectsManager", "register")
 
@@ -17,7 +17,7 @@ class ObjectsManager(Singleton):
     """
 
     def __init__(self):
-        self.__object_classes: dict[str, Any] = {}
+        self.__object_classes: dict[str, Object] = {}
 
         # Register default objects
         self.register(XodexText, "XodexText")
@@ -25,14 +25,14 @@ class ObjectsManager(Singleton):
     def __len__(self) -> int:
         return len(self.__object_classes)
 
-    def __getattr__(self, object_name: str) -> Any:
+    def __getattr__(self, object_name: str) -> Object:
         """Get object."""
         return self.__object_classes.get(object_name, None)
 
     def __contains__(self, key: str) -> bool:
         return key in self.__object_classes.keys()
 
-    def get_object(self, object_name: str) -> Any:
+    def get_object(self, object_name: str) -> Object:
         """Get an object."""
         return self._get_object_(object_name)
 
@@ -40,9 +40,27 @@ class ObjectsManager(Singleton):
         """Remove all objects."""
         self.__object_classes.clear()
 
-    def register(self, object_class: Any, object_name: str):
+    def register(self, object_class: Object, object_name: str):
         """register a Object Class"""
-        self.__object_classes[object_name] = object_class
+
+        if isinstance(object_class, Object):
+            if self.isregistered(object_class):
+                msg = "The Object %s is already registered "
+                raise AlreadyRegistered(msg)
+
+            self.__object_classes[object_name] = object_class
+        msg = "The Object %s is not of type Object."
+        raise ObjectError(msg)
+
+    def unregister(self, object_name: str) -> None:
+        """unregister a Object Class"""
+        if not self.is_registered(object_name):
+            raise NotRegistered(f"The Object {object_name} is not registered")
+        del self.__object_classes[object_name]
+
+    def isregistered(self, object_name: str) -> bool:
+        """Return true if Object is registered"""
+        return object_name in self.__object_classes
 
     # region Private
 
