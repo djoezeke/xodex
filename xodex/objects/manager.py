@@ -6,7 +6,7 @@ Provides scene-based registration and querying of game objects.
 from xodex.utils.values import Values
 from xodex.objects.objects import Object
 from xodex.core.singleton import Singleton
-from xodex.contrib.text import XodexText, UIBTN, UILABEL
+from xodex.contrib.text import XodexText, UIBTN, UILABEL,UIENTRY
 from xodex.core.exceptions import NotRegistered, AlreadyRegistered, ObjectError
 
 __all__ = ("ObjectsManager", "register")
@@ -24,6 +24,7 @@ class ObjectsManager(Singleton):
         self.register(XodexText, "XodexText")
         self.register(UIBTN, "UIBTN")
         self.register(UILABEL, "UILABEL")
+        self.register(UIENTRY, "UIENTRY")
 
     def __len__(self) -> int:
         return len(self.__object_classes)

@@ -1,6 +1,8 @@
 import pygame
 from xodex.objects.objects import DrawableObject
 from xodex.core.localization import localize
+from xodex.contrib.pygameui import UILABEL,UIENTRY
+from xodex.contrib.pygameui import UIBUTTON as UIBTN
 
 
 class XodexText(DrawableObject):

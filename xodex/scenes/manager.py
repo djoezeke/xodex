@@ -3,7 +3,7 @@ from pygame import Surface
 from xodex.utils.values import Values
 from xodex.core.singleton import Singleton
 from xodex.scenes.base_scene import BaseScene
-from xodex.contrib.main import XodexMainScene,UIScene
+from xodex.contrib.main import XodexMainScene,XodexUIScene
 from xodex.core.exceptions import NotRegistered, AlreadyRegistered, SceneError
 
 __all__ = ("SceneManager", "register")
@@ -21,7 +21,7 @@ class SceneManager(Singleton):
 
         # Register default scenes
         self.register(XodexMainScene, "XodexMainScene")
-        self.register(UIScene, "UIScene")
+        self.register(XodexUIScene, "XodexUIScene")
 
     def __contains__(self, key: str) -> bool:
         return key in self.__scene_classes.keys()

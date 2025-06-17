@@ -30,33 +30,84 @@ class XodexMainScene(BaseScene):
 
 
 class XodexUIScene(BaseScene):
-    """XodexUIScene"""
+    """XodexUIScene
+
+    Demonstrates PygameUI widgets in a Xodex scene, including labels, buttons, and event handling.
+    """
 
     def __init__(self):
         super().__init__()
 
     def _generate_objects_(self):
-        text = self.get_object(object_name="XodexText")
-        label = self.get_object(object_name="UILABEL")
-        btn = self.get_object(object_name="UIBTN")
-        labell = self.object.UILABEL
-        btnn = self.object.UIBTN
+        # Get Xodex-wrapped PygameUI widgets
+        label_cls = self.get_object(object_name="UILABEL")
+        button_cls = self.get_object(object_name="UIBTN")
+        entry_cls = self.get_object(object_name="UIENTRY")
+        # Fallbacks for attribute access
+        label_cls2 = getattr(self.object, "UILABEL", None)
+        button_cls2 = getattr(self.object, "UIBTN", None)
+        entry_cls2 = getattr(self.object, "UIENTRY", None)
 
-        label1 = label(master=self._screen, text="My Label")
-        label1.place(x=100, y=200)
+        # Demo label
+        label1 = label_cls(master=self._screen, text="Welcome to Xodex UI Demo")
+        label1.place(x=100, y=50)
 
-        label2 = labell(master=self._screen, text="My Label")
-        label2.place(x=100, y=400)
+        # Entry widget for user input
+        entry = None
+        if entry_cls:
+            entry = entry_cls(master=self._screen, width=200, text="Type here...")
+            entry.place(x=100, y=100)
+            yield entry
 
-        btn2 = btnn(master=self._screen, text="Click")
-        btn2.place(x=400, y=400)
+        # Dynamic label to show button clicks
+        status_label = label_cls(master=self._screen, text="Button not clicked yet")
+        status_label.place(x=100, y=150)
 
-        btn1 = btn(master=self._screen, text="Click Me")
-        btn1.place(x=100, y=300)
+        # Button with event binding
+        def on_button_click(*args, **kwargs):
+            status_label.configure(text="Button clicked!")
 
+        button = button_cls(master=self._screen, text="Click Me")
+        # Try to bind the click event (if available)
+        if hasattr(button, "bind"):
+            # PygameUI usually uses pygame.MOUSEBUTTONDOWN or a custom event
+            # import pygame
+            # button.bind(pygame.MOUSEBUTTONDOWN, on_button_click)
+            pass
+        else:
+            # Fallback: override handle_event
+            orig_handle = getattr(button, "handle_event", None)
+            def handle_event(event, *a, **kw):
+                import pygame
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    on_button_click()
+                if orig_handle:
+                    orig_handle(event, *a, **kw)
+            button.handle_event = handle_event
+
+        button.place(x=100, y=200)
+
+        # Add a second label and button for variety
+        label2 = label_cls2(master=self._screen, text="Another Label") if label_cls2 else None
+        if label2:
+            label2.place(x=350, y=50)
+            yield label2
+
+        button2 = button_cls2(master=self._screen, text="Another Button") if button_cls2 else None
+        if button2:
+            button2.place(x=350, y=100)
+            yield button2
+
+        # Yield all widgets to the scene
         yield label1
-        yield btn1
-        yield label2
-        yield btn2
+        yield status_label
+        yield button
 
-        yield text("Hello", (10, 100))
+        # Optionally, yield more widgets for demonstration
+        if entry:
+            yield entry
+
+        # Add a text object for legacy Xodex text
+        text = self.get_object(object_name="XodexText")
+        if text:
+            yield text("Legacy XodexText object", (10, 300))
