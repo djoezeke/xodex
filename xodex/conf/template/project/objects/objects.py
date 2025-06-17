@@ -1,5 +1,5 @@
 """
-Objects Registration for {{ project_name }} project.
+Objects Registration for {{ project_name_upper }} project.
 
 Register your custom game objects here using the @register decorator.
 
@@ -45,4 +45,4 @@ See the Xodex documentation for more advanced usage and patterns.
 
 from xodex.objects.manager import register
 
-# Register your Objects here.
+# Register your {{ project_name }} Objects here.

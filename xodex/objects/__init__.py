@@ -73,30 +73,30 @@ class Objects(list):
             items.append(item)
         super().extend(items)
 
-    def update(self, delta: float = 0.0) -> None:
+    def update_object(self, deltatime: float, *args, **kwargs) -> None:
         """Update all LogicalObjects."""
         filtered: Iterable[LogicalObject] = filter(
             lambda x: isinstance(x, LogicalObject), self
         )
-        for obj in filtered:
-            obj.update(delta)
+        for object in filtered:
+            object.update_xodex_object(deltatime, *args, **kwargs)
 
-    def draw(self, screen: Surface) -> None:
+    def draw_object(self, surface: Surface, *args, **kwargs) -> None:
         """Draw all DrawableObjects, sorted by z_index if present."""
         filtered: Iterable[DrawableObject] = filter(
             lambda x: isinstance(x, DrawableObject), self
         )
-        sorted_objs = sorted(filtered, key=lambda obj: getattr(obj, "z_index", 0))
-        for obj in sorted_objs:
-            obj.draw(screen)
+        sorted_objs =filtered # sorted(filtered, key=lambda object: getattr(object, "z_index", 0))
+        for object in sorted_objs:
+            object.draw_xodex_object(surface, *args, **kwargs)
 
-    def handle(self, event: Event) -> None:
+    def handle_object(self, event: Event, *args, **kwargs) -> None:
         """Dispatch event to all EventfulObjects."""
         filtered: Iterable[EventfulObject] = filter(
             lambda x: isinstance(x, EventfulObject), self
         )
-        for obj in filtered:
-            obj.handle(event)
+        for object in filtered:
+            object.handle_xodex_event(event, *args, **kwargs)
 
     # endregion
 

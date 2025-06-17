@@ -1,5 +1,5 @@
 """
-Scene Registration for {{ project_name }} project.
+Scene Registration for {{ project_name_upper }} project.
 
 Register your custom scenes here using the @register decorator.
 
@@ -45,4 +45,4 @@ See the Xodex documentation for more advanced scene management and transitions.
 
 from xodex.scenes.manager import register
 
-# Register your Scenes here.
+# Register your {{ project_name }} Scenes here.

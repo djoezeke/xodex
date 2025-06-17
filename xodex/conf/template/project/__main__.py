@@ -1,4 +1,4 @@
-"""{{ project_name }} project Main Game Loop"""
+"""{{ project_name_upper }} project Main Game Loop"""
 
 from xodex.game.game import Game
 

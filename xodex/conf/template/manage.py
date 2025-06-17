@@ -8,7 +8,7 @@ import sys
 def main():
     """Run Utility tasks."""
 
-    os.environ.setdefault("XODEX_SETTINGS_MODULE", "hello.settings")
+    os.environ.setdefault("XODEX_SETTINGS_MODULE", "{{ project_name }}.settings")
 
     try:
         from xodex.core.management import execute_from_command_line

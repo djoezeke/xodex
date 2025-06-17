@@ -3,11 +3,42 @@
 Provides scene-based registration and querying of game objects.
 """
 
+from typing import Union
 from xodex.utils.values import Values
-from xodex.objects.objects import Object
+from xodex.objects.objects import Object, DrawableObject, EventfulObject, LogicalObject
 from xodex.core.singleton import Singleton
-from xodex.contrib.text import XodexText, UIBTN, UILABEL,UIENTRY
+from xodex.contrib.basicobjects import XodexText
 from xodex.core.exceptions import NotRegistered, AlreadyRegistered, ObjectError
+
+
+try:
+    import pygameui
+
+    HAS_PYGAMEUI = True
+except ImportError:
+    HAS_PYGAMEUI = False
+
+if HAS_PYGAMEUI:
+    from xodex.contrib.pygameui import (
+        UIBUTTON,
+        UICHECKBUTTON,
+        UICOMBOBOX,
+        UIENTRY,
+        UIFLOODGAUGE,
+        UIFRAME,
+        UILABEL,
+        UILISTBOX,
+        UIMENUBUTTON,
+        UIMETER,
+        UIPROGRESSBAR,
+        UIRADIOBUTTON,
+        UISCALE,
+        UISEPERATOR,
+        UISIZEGRIP,
+        UISPINBOX,
+        UITEXTBOX,
+        UITREEVIEW,
+    )
 
 __all__ = ("ObjectsManager", "register")
 
@@ -22,9 +53,26 @@ class ObjectsManager(Singleton):
 
         # Register default objects
         self.register(XodexText, "XodexText")
-        self.register(UIBTN, "UIBTN")
-        self.register(UILABEL, "UILABEL")
-        self.register(UIENTRY, "UIENTRY")
+
+        if HAS_PYGAMEUI:
+            self.register(UIFRAME, "UIFRAME")
+            self.register(UILABEL, "UILABEL")
+            self.register(UIENTRY, "UIENTRY")
+            self.register(UIMETER, "UIMETER")
+            self.register(UISCALE, "UISCALE")
+            self.register(UIBUTTON, "UIBUTTON")
+            self.register(UITEXTBOX, "UITEXTBOX")
+            self.register(UISPINBOX, "UISPINBOX")
+            self.register(UILISTBOX, "UILISTBOX")
+            self.register(UISIZEGRIP, "UISIZEGRIP")
+            self.register(UITREEVIEW, "UITREEVIEW")
+            self.register(UICOMBOBOX, "UICOMBOBOX")
+            self.register(UISEPERATOR, "UISEPERATOR")
+            self.register(UIMENUBUTTON, "UIMENUBUTTON")
+            self.register(UIFLOODGAUGE, "UIFLOODGAUGE")
+            self.register(UICHECKBUTTON, "UICHECKBUTTON")
+            self.register(UIRADIOBUTTON, "UIRADIOBUTTON")
+            self.register(UIPROGRESSBAR, "UIPROGRESSBAR")
 
     def __len__(self) -> int:
         return len(self.__object_classes)
@@ -32,7 +80,9 @@ class ObjectsManager(Singleton):
     def __contains__(self, key: str) -> bool:
         return key in self.__object_classes.keys()
 
-    def get_object(self, object_name: str) -> Object:
+    def get_object(
+        self, object_name: str
+    ) -> Union[DrawableObject, EventfulObject, LogicalObject]:
         """Get an object."""
         return self._get_object_(object_name)
 

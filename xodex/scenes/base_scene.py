@@ -1,12 +1,12 @@
 import os
 from abc import ABC, abstractmethod
 from importlib import import_module
-from typing import Generator
+from typing import Union,    Generator
 
 import pygame
 from pygame.event import Event
 
-from xodex.objects import Objects
+from xodex.objects import Objects,DrawableObject,EventfulObject,LogicalObject
 from xodex.objects.manager import ObjectsManager
 
 __all__ = ("BaseScene",)
@@ -65,7 +65,7 @@ class BaseScene(ABC):
         """Return Object Manager"""
         return self._object
 
-    def get_object(self, object_name: str):
+    def get_object(self, object_name: str)->Union[DrawableObject, EventfulObject, LogicalObject]:
         """Get an object."""
         return ObjectsManager().get_object(object_name=object_name)
 
@@ -74,27 +74,27 @@ class BaseScene(ABC):
         """Return the Scene Screen Size"""
         return self._size
 
-    def draw(self) -> pygame.Surface:
+    def draw_scene(self, *args, **kwargs) -> pygame.Surface:
         """draw"""
         self._screen.fill((255, 255, 255))
-        self._objects.draw(self._screen)
+        self._objects.draw_object(self._screen, *args, **kwargs)
         return self._screen
 
-    def update(self, delta: float = 0.0) -> None:
+    def update_scene(self, delta: float = 0.0, *args, **kwargs) -> None:
         """update"""
-        self._objects.update(delta)
+        self._objects.update_object(delta, *args, **kwargs)
 
-    def handle(self, event: Event) -> None:
+    def handle_scene(self, event: Event, *args, **kwargs) -> None:
         """handle"""
         if event.type == pygame.VIDEORESIZE:
             self._on_resize(event.size)
-        self._objects.handle(event)
+        self._objects.handle_object(event, *args, **kwargs)
 
     def setup(self):
         """setup"""
         self._objects.clear()
-        if obj := self._generate_objects_():
-            self._objects.extend(list(obj))
+        if objects := self._generate_objects_():
+            self._objects.extend(list(objects))
 
         if self._debug:
             print(self._objects)

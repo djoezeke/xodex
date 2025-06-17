@@ -3,8 +3,17 @@ from pygame import Surface
 from xodex.utils.values import Values
 from xodex.core.singleton import Singleton
 from xodex.scenes.base_scene import BaseScene
-from xodex.contrib.main import XodexMainScene,XodexUIScene
+from xodex.contrib.mainscene import XodexMainScene
 from xodex.core.exceptions import NotRegistered, AlreadyRegistered, SceneError
+
+try :
+    import pygameui
+    HAS_PYGAMEUI = True
+except ImportError:
+    HAS_PYGAMEUI = False
+
+if HAS_PYGAMEUI:
+    from xodex.contrib.uiscene import XodexUIScene
 
 __all__ = ("SceneManager", "register")
 

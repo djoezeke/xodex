@@ -7,6 +7,7 @@ Defines base classes for game objects:
 """
 
 import time
+from typing import  Union
 from abc import ABC, abstractmethod
 
 from pygame import Surface
@@ -40,7 +41,7 @@ class LogicalObject(Object, ABC):
     update_enabled: bool = True  # Toggle updating on/off
     update_profile: bool = False  # Enable profiling of update time
 
-    def update(self, deltatime: float, *args, **kwargs) -> None:
+    def update_xodex_object(self, deltatime: float, *args, **kwargs) -> None:
         """
         Update the instance.
 
@@ -55,9 +56,9 @@ class LogicalObject(Object, ABC):
             time.perf_counter() if getattr(self, "update_profile", False) else None
         )
         try:
-            self._before_update_(*args, **kwargs)
-            self._perform_update_(deltatime, *args, **kwargs)
-            self._after_update_(*args, **kwargs)
+            self.before_update()
+            self.perform_update(deltatime, *args, **kwargs)
+            self.after_update(*args, **kwargs)
         except Exception as exc:
             self.on_update_error(exc)
         finally:
@@ -65,8 +66,8 @@ class LogicalObject(Object, ABC):
                 elapsed = time.perf_counter() - start_time
                 self.on_update_profile(elapsed, *args, **kwargs)
 
-    # @abstractmethod
-    def _perform_update_(self, deltatime: float, *args, **kwargs) -> None:
+    @abstractmethod
+    def perform_update(self, deltatime: float, *args, **kwargs) -> None:
         """
         Actual update logic. Must be implemented by subclass.
 
@@ -85,10 +86,10 @@ class LogicalObject(Object, ABC):
         """Disable logic updates for this object."""
         self.update_enabled = False
 
-    def _before_update_(self, *args, **kwargs) -> None:
+    def before_update(self) -> None:
         """Hook called before update. Override as needed."""
 
-    def _after_update_(self, *args, **kwargs) -> None:
+    def after_update(self) -> None:
         """Hook called after update. Override as needed."""
 
     def on_update_profile(self, elapsed: float, *args, **kwargs) -> None:
@@ -128,7 +129,7 @@ class DrawableObject(Object, ABC):
     draw_enabled: bool = True  # Toggle drawing on/off
     draw_profile: bool = False  # Enable profiling of draw time
 
-    def draw(self, surface: Surface, *args, **kwargs) -> None:
+    def draw_xodex_object(self, surface: Surface, *args, **kwargs) -> None:
         """
         Draw the object if visible.
 
@@ -144,9 +145,9 @@ class DrawableObject(Object, ABC):
             time.perf_counter() if getattr(self, "draw_profile", False) else None
         )
         try:
-            self._before_draw_(surface, *args, **kwargs)
-            self._perform_draw_(surface, *args, **kwargs)
-            self._after_draw_(surface, *args, **kwargs)
+            self.before_draw()
+            self.perform_draw(surface, *args, **kwargs)
+            self._after_draw_()
         except Exception as exc:
             self.on_draw_error(exc)
         finally:
@@ -154,8 +155,8 @@ class DrawableObject(Object, ABC):
                 elapsed = time.perf_counter() - start_time
                 self.on_draw_profile(elapsed, surface, *args, **kwargs)
 
-    # @abstractmethod
-    def _perform_draw_(self, surface: Surface, *args, **kwargs) -> None:
+    @abstractmethod
+    def perform_draw(self, surface: Surface, *args, **kwargs) -> None:
         """
         Actual drawing logic. Must be implemented by subclass.
 
@@ -175,10 +176,10 @@ class DrawableObject(Object, ABC):
         """
         self.visible = visible
 
-    def _before_draw_(self, surface: Surface, *args, **kwargs) -> None:
+    def before_draw(self) -> None:
         """Hook called before drawing. Override as needed."""
 
-    def _after_draw_(self, surface: Surface, *args, **kwargs) -> None:
+    def after_draw(self) -> None:
         """Hook called after drawing. Override as needed."""
 
     def on_draw_profile(
@@ -219,7 +220,7 @@ class EventfulObject(Object, ABC):
     event_profile: bool = False
     event_enabled: bool = True  # Toggle Interaction on/off
 
-    def handle(self, event: Event, *args, **kwargs) -> None:
+    def handle_xodex_event(self, event: Event, *args, **kwargs) -> None:
         """
         Handle an event.
 
@@ -235,9 +236,9 @@ class EventfulObject(Object, ABC):
             time.perf_counter() if getattr(self, "event_profile", False) else None
         )
         try:
-            self._before_event_(event, *args, **kwargs)
-            self._handle_event_(event, *args, **kwargs)
-            self._after_event_(event, *args, **kwargs)
+            self.before_event()
+            self.handle_event(event, *args, **kwargs)
+            self.after_event()
         except Exception as exc:
             self.on_event_error(exc)
         finally:
@@ -245,8 +246,8 @@ class EventfulObject(Object, ABC):
                 elapsed = time.perf_counter() - start_time
                 self.on_event_profile(elapsed, event, *args, **kwargs)
 
-    # @abstractmethod
-    def _handle_event_(self, event: Event, *args, **kwargs) -> None:
+    @abstractmethod
+    def handle_event(self, event: Event, *args, **kwargs) -> None:
         """
         Main event handler. Must be implemented by subclass.
 
@@ -257,10 +258,10 @@ class EventfulObject(Object, ABC):
         """
         raise NotImplementedError("`handle_event()` must be implemented.")
 
-    def _before_event_(self, event: Event, *args, **kwargs) -> None:
+    def before_event(self) -> None:
         """Hook called before event handling. Override as needed."""
 
-    def _after_event_(self, event: Event, *args, **kwargs) -> None:
+    def after_event(self) -> None:
         """Hook called after event handling. Override as needed."""
 
     def on_event_profile(self, elapsed: float, event: Event, *args, **kwargs) -> None:
@@ -295,7 +296,7 @@ def make_xodex_object(
     method_map: dict = None,
     hooks: dict = None,
     **kwargs,
-):
+)-> Union[DrawableObject, EventfulObject, LogicalObject]:
     """
     Dynamically create a Xodex-compatible object class from any user class.
 
@@ -371,8 +372,8 @@ def make_xodex_object(
         if hasattr(object_cls, old_name):
             method = getattr(object_cls, old_name)
             setattr(object_cls, new_name, method)
-            if old_name != new_name:
-                delattr(object_cls, old_name)
+            # if old_name != new_name:
+            #     delattr(object_cls, old_name)
 
     def rename_methods(object_cls):
         # Map user methods to Xodex expected names
@@ -387,8 +388,8 @@ def make_xodex_object(
             __rename_method__(object_cls, user_method, "perform_update")
 
     def decorator(object_cls):
-        # validate_methods(object_cls, base_classes, flags)
-        # rename_methods(object_cls)
+        validate_methods(object_cls, base_classes, flags)
+        rename_methods(object_cls)
 
         bases = base_classes + (object_cls,)
         object_name = name or object_cls.__name__

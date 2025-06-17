@@ -18,7 +18,7 @@ Author: Sackey Ezekiel Etrue (https://github.com/djoezeke) & Xodex Contributors
 License: MIT
 """
 
-from xodex.core import management
+from xodex.core.management import execute_from_command_line
 
 if __name__ == "__main__":
-    management.execute_from_command_line()
+    execute_from_command_line()

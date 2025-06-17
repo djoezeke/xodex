@@ -465,12 +465,16 @@ class ManagementUtility:
         )
         builder.build()
 
-    def generate(self, name, interactive, dry_run):
+    def generate(self, name:str, interactive, dry_run):
         """Generate a new game/project from template using ProjectGenerator."""
         context = {
             "project_name": name,
+            "year": "2025",
+            "project_name_upper": name.upper(),
             "xodex_argv": f"startgame {name}",
             "xodex_version": vernum,
+            "pygame_version": vernum,
+            "pygameui_version": vernum,
             "author": os.getenv("USERNAME") or os.getenv("USER") or "Unknown",
         }
         generator = ProjectGenerator(

@@ -88,18 +88,18 @@ class Game:
     def __process_all_events(self) -> None:
         for event in pygame.event.get():
 
-            SceneManager().current.handle(event)
+            SceneManager().current.handle_scene(event)
             self.__process_exit_events(event)
 
             if event.type == pygame.VIDEORESIZE:
                 self._on_resize(event.size)
 
     def __process_all_logic(self, delta: float = 0.0) -> None:
-        SceneManager().current.update(delta)
+        SceneManager().current.update_scene(delta)
 
     def __process_all_draw(self) -> None:
         self.__screen.fill((255, 55, 23))
-        self.__screen.blit(SceneManager().current.draw(), (0, 0))
+        self.__screen.blit(SceneManager().current.draw_scene(), (0, 0))
         # self._draw_debug_overlay()
         pygame.display.flip()
 
