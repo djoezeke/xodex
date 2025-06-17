@@ -4,5 +4,5 @@ from xodex.game.game import Game
 
 
 if __name__ == "__main__":
-    game = Game()
+    game = Game("{{ project_name }}")
     game.main_loop()

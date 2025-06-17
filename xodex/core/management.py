@@ -54,43 +54,45 @@ class ProjectBuilder:
 
         current_os = platform.system().lower()  # Determine the OS
 
-        main_py = os.path.join(self.project_dir, "__main__.py")
-        if not os.path.exists(main_py):
-            cprint(f"__main__.py not found in {self.project_dir}.", "RED")
-            return
+        main_py = os.path.join(self.project_name, "hello", "hello", "__main__.py")
+        # if not os.path.exists(main_py):
+        #     cprint(f"__main__.py not found in {main_py} {self.project_dir}.", "RED")
+        #     return
 
         pyinstaller_cmd = [
             sys.executable,
             "-m",
             "PyInstaller",
-            "--distpath",
-            os.path.join(self.project_dir, "dist"),
-            "--workpath",
-            os.path.join(self.project_dir, "build"),
-            "--specpath",
-            os.path.join(self.project_dir, "build"),
+            f"{main_py}",
+            # "--distpath",
+            # os.path.join(self.project_dir, "dist"),
+            # "--workpath",
+            # os.path.join(self.project_dir, "build"),
+            # "--specpath",
+            # os.path.join(self.project_dir, "build"),
         ]
 
         # Add OS-specific options if necessary
-        if current_os == "windows":
-            pyinstaller_cmd.append("--windowed")  # No console window for GUI apps
-        elif current_os == "linux":
-            # Add Linux-specific options if needed
-            pass
-        elif current_os == "darwin":  # macOS
-            # Add macOS-specific options if needed
-            pass
+        # if current_os == "windows":
+        #     pyinstaller_cmd.append("--windowed")  # No console window for GUI apps
+        # elif current_os == "linux":
+        #     # Add Linux-specific options if needed
+        #     pass
+        # elif current_os == "darwin":  # macOS
+        #     # Add macOS-specific options if needed
+        #     pass
 
         if self.onefile:
             pyinstaller_cmd.append("--onefile")
         if not self.console:
             pyinstaller_cmd.append("--noconsole")
-        pyinstaller_cmd.append(main_py)
+        # pyinstaller_cmd.append(main_py)
 
         if self.build_name:
-            pyinstaller_cmd.append(f"--name {self.build_name}")
+            pyinstaller_cmd.append(f"-n {self.build_name}")
 
         cprint(f"Building {self.build_name} executable...", "CYAN")
+        cprint(f"{self.pyinstaller_cmd}", "CYAN")
         try:
             result = subprocess.run(
                 pyinstaller_cmd,

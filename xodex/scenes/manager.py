@@ -1,8 +1,9 @@
 from pygame import Surface
 
+from xodex.utils.values import Values
 from xodex.core.singleton import Singleton
 from xodex.scenes.base_scene import BaseScene
-from xodex.contrib.main import XodexMainScene
+from xodex.contrib.main import XodexMainScene,UIScene
 from xodex.core.exceptions import NotRegistered, AlreadyRegistered, SceneError
 
 __all__ = ("SceneManager", "register")
@@ -20,9 +21,7 @@ class SceneManager(Singleton):
 
         # Register default scenes
         self.register(XodexMainScene, "XodexMainScene")
-
-    def __getattr__(self, object_name: str) -> BaseScene:
-        return self.__scene_classes.get(object_name, None)
+        self.register(UIScene, "UIScene")
 
     def __contains__(self, key: str) -> bool:
         return key in self.__scene_classes.keys()
@@ -31,6 +30,11 @@ class SceneManager(Singleton):
         return len(self.__scenes)
 
     # region Public
+
+    @property
+    def scene(self):
+        """Return Scen"""
+        return self.get_scenes()
 
     @property
     def current(self) -> BaseScene:
@@ -43,6 +47,10 @@ class SceneManager(Singleton):
     def get_scene(self, scene_name: str) -> BaseScene:
         """Get a registered scene class by name."""
         return self._get_scene_(scene_name)
+
+    def get_scenes(self) -> Values:
+        """Get All Scenes."""
+        return Values(self.__scene_classes)
 
     def process_update(self) -> None:
         """Update current scene."""
@@ -137,14 +145,15 @@ class SceneManager(Singleton):
     def register(self, scene_class: BaseScene, scene_name: str):
         """register a Scene Class"""
 
-        if isinstance(scene_class, BaseScene):
+        if issubclass(scene_class, BaseScene):
             if self.isregistered(scene_class):
                 msg = "The Scene %s is already registered "
                 raise AlreadyRegistered(msg)
 
             self.__scene_classes[scene_name] = scene_class
-        msg = "The Scene %s is not of type Scene."
-        raise SceneError(msg)
+        else:
+            msg = "The Scene %s is not of type Scene."
+            raise SceneError(msg)
 
     def unregister(self, scene_name: str) -> None:
         """unregister a Scene Class"""
