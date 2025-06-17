@@ -10,15 +10,26 @@ from xodex.scenes.manager import SceneManager
 
 # from xodex.core.localization import localize
 
+SCENES_MODULE_NAME = "scenes"
+OBJECTS_MODULE_NAME = "objects"
+
 
 class Game:
     """Game"""
 
-    def __init__(self) -> None:
+    def __init__(self, *args, game: str = "", **kwargs) -> None:
+
+        # Full Python path to the game event.g. 'hello.hello'.
+        self.game = game
+
         pygame.init()
 
+        if game:
+            os.environ.setdefault("XODEX_SETTINGS_MODULE", f"{game}.settings")
+
         xodex_settings = os.getenv("XODEX_SETTINGS_MODULE")
-        self.setting = import_module(xodex_settings)
+
+        self.setting = import_module(xodex_settings)  # TODO Fix import Error in build
 
         self._size = self.setting.WINDOW_SIZE or (560, 480)
         self._caption = self.setting.TITLE or "Xodex"
@@ -40,6 +51,8 @@ class Game:
         self.__clock = pygame.time.Clock()
         self._paused = False
 
+        # Whether the registry is populated.
+        self.ready = self.objects_ready = self.scenes_ready = False
 
         pygame.display.set_caption(self._caption)
         scene = SceneManager().get_scene(self._mainscene)
@@ -47,8 +60,8 @@ class Game:
 
     # region Exit
 
-    def __process_exit_events(self, e: Event) -> None:
-        if e.type == pygame.QUIT:
+    def __process_exit_events(self, event: Event) -> None:
+        if event.type == pygame.QUIT:
             self.exit_game()
 
     def exit_game(self) -> None:
@@ -73,13 +86,13 @@ class Game:
             self.__process_all_draw()
 
     def __process_all_events(self) -> None:
-        for e in pygame.event.get():
+        for event in pygame.event.get():
 
-            SceneManager().current.handle(e)
-            self.__process_exit_events(e)
+            SceneManager().current.handle(event)
+            self.__process_exit_events(event)
 
-            if e.type == pygame.VIDEORESIZE:
-                self._on_resize(e.size)
+            if event.type == pygame.VIDEORESIZE:
+                self._on_resize(event.size)
 
     def __process_all_logic(self, delta: float = 0.0) -> None:
         SceneManager().current.update(delta)
@@ -119,5 +132,38 @@ class Game:
 
     # region Private
 
+    def setup(self):
+        """Load registered scenes and objects."""
+        game_module = None
+
+        try:
+            game_module = import_module(self.game)
+        except Exception:
+            pass
+        else:
+            try:
+                objects_module = (
+                    game_module.__path__
+                    + "."
+                    + game_module.__name__
+                    + OBJECTS_MODULE_NAME
+                )
+                try:
+                    objects_module = import_module(objects_module)
+                except ImportError:
+                    pass  # Improperly Configured
+
+                scenes_module = (
+                    game_module.__path__
+                    + "."
+                    + game_module.__name__
+                    + SCENES_MODULE_NAME
+                )
+                try:
+                    scenes_module = import_module(scenes_module)
+                except ImportError:
+                    pass  # Improperly Configured
+            finally:
+                pass
 
     # endregion

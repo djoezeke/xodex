@@ -55,9 +55,9 @@ class LogicalObject(Object, ABC):
             time.perf_counter() if getattr(self, "update_profile", False) else None
         )
         try:
-            self.before_update(*args, **kwargs)
+            self._before_update_(*args, **kwargs)
             self.perform_update(deltatime, *args, **kwargs)
-            self.after_update(*args, **kwargs)
+            self._after_update_(*args, **kwargs)
         except Exception as exc:
             self.on_update_error(exc)
         finally:
@@ -85,10 +85,10 @@ class LogicalObject(Object, ABC):
         """Disable logic updates for this object."""
         self.update_enabled = False
 
-    def before_update(self, *args, **kwargs) -> None:
+    def _before_update_(self, *args, **kwargs) -> None:
         """Hook called before update. Override as needed."""
 
-    def after_update(self, *args, **kwargs) -> None:
+    def _after_update_(self, *args, **kwargs) -> None:
         """Hook called after update. Override as needed."""
 
     def on_update_profile(self, elapsed: float, *args, **kwargs) -> None:
@@ -144,9 +144,9 @@ class DrawableObject(Object, ABC):
             time.perf_counter() if getattr(self, "draw_profile", False) else None
         )
         try:
-            self.before_draw(surface, *args, **kwargs)
+            self._before_draw_(surface, *args, **kwargs)
             self.perform_draw(surface, *args, **kwargs)
-            self.after_draw(surface, *args, **kwargs)
+            self._after_draw_(surface, *args, **kwargs)
         except Exception as exc:
             self.on_draw_error(exc)
         finally:
@@ -175,10 +175,10 @@ class DrawableObject(Object, ABC):
         """
         self.visible = visible
 
-    def before_draw(self, surface: Surface, *args, **kwargs) -> None:
+    def _before_draw_(self, surface: Surface, *args, **kwargs) -> None:
         """Hook called before drawing. Override as needed."""
 
-    def after_draw(self, surface: Surface, *args, **kwargs) -> None:
+    def _after_draw_(self, surface: Surface, *args, **kwargs) -> None:
         """Hook called after drawing. Override as needed."""
 
     def on_draw_profile(
@@ -235,9 +235,9 @@ class EventfulObject(Object, ABC):
             time.perf_counter() if getattr(self, "event_profile", False) else None
         )
         try:
-            self.before_event(event, *args, **kwargs)
+            self._before_event_(event, *args, **kwargs)
             self.handle_event(event, *args, **kwargs)
-            self.after_event(event, *args, **kwargs)
+            self._after_event_(event, *args, **kwargs)
         except Exception as exc:
             self.on_event_error(exc)
         finally:
@@ -257,10 +257,10 @@ class EventfulObject(Object, ABC):
         """
         raise NotImplementedError("`handle_event()` must be implemented.")
 
-    def before_event(self, event: Event, *args, **kwargs) -> None:
+    def _before_event_(self, event: Event, *args, **kwargs) -> None:
         """Hook called before event handling. Override as needed."""
 
-    def after_event(self, event: Event, *args, **kwargs) -> None:
+    def _after_event_(self, event: Event, *args, **kwargs) -> None:
         """Hook called after event handling. Override as needed."""
 
     def on_event_profile(self, elapsed: float, event: Event, *args, **kwargs) -> None:

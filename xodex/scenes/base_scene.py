@@ -15,16 +15,23 @@ __all__ = ("BaseScene",)
 class BaseScene(ABC):
     """BaseScene"""
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs) -> "BaseScene":
         self.setting = import_module(os.getenv("XODEX_SETTINGS_MODULE"))
         self._size = self.setting.WINDOW_SIZE or (560, 480)
-        self._debug = self.setting.DEBUG or False
-
+        self._debug = self.setting.DEBUG or True
         self._start_time = pygame.time.get_ticks() / 1000
         self._screen = pygame.Surface(self._size)
         self._objects = Objects()
 
-        self.object = ObjectsManager()
+        self._object = ObjectsManager().get_objects()
+
+    def __str__(self):
+        """Return a string representation of the Scene."""
+        return f"<{self.__class__.__name__} Scene> elapsed: {self.elapsed}"
+
+    def __repr__(self):
+        """Return a string representation of the widget."""
+        return f"{self.__class__.__name__}()"
 
     # region Private
 
@@ -47,6 +54,25 @@ class BaseScene(ABC):
     def elapsed(self) -> float:
         """Elapsed time since scene started (seconds)."""
         return pygame.time.get_ticks() / 1000 - self._start_time
+
+    @property
+    def screen(self) -> pygame.Surface:
+        """Return the Scene Surface"""
+        return self._screen
+
+    @property
+    def object(self):
+        """Return Object Manager"""
+        return self._object
+
+    def get_object(self, object_name: str):
+        """Get an object."""
+        return ObjectsManager().get_object(object_name=object_name)
+
+    @property
+    def size(self) -> tuple[int, int]:
+        """Return the Scene Screen Size"""
+        return self._size
 
     def draw(self) -> pygame.Surface:
         """draw"""

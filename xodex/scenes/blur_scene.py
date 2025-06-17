@@ -1,7 +1,8 @@
 from abc import ABC
 from typing import Callable, Optional
+from PIL import Image, ImageFilter
 
-from pygame import Surface, time
+from pygame import Surface, time, image
 
 from .base_scene import BaseScene
 
@@ -14,16 +15,18 @@ class BlurScene(BaseScene, ABC):
     def __init__(
         self,
         blur_surface: Surface,
+        *args,
         blur_count: int = 1,
         blur_duration: float = 1.0,
         on_blur_complete: Optional[Callable] = None,
-    ):
-        super().__init__()
+        **kwargs,
+    ) -> "BlurScene":
+        super().__init__(*args, **kwargs)
         self._blur_count = blur_count
         self._blur_duration = blur_duration
         self._blur_finished = False
         self._on_blur_complete = on_blur_complete
-        # self._blur_surface = ImgObj(copy(blur_surface), (0, 0))
+        self._blur_surface = blur_surface
 
     def update(self, delta: float = 0.0) -> None:
         if not self._blur_finished:
@@ -32,14 +35,14 @@ class BlurScene(BaseScene, ABC):
                 (blur_time - self._start_time) * self._blur_count / self._blur_duration,
                 self._blur_count,
             )
-            # self._blur_surface.blur(min_blur)
+            self._blur_surface = self.blur(min_blur)
             self._blur_finished = min_blur == self._blur_count
             if self._blur_finished and self._on_blur_complete:
                 self._on_blur_complete()
         super().update(delta)
 
     def draw(self) -> Surface:
-        # self._blur_surface.draw(self._screen)
+        self._screen.blit(self._blur_surface, self._screen.get_rect())
         self._objects.draw(self._screen)
         return self._screen
 
@@ -51,3 +54,20 @@ class BlurScene(BaseScene, ABC):
     def is_blur_finished(self) -> bool:
         """Return True if bluring finished"""
         return self._blur_finished
+
+    # region Private
+
+    def blur(self, blur_count: int = 5) -> Surface:
+        """blur a surface"""
+        impil = Image.frombytes(
+            "RGBA",
+            self._blur_surface.get_size(),
+            image.tostring(self._blur_surface, "RGBA"),
+        )
+        impil = impil.filter(ImageFilter.GaussianBlur(radius=blur_count))
+        self._blur_surface = image.fromstring(
+            impil.tobytes(), impil.size, "RGBA"
+        ).convert()
+        return self._blur_surface
+
+    # endegion Private
