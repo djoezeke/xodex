@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xodex"
+dynamic = ["version"]
+description = "A modular, extensible Pygame game engine for rapid 2D game development."
+long_description = A modern Customizable Pygame Game engine.
+long_description_content_type = text/markdown
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["pygame"]
+authors = [
+  { name = "Sackey Ezekiel Etrue", email = "sackeyetrue@gmail.com" },
+  {name = "Xodex Contributers"},
+]
+maintainers = [
+  { name = "Sackey Ezekiel Etrue", email = "sackeyetrue@gmail.com" },
+]
+keywords = [
+  "pygame", "game engine", "2d", "xodex", "games", "engine", "framework"
+]
+classifiers = [
+  "Framework :: Xodex",
+  "Development Status :: 1 - Beta"
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Games/Entertainment",
+  "Topic :: Multimedia :: Graphics",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: Linux",
+  "Operating System :: MacOS",
+  "Operating System :: OS Independent",
+  "Typing :: Typed",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.scripts]
+xodex = "xodex.__main__:execute_from_command_line"
+
+[project.urls]
+Homepage = "https://github.com/djoezeke/xodex"
+Documentation = "https://github.com/djoezeke/xodex#readme"
+Issues = "https://github.com/djoezeke/xodex/issues"
+"Release Notes" = "https://github.com/djoezeke/xodex/releases"
+Source = "https://github.com/djoezeke/xodex"
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "black",
+  "isort"
+]
+docs = [
+  "sphinx",
+]
+
+[tool.setuptools]
+packages = ["xodex", "xodex.core", "xodex.objects", "xodex.scenes", "xodex.utils", "xodex.contrib", "xodex.game", "xodex.conf"]
+
+[tool.setuptools.packages.find]
+where=".",
+exclude=['test'],
+include=["xodex", "xodex.core", "xodex.objects", "xodex.scenes", "xodex.utils", "xodex.contrib", "xodex.game", "xodex.conf"]
+
+[tool.setuptools.package-data]
+"xodex.conf.locale" = ["*.json"]
+"xodex.conf.template" = ["**/*"]
+
+[tool.black]
+line-length = 120
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line-length = 120
+known_first_party = ["xodex"]
+skip_glob = "**/__init__.py"
+
+[tool.setuptools.dynamic]
+version = {attr = "xodex.__version__"}
