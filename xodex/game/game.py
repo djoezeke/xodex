@@ -38,6 +38,9 @@ class Game:
         self._debug = self.setting.DEBUG or False
         self._fullscreen = self.setting.FULLSCREEN or False
         self._mainscene = self.setting.MAIN_SCENE or "XodexMainScene"
+        self._show_fps = getattr(self.setting, "SHOW_FPS", False)
+        self._font = pygame.font.SysFont("Arial", 18)
+        self._debug_overlay = False
 
         self.__screen = pygame.display.set_mode(
             self._size, pygame.SCALED | pygame.RESIZABLE
@@ -75,6 +78,18 @@ class Game:
 
     # region Game Loop
 
+    def toggle_pause(self):
+        """Toggle pause state."""
+        self._paused = not self._paused
+
+    def toggle_debug_overlay(self):
+        """Toggle debug overlay display."""
+        self._debug_overlay = not self._debug_overlay
+
+    def reload_scene(self):
+        """Reload the current scene."""
+        SceneManager().reload_current()
+
     def main_loop(self) -> None:
         """Main game loop. Handles events, updates, and drawing."""
 
@@ -82,8 +97,13 @@ class Game:
             delta = self.__clock.tick(self.__fps) / 1000.0
 
             self.__process_all_events()
-            self.__process_all_logic(delta)
+            if not self._paused:
+                self.pre_update(delta)
+                self.__process_all_logic(delta)
+                self.post_update(delta)
+            self.pre_draw()
             self.__process_all_draw()
+            self.post_draw()
 
     def __process_all_events(self) -> None:
         for event in pygame.event.get():
@@ -100,8 +120,24 @@ class Game:
     def __process_all_draw(self) -> None:
         self.__screen.fill((255, 55, 23))
         self.__screen.blit(SceneManager().current.draw_scene(), (0, 0))
-        # self._draw_debug_overlay()
+        if self._show_fps:
+            fps = self.__clock.get_fps()
+            fps_surf = self._font.render(f"FPS: {fps:.1f}", True, (0, 0, 0))
+            self.__screen.blit(fps_surf, (10, 10))
+        if self._debug_overlay:
+            self._draw_debug_overlay()
         pygame.display.flip()
+
+    def _draw_debug_overlay(self):
+        """Draw debug info overlay."""
+        info = [
+            f"Paused: {self._paused}",
+            f"Scene: {type(SceneManager().current).__name__}",
+            f"Objects: {len(getattr(SceneManager().current, '_objects', []))}",
+        ]
+        for i, line in enumerate(info):
+            surf = self._font.render(line, True, (0, 0, 0))
+            self.__screen.blit(surf, (10, 30 + i * 20))
 
     def _on_resize(self, size):
         """Handle window resize event."""
@@ -133,37 +169,41 @@ class Game:
     # region Private
 
     def setup(self):
-        """Load registered scenes and objects."""
-        game_module = None
+        """Load and register all scenes and objects before running the game."""
+        import logging
 
+        # 1. Register built-in objects and scenes
         try:
-            game_module = import_module(self.game)
-        except Exception:
-            pass
-        else:
-            try:
-                objects_module = (
-                    game_module.__path__
-                    + "."
-                    + game_module.__name__
-                    + OBJECTS_MODULE_NAME
-                )
-                try:
-                    objects_module = import_module(objects_module)
-                except ImportError:
-                    pass  # Improperly Configured
+            import xodex.objects.objects
+            import xodex.scenes.manager
+            logging.info("Registered built-in objects and scenes.")
+        except Exception as e:
+            logging.error(f"Failed to register built-in objects/scenes: {e}")
 
-                scenes_module = (
-                    game_module.__path__
-                    + "."
-                    + game_module.__name__
-                    + SCENES_MODULE_NAME
-                )
+        # 2. Register user/project objects and scenes if available
+        try:
+            # Try to import user project modules for registration
+            game_module = import_module(self.game)
+            try:
+                # Try to import objects registration
                 try:
-                    scenes_module = import_module(scenes_module)
+                    import_path = f"{game_module.__name__}.objects.objects"
+                    import_module(import_path)
+                    logging.info(f"Registered user objects from {import_path}")
                 except ImportError:
-                    pass  # Improperly Configured
-            finally:
-                pass
+                    logging.warning("No user objects module found.")
+
+                # Try to import scenes registration
+                try:
+                    import_path = f"{game_module.__name__}.scenes.scenes"
+                    import_module(import_path)
+                    logging.info(f"Registered user scenes from {import_path}")
+                except ImportError:
+                    logging.warning("No user scenes module found.")
+
+            except Exception as e:
+                logging.error(f"Error registering user objects/scenes: {e}")
+        except Exception as e:
+            logging.warning(f"No user game module found: {e}")
 
     # endregion

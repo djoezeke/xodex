@@ -391,6 +391,14 @@ class ManagementUtility:
             help="What to help with.",
         )
 
+        # Add new subcommands
+        parser_pause = subparsers.add_parser("pause", help="Pause the game")
+        parser_resume = subparsers.add_parser("resume", help="Resume the game")
+        parser_reload = subparsers.add_parser("reloadscene", help="Reload current scene")
+        parser_debug = subparsers.add_parser("toggledebug", help="Toggle debug overlay")
+        parser_fps = subparsers.add_parser("showfps", help="Toggle FPS display")
+        parser_list = subparsers.add_parser("listscenes", help="List all registered scenes")
+
         # Parse the CLI arguments
         args = parser.parse_args(self.argv[1:])
 
@@ -430,6 +438,26 @@ class ManagementUtility:
                 console=args.noconsole,
                 interactive=args.interactive,
             )
+            return
+
+        # Handle new subcommands
+        if args.subcommand == "pause":
+            self.pause_game()
+            return
+        if args.subcommand == "resume":
+            self.resume_game()
+            return
+        if args.subcommand == "reloadscene":
+            self.reload_scene()
+            return
+        if args.subcommand == "toggledebug":
+            self.toggle_debug()
+            return
+        if args.subcommand == "showfps":
+            self.toggle_fps()
+            return
+        if args.subcommand == "listscenes":
+            self.list_scenes()
             return
 
         # Help Utilities
@@ -473,7 +501,7 @@ class ManagementUtility:
             "project_name_upper": name.upper(),
             "xodex_argv": f"startgame {name}",
             "xodex_version": vernum,
-            "pygame_version": vernum,
+            "pygame_version": "2.6.1",
             "pygameui_version": vernum,
             "author": os.getenv("USERNAME") or os.getenv("USER") or "Unknown",
         }
@@ -504,6 +532,34 @@ Available commands:
   version              Show version information
 """
         print(help_text)
+
+    def pause_game(self):
+        Game().toggle_pause()
+        cprint("Game paused.", "CYAN")
+
+    def resume_game(self):
+        Game().toggle_pause()
+        cprint("Game resumed.", "CYAN")
+
+    def reload_scene(self):
+        Game().reload_scene()
+        cprint("Scene reloaded.", "CYAN")
+
+    def toggle_debug(self):
+        Game().toggle_debug_overlay()
+        cprint("Toggled debug overlay.", "CYAN")
+
+    def toggle_fps(self):
+        game = Game()
+        game._show_fps = not game._show_fps
+        cprint(f"Show FPS: {game._show_fps}", "CYAN")
+
+    def list_scenes(self):
+        from xodex.scenes.manager import SceneManager
+        scenes = SceneManager().list_scenes()
+        cprint("Registered scenes:", "CYAN")
+        for scene in scenes:
+            cprint(f"  {scene}", "CYAN")
 
 
 def execute_from_command_line(argv=None):
