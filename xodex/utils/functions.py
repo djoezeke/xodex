@@ -60,7 +60,18 @@ def loadsound(filename: str) -> pygame.mixer.Sound:
 
 
 def loadimage(filename: str,surface=True, scale: int = 1, colorkey: Color = None) -> Surface:
-    """loadimage"""
+    """
+    Load an image with error handling and optional scaling.
+
+    Args:
+        image_path (str): Path to the image file
+        scale (Tuple[int, int], optional): Target size to scale the image to
+
+    Returns:
+        pygame.Surface: Loaded and optionally scaled image
+    Raises:
+        FileNotFoundError: If the image file doesn't exist
+    """
 
     try:
         if not os.path.isfile(filename):
@@ -74,7 +85,7 @@ def loadimage(filename: str,surface=True, scale: int = 1, colorkey: Color = None
         return image if surface else Image(image)
     except pygame.error as e:
         print(f"Error loading image {filename}: {e}")
-        return Surface((0, 0)) if surface else Image(Surface((0,0)))
+        return Surface((100, 100)) if surface else Image(Surface((0,0)))
 
 
 def loadgif(filename: str,surface=True) -> list[Surface]:
@@ -317,35 +328,6 @@ def draw_text_centered(surface, text, font, color, center):
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect(center=center)
     surface.blit(text_surface, text_rect)
-
-
-def load_image(
-    image_path: str, scale: Optional[Tuple[int, int]] = None
-) -> pygame.Surface:
-    """
-    Load an image with error handling and optional scaling.
-
-    Args:
-        image_path (str): Path to the image file
-        scale (Tuple[int, int], optional): Target size to scale the image to
-
-    Returns:
-        pygame.Surface: Loaded and optionally scaled image
-    Raises:
-        FileNotFoundError: If the image file doesn't exist
-    """
-    try:
-        if not os.path.exists(image_path):
-            raise FileNotFoundError(f"Image file not found: {image_path}")
-        image = pygame.image.load(image_path).convert_alpha()
-        if scale:
-            image = pygame.transform.scale(image, scale)
-        return image
-    except pygame.error as e:
-        print(f"Error loading image {image_path}: {e}")
-        # Return a placeholder surface if loading fails
-        return pygame.Surface((100, 100) if not scale else scale)
-
 
 def check_collision(rect1: pygame.Rect, rect2: pygame.Rect, buffer: int = 0) -> bool:
     """

@@ -40,7 +40,8 @@ class Image(DrawableObject):
     def __copy__(self) -> "Image":
         return Image(self._image)
 
-    def __deepcopy__(self, memo) -> "Image": ...
+    def __deepcopy__(self, memo) -> "Image":
+        return Image(self._image)
 
     @property
     def image(self):
