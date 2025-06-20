@@ -30,7 +30,9 @@ class SceneManager(Singleton):
 
         # Register default scenes
         self.register(XodexMainScene, "XodexMainScene")
-        self.register(XodexUIScene, "XodexUIScene")
+        
+        if HAS_PYGAMEUI:
+            self.register(XodexUIScene, "XodexUIScene")
 
     def __contains__(self, key: str) -> bool:
         return key in self.__scene_classes.keys()

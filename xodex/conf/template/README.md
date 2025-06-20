@@ -67,11 +67,9 @@ The game ends when the Tetris playfield is filled.
 │   ├── __main__.py        # Entry point to run project as module.
 │   ├── settings.py        # Project Configurations and Settings. 
 │   ├── objects            # Directory to Create and Register Objects.
-│   │   ├── __init__.py
-│   │   └── objects.py     # To Register Project Game Objects.
+│   │   └── __init__.py    # To Register Project Game Objects.   
 │   └── scenes             # Directory to create and register Scenes.
-│       ├── __init__.py
-│       └── scenes.py      # To Register Project Game Scenes.
+│       └── __init__.py    # To Register Project Game Scenes.
 ├── manage.py              # Project Management utilities. 
 ├── requirements.txt       # Project dependencies.
 ├── .gitignore             # Files to ignore in Git.
