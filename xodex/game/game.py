@@ -17,15 +17,15 @@ OBJECTS_MODULE_NAME = "objects"
 class Game:
     """Game"""
 
-    def __init__(self, *args, game: str = "", **kwargs) -> None:
+    def __init__(self,game: str = "", *args,  **kwargs) -> None:
 
         # Full Python path to the game event.g. 'hello.hello'.
         self.game = game
 
         pygame.init()
 
-        if game:
-            os.environ.setdefault("XODEX_SETTINGS_MODULE", f"{game}.settings")
+        if not self.game == "":
+            os.environ.setdefault("XODEX_SETTINGS_MODULE", f"{self.game}.settings")
 
         xodex_settings = os.getenv("XODEX_SETTINGS_MODULE")
 
@@ -94,7 +94,7 @@ class Game:
         """Main game loop. Handles events, updates, and drawing."""
 
         while True:
-            delta = self.__clock.tick(self.__fps) / 1000.0
+            delta = self.__clock.tick(self.__fps)
 
             self.__process_all_events()
             if not self._paused:
@@ -114,7 +114,7 @@ class Game:
             if event.type == pygame.VIDEORESIZE:
                 self._on_resize(event.size)
 
-    def __process_all_logic(self, delta: float = 0.0) -> None:
+    def __process_all_logic(self, delta: float) -> None:
         SceneManager().current.update_scene(delta)
 
     def __process_all_draw(self) -> None:

@@ -80,9 +80,9 @@ class BaseScene(ABC):
         self._objects.draw_object(self._screen, *args, **kwargs)
         return self._screen
 
-    def update_scene(self, delta: float = 0.0, *args, **kwargs) -> None:
+    def update_scene(self, deltatime: float, *args, **kwargs) -> None:
         """update"""
-        self._objects.update_object(delta, *args, **kwargs)
+        self._objects.update_object(deltatime, *args, **kwargs)
 
     def handle_scene(self, event: Event, *args, **kwargs) -> None:
         """handle"""

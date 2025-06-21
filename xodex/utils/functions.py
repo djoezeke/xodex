@@ -2,11 +2,11 @@ import os
 import PIL
 import PIL.Image
 import json
-from typing import Tuple, Optional,overload
+from typing import Tuple, Union,overload
 
 import pygame
 from pygame import Color,Surface
-from xodex.objects.image import Image
+# from xodex.objects.image import Image
 
 # --- GAME WINDOW ---
 # region Window
@@ -82,10 +82,10 @@ def loadimage(filename: str,surface=True, scale: int = 1, colorkey: Color = None
             if colorkey == -1:
                 colorkey = image.get_at((0, 0))
                 image.set_colorkey(colorkey, pygame.RLEACCEL)
-        return image if surface else Image(image)
+        return image # if surface else Image(image)
     except pygame.error as e:
         print(f"Error loading image {filename}: {e}")
-        return Surface((100, 100)) if surface else Image(Surface((0,0)))
+        return Surface((100, 100)) # if surface else Image(Surface((0,0)))
 
 
 def loadgif(filename: str,surface=True) -> list[Surface]:
@@ -197,33 +197,37 @@ def loadmap(filename: str) -> dict:
         print(f"Error loading tile map {filename}: {e}")
         return {}
 
+def splitsheet(sheet: Union[str, Surface],frame_size: tuple[int,int] = (64, 80),num_frames: int = None):
+    """frames"""
 
-def splitsheet(sheet: str, grid: tuple[int,int]) -> list[Surface]:
-    """splitsheet"""
-    frames: list[Surface] = []
+    if isinstance(sheet, str):
+        sheet = loadimage(sheet)
+    elif isinstance(sheet, Surface):
+        sheet = sheet
 
-    if isinstance(sheet,Surface):
-        image = sheet
-    elif isinstance(sheet,Image):
-        image = sheet.image
-    else:
-        image = loadimage(sheet)
+    frames: list = []
+    sheet_width, sheet_height =sheet.get_size()
 
-    sheet_width, sheet_height = image.get_size()
-
-    cols = int(grid[0])
-    rows = int(grid[1])
-
-    x_size = int(sheet_width / cols)
-    y_size = int(sheet_height / rows)
+    cols = sheet_width // frame_size[0]
+    rows = sheet_height // frame_size[1]
+    count = 0
 
     for y in range(rows):
-        for x in range(cols):
-            rect = pygame.Rect(x * x_size, y * y_size, x_size, y_size)
-            frame = image.subsurface(rect).copy()
-            frames.append(frame)
+            for x in range(cols):
+                if num_frames is not None and count >= num_frames:
+                    break
+                rect = pygame.Rect(
+                    x * frame_size[0],
+                    y * frame_size[1],
+                    frame_size[0],
+                    frame_size[1],
+                )
+                frame = sheet.subsurface(rect).copy()
+                frames.append(frame)
+                count += 1
+            if num_frames is not None and count >= num_frames:
+                break
     return frames
-
 
 def fadescreen(screen: pygame.Surface, fade_speed: int = 5) -> None:
     """Create a fade-to-black effect on the screen."""
