@@ -1,24 +1,50 @@
-"""SpriteSheet"""
+"""Animator
 
-from typing import overload
+Provides animation logic for a sequence of frames (pygame.Surface).
+Supports looping, ping-pong, reverse, and callbacks on finish.
+"""
+
+from typing import Callable, Optional, List
 import pygame
 from pygame import Surface
-from xodex.objects.objects import DrawableObject,EventfulObject,LogicalObject
+from xodex.objects.objects import DrawableObject, EventfulObject, LogicalObject
 
-class Animator(DrawableObject,EventfulObject,LogicalObject):
-    """Animator"""
+class Animator(DrawableObject, EventfulObject, LogicalObject):
+    """
+    Handles frame-based animation logic.
+
+    Args:
+        frames (List[Surface]): List of animation frames.
+        frame_duration (int): Duration of each frame in ms.
+        loop (bool): Whether to loop the animation.
+        pingpong (bool): Whether to ping-pong the animation.
+        reverse (bool): Whether to play in reverse.
+        on_finish (Optional[Callable]): Callback when animation finishes.
+
+    Attributes:
+        _frames (List[Surface]): Animation frames.
+        _frame_duration (int): Duration per frame in ms.
+        _current_frame (int): Current frame index.
+        _time_accum (float): Accumulated time for frame switching.
+        _loop (bool): Loop flag.
+        _pingpong (bool): Ping-pong flag.
+        _reverse (bool): Reverse flag.
+        _on_finish (Optional[Callable]): Finish callback.
+        _finished (bool): Animation finished flag.
+        _direction (int): Animation direction (1 or -1).
+    """
 
     def __init__(
         self,
-        frames: list[Surface],
-        frame_duration=100,
-        loop=True,
-        pingpong=False,
-        reverse=False,
-        on_finish=None,
+        frames: List[Surface],
+        frame_duration: int = 100,
+        loop: bool = True,
+        pingpong: bool = False,
+        reverse: bool = False,
+        on_finish: Optional[Callable] = None,
     ):
-        self._frames: list[Surface] = frames  # list of surfaces
-        self._frame_duration = frame_duration  # ms per frame
+        self._frames: List[Surface] = frames
+        self._frame_duration = frame_duration
         self._current_frame = 0
         self._time_accum = 0
         self._loop = loop
@@ -38,96 +64,105 @@ class Animator(DrawableObject,EventfulObject,LogicalObject):
         return bool(self._frames)
 
     def __len__(self):
-        """return number of frames in sheet"""
+        """Return number of frames."""
         return len(self._frames)
 
     def __repr__(self):
         return f"<{self.__class__.__name__}({len(self)} frames)>"
 
     def reset(self):
-        """reset"""
+        """Reset animation to start."""
         self._current_frame = 0 if self._direction == 1 else len(self._frames) - 1
         self._time_accum = 0
         self._finished = False
 
-    def get_image(self):
-        """get_image"""
+    def get_image(self) -> Optional[Surface]:
+        """Get the current frame's image."""
         if not self._frames:
             return None
         return self._frames[self._current_frame]
 
-    def is_finished(self):
-        """is_finished"""
+    def is_finished(self) -> bool:
+        """Check if animation is finished."""
         return self._finished
 
-    def set_reverse(self, reverse=True):
-        """set_reverse"""
+    def set_reverse(self, reverse: bool = True):
+        """Set animation to play in reverse."""
         self._reverse = reverse
         self._direction = -1 if reverse else 1
 
-    def set_loop(self, loop=True):
-        """set_loop"""
+    def set_loop(self, loop: bool = True):
+        """Enable or disable looping."""
         self._loop = loop
 
-    def set_pingpong(self, pingpong=True):
-        """set_pingpong"""
+    def set_pingpong(self, pingpong: bool = True):
+        """Enable or disable ping-pong mode."""
         self._pingpong = pingpong
 
-    def set_on_finish(self, callback):
-        """set_on_finish"""
+    def set_on_finish(self, callback: Callable):
+        """Set callback for when animation finishes."""
         self._on_finish = callback
 
-    def set_frame_duration(self, duration):
-        """set_frame_duration"""
+    def set_frame_duration(self, duration: int):
+        """Set duration per frame in ms."""
         self._frame_duration = duration
 
-    def set_frame(self, frame_idx):
-        """set_frame"""
+    def set_frame(self, frame_idx: int):
+        """Set the current frame index."""
         if 0 <= frame_idx < len(self._frames):
             self._current_frame = frame_idx
 
-    def get_frame(self):
-        """get_frame"""
+    def get_frame(self) -> int:
+        """Get the current frame index."""
         return self._current_frame
 
-    def get_num_frames(self):
-        """get_num_frames"""
+    def get_num_frames(self) -> int:
+        """Get the total number of frames."""
         return len(self._frames)
 
-    def set_frames(self, frames: list[Surface]):
-        """set_frames"""
+    def set_frames(self, frames: List[Surface]):
+        """Set the animation frames and reset."""
         self._frames = frames
         self.reset()
 
     def set_speed(self, fps: int):
-        """set_speed"""
+        """Set animation speed in frames per second."""
         self._frame_duration = int(1000 / fps)
 
     def play(self):
-        """play"""
+        """Resume animation."""
         self._finished = False
 
     def stop(self):
-        """stop"""
+        """Pause animation."""
         self._finished = True
 
-    def goto_and_play(self, frame_idx):
-        """goto_and_play"""
+    def goto_and_play(self, frame_idx: int):
+        """Jump to frame and play."""
         self.set_frame(frame_idx)
         self.play()
 
-    def goto_and_stop(self, frame_idx):
-        """goto_and_stop"""
+    def goto_and_stop(self, frame_idx: int):
+        """Jump to frame and stop."""
         self.set_frame(frame_idx)
         self.stop()
 
     def perform_draw(self, surface: Surface, *args, **kwargs) -> None:
-        """perform_draw"""
+        """
+        Draw the current frame onto a surface.
+
+        Args:
+            surface (Surface): The target surface.
+        """
         self.get_image().perform_draw(surface)
 
     def perform_update(self, deltatime: float, *args, **kwargs) -> None:
-        """perform_update"""
+        """
+        Update the animation state.
 
+        Args:
+            deltatime (float): Time since last update in ms.
+        """
         if self._finished or len(self._frames) == 0:
             return
         self._time_accum += deltatime
@@ -156,4 +191,5 @@ class Animator(DrawableObject,EventfulObject,LogicalObject):
                         )
 
     def handle_event(self, event: pygame.event.Event, *args, **kwargs) -> None:
-        """handle_event"""
+        """Handle pygame events (stub for extension)."""
+        pass
