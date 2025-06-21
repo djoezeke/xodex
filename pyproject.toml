@@ -6,8 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "xodex"
 dynamic = ["version"]
 description = "A modular, extensible Pygame game engine for rapid 2D game development."
-long_description = A modern Customizable Pygame Game engine.
-long_description_content_type = text/markdown
+long_description = "A modern Customizable Pygame Game engine."
+long_description_content_type = "text/markdown"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = ["pygame"]
@@ -62,9 +62,6 @@ dev = [
 docs = [
   "sphinx",
 ]
-
-[tool.setuptools]
-packages = ["xodex", "xodex.core", "xodex.objects", "xodex.scenes", "xodex.utils", "xodex.contrib", "xodex.game", "xodex.conf"]
 
 [tool.setuptools.packages.find]
 where=".",

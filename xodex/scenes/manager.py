@@ -13,7 +13,7 @@ except ImportError:
     HAS_PYGAMEUI = False
 
 if HAS_PYGAMEUI:
-    from xodex.contrib.uiscene import XodexUIScene
+    from xodex.contrib.pygameui.uiscene import XodexUIScene
 
 __all__ = ("SceneManager", "register")
 
