@@ -1,4 +1,7 @@
+import os
+from importlib import import_module
 from typing import Optional, Callable, Any
+
 import pygame
 from pygame.mixer import Sound, Channel
 
@@ -13,10 +16,15 @@ class Sounds(Singleton):
     """
 
     def __init__(self):
+        # self.setting = import_module(os.getenv("XODEX_SETTINGS_MODULE"))
+        # self.sound_folder = self.setting.SOUND_DIR or ""
+
+        self.sound_folder = "."
+
         self.__sounds: dict[str, Sound] = {}
         self.__channels: dict[str, Channel] = {}
+        self.preload_sounds(self.sound_folder)
         self._channel_count = 0
-        self._sound_callbacks: dict[str, list[Callable[[str], Any]]] = {}
 
     def __len__(self) -> int:
         return len(self.__sounds)
@@ -36,9 +44,24 @@ class Sounds(Singleton):
             print(f"Error playing music: {e}")
             return False
 
+
+    # region Music 
+
+    def play_music(self, loops: int = 0, start: float = 0, fade_ms: int = 0):
+        """Unpause background music."""
+        pygame.mixer.music.play(loops,start,fade_ms)
+
+    def load_music(self,filename:str):
+        """Load background music."""
+        pygame.mixer.music.load(os.path.join(self.sound_folder, filename))
+
     def stop_music(self):
         """Stop playing background music."""
         pygame.mixer.music.stop()
+
+    def set_music_volume(self,volume:float):
+        """Pause background music."""
+        pygame.mixer.music.set_volume(max(0.0, min(1.0, volume)))
 
     def pause_music(self):
         """Pause background music."""
@@ -47,6 +70,54 @@ class Sounds(Singleton):
     def unpause_music(self):
         """Unpause background music."""
         pygame.mixer.music.unpause()
+
+    # endregion Music
+
+    # region Sound
+
+    def play(self, sound: str, channel: str = "", loops: int = 0, maxtime: int = 0, fade_ms: int = 0) -> Optional[Channel]:
+        """
+        Play a sound by name, optionally on a named channel.
+        """
+        try:
+            if channel == "":
+                ch = self.__sounds[sound].play(loops, maxtime, fade_ms)
+            else:
+                ch = self.__channels[channel].play(self.__sounds[sound], loops, maxtime, fade_ms)
+            return ch
+        except KeyError:
+            print(f"Sound or channel '{sound}'/'{channel}' not found.")
+            return None
+
+    def load(self,filename:str,sound_name:str=""):
+        """Load background music."""
+        if filename in os.listdir(self.sound_folder):
+            try:
+                sound = Sound(os.path.join(self.sound_folder, filename))
+                if sound_name== "":
+                    self.register(sound, os.path.splitext(filename)[0])
+                else:
+                    self.register(sound, sound_name)
+            except Exception as e:
+                print(f"Failed to load sound {filename}: {e}")
+
+    def stop(self):
+        """Stop playing background music."""
+        pygame.mixer.music.stop()
+
+    def set_volume(self,volume:float):
+        """Pause background music."""
+        pygame.mixer.music.set_volume(max(0.0, min(1.0, volume)))
+
+    def pause(self):
+        """Pause background music."""
+        pygame.mixer.music.pause()
+
+    def unpause(self):
+        """Unpause background music."""
+        pygame.mixer.music.unpause()
+
+    # endregion Sound
 
     def pause_all(self):
         """Pause all channels."""
@@ -216,7 +287,6 @@ class Sounds(Singleton):
         """
         Preload all sounds from a directory with given extensions.
         """
-        import os
         for fname in os.listdir(directory):
             if fname.endswith(extensions):
                 try:
@@ -233,24 +303,6 @@ class Sounds(Singleton):
         self.__channels.clear()
         self._channel_count = 0
 
-    def on_play(self, sound_name: str, callback: Callable[[str], Any]):
-        """
-        Register a callback to be called when a sound is played.
-        """
-        if sound_name not in self._sound_callbacks:
-            self._sound_callbacks[sound_name] = []
-        self._sound_callbacks[sound_name].append(callback)
-
-    def _trigger_callbacks(self, sound_name: str):
-        """
-        Internal: trigger callbacks for a sound.
-        """
-        for cb in self._sound_callbacks.get(sound_name, []):
-            try:
-                cb(sound_name)
-            except Exception as e:
-                print(f"Callback error for sound '{sound_name}': {e}")
-
     def info(self) -> dict:
         """
         Get a summary of the current sound system state.
@@ -258,5 +310,9 @@ class Sounds(Singleton):
         return {
             "sounds": self.list_sounds(),
             "channels": self.list_channels(),
-            "channel_count": self._channel_count,
         }
+
+sound = Sounds()
+print(sound.info())
+print(sound.info())
+print(sound.info())

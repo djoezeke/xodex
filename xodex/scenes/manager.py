@@ -233,7 +233,7 @@ def register(cls, *, name: str = None):
     """
 
     def decorator(scene_cls):
-        scene_name = name or scene_cls.__name__
+        scene_name = name or scene_cls.__class__.__name__
         SceneManager().register(scene_cls, scene_name)
         return scene_cls
 

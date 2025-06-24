@@ -28,8 +28,8 @@ class Image(DrawableObject):
         _img_rect (pygame.Rect): The rectangle representing the image's position and size.
     """
 
-    @overload
-    def __init__(self, image: Union[str, Surface] = None) -> None: ...
+    # @overload
+    # def __init__(self, image: Union[str, Surface] = None) -> None: ...
 
     def __init__(
         self, image: Union[str, Surface] = None, pos: Tuple[int, int] = (0, 0)
@@ -60,19 +60,26 @@ class Image(DrawableObject):
 
     @property
     def rect(self) -> pygame.Rect:
-        """Return the pygame.Rect of the image."""
+        """Get or Set the rect of the image."""
         return self._img_rect
+
+    @rect.setter
+    def rect(self,new_rect:pygame.Rect) -> None:
+        self._img_rect = new_rect
 
     @property
     def position(self) -> Tuple[int, int]:
-        """Get the (x, y) position of the image."""
+        """Get or Set the (x, y) position of the image."""
         return (self._img_rect.x, self._img_rect.y)
-
+    
     @position.setter
     def position(self, x: int, y: int):
-        """Set the (x, y) position of the image."""
         self._img_rect.x = x
         self._img_rect.y = y
+
+    def pos(self, pos:Tuple[int,int]):
+        self._img_rect.x = pos[0]
+        self._img_rect.y = pos[1]
 
     def scale(self, x: float, y: float) -> "Image":
         """

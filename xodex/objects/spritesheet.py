@@ -157,6 +157,7 @@ class SheetAnimator(Animator):
         pingpong: bool = False,
         reverse: bool = False,
         on_finish: Optional[callable] = None,
+        **kwargs
     ):
         super().__init__(
             SpriteSheet(sheet, (frame_width, frame_height), num_frames).frames(),
@@ -165,4 +166,5 @@ class SheetAnimator(Animator):
             pingpong,
             reverse,
             on_finish,
+            **kwargs
         )

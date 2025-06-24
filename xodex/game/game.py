@@ -17,7 +17,7 @@ OBJECTS_MODULE_NAME = "objects"
 class Game:
     """Game"""
 
-    def __init__(self,game: str = "", *args,  **kwargs) -> None:
+    def __init__(self, game: str = "", *args, **kwargs) -> None:
 
         # Full Python path to the game event.g. 'hello.hello'.
         self.game = game
@@ -34,7 +34,7 @@ class Game:
         self._size = self.setting.WINDOW_SIZE or (560, 480)
         self._caption = self.setting.TITLE or "Xodex"
         self._icon = self.setting.ICON_PATH or "Xodex"
-        self.__fps = self.setting.FPS or 60
+        self._fps = self.setting.FPS or 60
         self._debug = self.setting.DEBUG or False
         self._fullscreen = self.setting.FULLSCREEN or False
         self._mainscene = self.setting.MAIN_SCENE or "XodexMainScene"
@@ -42,14 +42,10 @@ class Game:
         self._font = pygame.font.SysFont("Arial", 18)
         self._debug_overlay = False
 
-        self.__screen = pygame.display.set_mode(
-            self._size, pygame.SCALED | pygame.RESIZABLE
-        )
+        self.__screen = pygame.display.set_mode(self._size, pygame.SCALED | pygame.RESIZABLE)
 
         if self._fullscreen:
-            self.__screen = pygame.display.set_mode(
-                self._size, pygame.SCALED | pygame.RESIZABLE | pygame.FULLSCREEN
-            )
+            self.__screen = pygame.display.set_mode(self._size, pygame.SCALED | pygame.RESIZABLE | pygame.FULLSCREEN)
 
         self.__clock = pygame.time.Clock()
         self._paused = False
@@ -94,7 +90,7 @@ class Game:
         """Main game loop. Handles events, updates, and drawing."""
 
         while True:
-            delta = self.__clock.tick(self.__fps)
+            delta = self.__clock.tick(self._fps)
 
             self.__process_all_events()
             if not self._paused:
@@ -142,9 +138,7 @@ class Game:
     def _on_resize(self, size):
         """Handle window resize event."""
         self._size = size
-        self.__screen = pygame.display.set_mode(
-            self._size, pygame.SCALED | pygame.RESIZABLE
-        )
+        self.__screen = pygame.display.set_mode(self._size, pygame.SCALED | pygame.RESIZABLE)
         if self._debug:
             print(f"Window resized to: {self._size}")
 
@@ -176,6 +170,7 @@ class Game:
         try:
             import xodex.objects.objects
             import xodex.scenes.manager
+
             logging.info("Registered built-in objects and scenes.")
         except Exception as e:
             logging.error(f"Failed to register built-in objects/scenes: {e}")

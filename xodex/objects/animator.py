@@ -1,12 +1,15 @@
 """Animator
 
-Provides animation logic for a sequence of frames (pygame.Surface).
+Provides animation logic for a sequence of frames (Image or pygame.Surface).
 Supports looping, ping-pong, reverse, and callbacks on finish.
 """
 
-from typing import Callable, Optional, List
+from typing import Callable, Optional,Tuple,  List, Union
 import pygame
+
 from pygame import Surface
+
+from xodex.objects.image import Image
 from xodex.objects.objects import DrawableObject, EventfulObject, LogicalObject
 
 class Animator(DrawableObject, EventfulObject, LogicalObject):
@@ -36,14 +39,25 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
 
     def __init__(
         self,
-        frames: List[Surface],
+        frames: List[Union[Image,Surface]],
         frame_duration: int = 100,
         loop: bool = True,
         pingpong: bool = False,
         reverse: bool = False,
         on_finish: Optional[Callable] = None,
+        **kwargs
     ):
-        self._frames: List[Surface] = frames
+
+        self._frames: List[Image] = []
+
+        for frame in frames:
+            if isinstance(frame,Surface):
+                self._frames.append(Image(frame))
+            elif isinstance(frame,Image):
+                self._frames.append(frame)
+            else:
+                pass
+
         self._frame_duration = frame_duration
         self._current_frame = 0
         self._time_accum = 0
@@ -53,11 +67,14 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
         self._on_finish = on_finish
         self._finished = False
         self._direction = -1 if reverse else 1
+        self._img_pos = self._frames[self._current_frame].position
+
+        self._img_pos = kwargs.pop("pos",self._img_pos)
 
     def __iter__(self):
         return iter(self._frames)
 
-    def __contains__(self, frame):
+    def __contains__(self, frame:Image):
         return frame in self._frames
 
     def __bool__(self):
@@ -69,6 +86,16 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
 
     def __repr__(self):
         return f"<{self.__class__.__name__}({len(self)} frames)>"
+    @property
+    def position(self) -> Tuple[int, int]:
+        """Get the (x, y) position of the image."""
+        return self._img_pos
+
+    @position.setter
+    def position(self, x: int, y: int):
+        """Set the (x, y) position of the image."""
+        self._img_pos[0] = x
+        self._img_pos[1] = y
 
     def reset(self):
         """Reset animation to start."""
@@ -76,7 +103,7 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
         self._time_accum = 0
         self._finished = False
 
-    def get_image(self) -> Optional[Surface]:
+    def get_image(self) -> Optional[Image]:
         """Get the current frame's image."""
         if not self._frames:
             return None
@@ -120,9 +147,17 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
         """Get the total number of frames."""
         return len(self._frames)
 
-    def set_frames(self, frames: List[Surface]):
+    def set_frames(self, frames: List[Union[Image,Surface]]):
         """Set the animation frames and reset."""
-        self._frames = frames
+        _frames = []
+        for frame in frames:
+            if isinstance(frame,Surface):
+                _frames.append(Image(frame))
+            elif isinstance(frame,Image):
+                _frames.append(frame)
+            else:
+                pass
+        self._frames = _frames
         self.reset()
 
     def set_speed(self, fps: int):
@@ -154,7 +189,9 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
         Args:
             surface (Surface): The target surface.
         """
-        self.get_image().perform_draw(surface)
+        image = self.get_image()
+        image.pos(self._img_pos)
+        image.perform_draw(surface)
 
     def perform_update(self, deltatime: float, *args, **kwargs) -> None:
         """
@@ -192,4 +229,4 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
 
     def handle_event(self, event: pygame.event.Event, *args, **kwargs) -> None:
         """Handle pygame events (stub for extension)."""
-        pass
+
