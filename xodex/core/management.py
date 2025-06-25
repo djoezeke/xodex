@@ -102,9 +102,7 @@ class ProjectBuilder:
                 check=True,
             )
             cprint(f"{self.build_name} executable built successfully!", "GREEN")
-            exe_name = (
-                f"{self.build_name}.exe" if os.name == "nt" else f"{self.build_name}"
-            )
+            exe_name = f"{self.build_name}.exe" if os.name == "nt" else f"{self.build_name}"
             exe_path = os.path.join(self.project_dir, "dist", exe_name)
             if os.path.exists(exe_path):
                 cprint(f" {self.build_name} executable located at: {exe_path}", "CYAN")
@@ -211,11 +209,7 @@ class ProjectGenerator:
 
                 if os.path.exists(new_path):
                     if self.interactive:
-                        resp = (
-                            input(f"{new_path} exists. Overwrite [y/N/rename]? ")
-                            .strip()
-                            .lower()
-                        )
+                        resp = input(f"{new_path} exists. Overwrite [y/N/rename]? ").strip().lower()
                         if resp == "y":
                             pass
                         elif resp == "rename":
@@ -297,15 +291,11 @@ class ManagementUtility:
             version=str(vernum),
             help="Show program version info and exit.",
         )
-        parser.add_argument(
-            "-h", "--help", dest="help", nargs="?", help="Show this help message"
-        )
+        parser.add_argument("-h", "--help", dest="help", nargs="?", help="Show this help message")
 
         # Running Project Parser & Arguments.
         parser_run = subparsers.add_parser("run", help="Run the project")
-        parser_run.add_argument(
-            "--debug", action="store_true", help="Create a single executable"
-        )
+        parser_run.add_argument("--debug", action="store_true", help="Create a single executable")
         parser_run.add_argument(
             "--verbose",
             "-v",
@@ -316,9 +306,7 @@ class ManagementUtility:
         )
 
         # Building Project Parser & Arguments.
-        parser_build = subparsers.add_parser(
-            "build", help="Build the game using PyInstaller"
-        )
+        parser_build = subparsers.add_parser("build", help="Build the game using PyInstaller")
         parser_build.add_argument(
             "--name",
             "-n",
@@ -340,15 +328,9 @@ class ManagementUtility:
             "some default (default: apply Xodex's icon). This option can be used multiple times.",
         )
 
-        build_group.add_argument(
-            "--onefile", action="store_true", help="Create a single executable"
-        )
-        build_group.add_argument(
-            "--noconsole", action="store_true", help="Hide Console"
-        )
-        build_group.add_argument(
-            "--interactive", action="store_true", help="Interactivity"
-        )
+        build_group.add_argument("--onefile", action="store_true", help="Create a single executable")
+        build_group.add_argument("--noconsole", action="store_true", help="Hide Console")
+        build_group.add_argument("--interactive", action="store_true", help="Interactivity")
 
         # Creating Project Parser & Arguments.
         create_parser = subparsers.add_parser("startgame", help="Create a new project.")
@@ -372,13 +354,9 @@ class ManagementUtility:
             metavar="PATH",
         )
 
-        create_parser.add_argument(
-            "--interactive", action="store_true", help="Run the game"
-        )
+        create_parser.add_argument("--interactive", action="store_true", help="Run the game")
         create_parser.add_argument("--dryrun", action="store_true", help="Run the game")
-        create_parser.add_argument(
-            "--extra", action="store_true", help=" Add extra files ie .gitignore"
-        )
+        create_parser.add_argument("--extra", action="store_true", help=" Add extra files ie .gitignore")
 
         # Project Help Parser & Arguments.
         parser_help = subparsers.add_parser("help", help="Shows Help Menu.")
@@ -493,7 +471,7 @@ class ManagementUtility:
         )
         builder.build()
 
-    def generate(self, name:str, interactive, dry_run):
+    def generate(self, name: str, interactive, dry_run):
         """Generate a new game/project from template using ProjectGenerator."""
         context = {
             "project_name": name,
@@ -556,6 +534,7 @@ Available commands:
 
     def list_scenes(self):
         from xodex.scenes.manager import SceneManager
+
         scenes = SceneManager().list_scenes()
         cprint("Registered scenes:", "CYAN")
         for scene in scenes:
@@ -564,5 +543,9 @@ Available commands:
 
 def execute_from_command_line(argv=None):
     """Run Management Utility."""
-    utility = ManagementUtility(argv)
-    utility.execute()
+    try:
+        os.environ["XODEX_VERSION"] = str(vernum)
+        utility = ManagementUtility(argv)
+        utility.execute()
+    except Exception:
+        pass

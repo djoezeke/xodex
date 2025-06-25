@@ -1,3 +1,4 @@
+from typing import Union
 from pygame import Surface
 
 from xodex.utils.values import Values
@@ -6,8 +7,10 @@ from xodex.scenes.base_scene import BaseScene
 from xodex.contrib.mainscene import XodexMainScene
 from xodex.core.exceptions import NotRegistered, AlreadyRegistered, SceneError
 
-try :
+
+try:
     import pygameui
+
     HAS_PYGAMEUI = True
 except ImportError:
     HAS_PYGAMEUI = False
@@ -30,7 +33,7 @@ class SceneManager(Singleton):
 
         # Register default scenes
         self.register(XodexMainScene, "XodexMainScene")
-        
+
         if HAS_PYGAMEUI:
             self.register(XodexUIScene, "XodexUIScene")
 
@@ -75,9 +78,15 @@ class SceneManager(Singleton):
         """Draw current scene."""
         return self.current.draw()
 
-    def append(self, scene: BaseScene) -> None:
+    def append(self, scene: Union[str, BaseScene], *args, **kwargs) -> None:  # flappy
         """Push a new scene onto the stack."""
         self._on_scene_exit_()
+
+        if isinstance(scene, str):
+            scene = self._get_scene_(scene)(*args, **kwargs)
+        elif not isinstance(scene, BaseScene):
+            raise SceneError("Scene must be a subclass of BaseScene or a string name.")
+
         self.__scenes.append(scene)
         self._setup_scene_()
         self._on_scene_first_enter_()
@@ -102,10 +111,17 @@ class SceneManager(Singleton):
         scene().on_first_enter()
         return scene()
 
-    def reset(self, scene: BaseScene) -> None:
+    def reset(self, scene: Union[str, BaseScene], *args, **kwargs) -> None:  # flappy
         """Replace all scenes with a new one."""
+
         for s in self.__scenes:
             s.on_last_exit()
+
+        if isinstance(scene, str):
+            scene = self._get_scene_(scene)(*args, **kwargs)
+        elif not isinstance(scene, BaseScene):
+            raise SceneError("Scene must be a subclass of BaseScene or a string name.")
+
         self.__scenes = [scene]
         self._setup_scene_()
         self._on_scene_first_enter_()
@@ -199,22 +215,22 @@ class SceneManager(Singleton):
     def _on_scene_exit_(self, *args, **kwargs) -> None:
         """Run if Exiting Scene. Call on_exit on current scene."""
         if self.__scenes:
-            self.current.on_exit(*args, **kwargs)
+            self.current._on_scene_exit_(*args, **kwargs)  # prom
 
     def _on_scene_last_exit_(self, *args, **kwargs) -> None:
         """Run if Reseting(Deleting) Scene. Call on_last_exit on current scene."""
         if self.__scenes:
-            self.current.on_last_exit(*args, **kwargs)
+            self.current._on_scene_last_exit_(*args, **kwargs)  # prom
 
     def _on_scene_enter_(self, *args, **kwargs) -> None:
         """Run if Entering Scene. Call on_enter on current scene."""
         if self.__scenes:
-            self.current.on_enter(*args, **kwargs)
+            self.current._on_scene_enter_(*args, **kwargs)  # prom
 
     def _on_scene_first_enter_(self, *args, **kwargs) -> None:
         """Run if Creating(Appending) Scene. Call on_first_enter on current scene."""
         if self.__scenes:
-            self.current.on_first_enter(*args, **kwargs)
+            self.current._on_scene_first_enter_(*args, **kwargs)  # prom
 
     # endregion
 

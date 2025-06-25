@@ -2,6 +2,7 @@ from abc import ABC
 from typing import Callable, Optional
 from PIL import Image, ImageFilter
 
+import pygame
 from pygame import Surface, time, image
 
 from .base_scene import BaseScene
@@ -28,7 +29,13 @@ class BlurScene(BaseScene, ABC):
         self._on_blur_complete = on_blur_complete
         self._blur_surface = blur_surface
 
-    def update(self, delta: float = 0.0) -> None:
+    def update_scene(self, deltatime: float, *args, **kwargs) -> None:
+        """
+        Update all objects in the scene, unless paused.
+
+        Args:
+            deltatime (float): Time since last update (ms).
+        """
         if not self._blur_finished:
             blur_time = time.get_ticks() / 1000
             min_blur = min(
@@ -39,11 +46,17 @@ class BlurScene(BaseScene, ABC):
             self._blur_finished = min_blur == self._blur_count
             if self._blur_finished and self._on_blur_complete:
                 self._on_blur_complete()
-        super().update(delta)
+        super().update_scene(deltatime, *args, **kwargs)
 
-    def draw(self) -> Surface:
+    def draw_scene(self, *args, **kwargs) -> pygame.Surface:  # flappy
+        """
+        Draw all objects to the scene surface.
+
+        Returns:
+            pygame.Surface: The updated scene surface.
+        """
         self._screen.blit(self._blur_surface, self._screen.get_rect())
-        self._objects.draw(self._screen)
+        self._objects.draw_object(self._screen, *args, **kwargs)
         return self._screen
 
     def reset_blur(self):
@@ -65,9 +78,7 @@ class BlurScene(BaseScene, ABC):
             image.tostring(self._blur_surface, "RGBA"),
         )
         impil = impil.filter(ImageFilter.GaussianBlur(radius=blur_count))
-        self._blur_surface = image.fromstring(
-            impil.tobytes(), impil.size, "RGBA"
-        ).convert()
+        self._blur_surface = image.fromstring(impil.tobytes(), impil.size, "RGBA").convert()
         return self._blur_surface
 
     # endegion Private

@@ -1,13 +1,15 @@
 import os
 from abc import ABC, abstractmethod
 from importlib import import_module
-from typing import Union, Generator, Optional, Any
+from typing import Union, Generator
 
 import pygame
 from pygame.event import Event
 
 from xodex.objects import Objects, DrawableObject, EventfulObject, LogicalObject
 from xodex.objects.manager import ObjectsManager
+
+# from xodex.scenes.manager import SceneManager
 
 __all__ = ("BaseScene",)
 
@@ -57,17 +59,21 @@ class BaseScene(ABC):
         self._start_time = pygame.time.get_ticks() / 1000
         self._screen = pygame.Surface(self._size)
         self._object = ObjectsManager().get_objects()
+        # self._scenes = SceneManager().get_scenes()  # prom
         self._objects = Objects()
         self._paused = False
         self._background_color = getattr(self.setting, "BACKGROUND_COLOR", (255, 255, 255))
         self._first_entered = False
+
+        self._height = self._size[1]  # prom
+        self._width = self._size[0]  # prom
 
     def __str__(self):
         """Return a string representation of the Scene."""
         return f"<{self.__class__.__name__} Scene> elapsed: {self.elapsed:.2f}s paused: {self._paused}"
 
     def __repr__(self):
-        """Return a string representation of the widget."""
+        """Return a string representation of the Scene."""
         return f"{self.__class__.__name__}()"
 
     # region Private
@@ -106,6 +112,26 @@ class BaseScene(ABC):
         """
         return pygame.time.get_ticks() / 1000 - self._start_time
 
+    @property  # prom
+    def height(self) -> pygame.Surface:
+        """
+        Return the Scene Surface Height.
+
+        Returns:
+            int : The surface height for this scene.
+        """
+        return self._height
+
+    @property  # prom
+    def width(self) -> pygame.Surface:
+        """
+        Return the Scene Surface Width.
+
+        Returns:
+            int : The surface width for this scene.
+        """
+        return self._width
+
     @property
     def screen(self) -> pygame.Surface:
         """
@@ -125,6 +151,28 @@ class BaseScene(ABC):
             Any: The objects managed by the global ObjectsManager.
         """
         return self._object
+
+    # @property  # prom
+    # def scene(self):
+    #     """
+    #     Return Object Scnes's Scenes.
+
+    #     Returns:
+    #         Any: The scenes managed by the global SceneManager.
+    #     """
+    #     return self._scenes
+
+    # def get_scene(self, scene_name: str) -> Union["BaseScene", None]:  # prom
+    #     """
+    #     Get an scene by name from the global scene manager.
+
+    #     Args:
+    #         scene_name (str): The name of the object.
+
+    #     Returns:
+    #         Scene | None: The requested scene, or None if not found.
+    #     """
+    #     return SceneManager().get_scene(scene_name=scene_name)
 
     def get_object(self, object_name: str) -> Union[DrawableObject, EventfulObject, LogicalObject, None]:
         """
@@ -188,8 +236,9 @@ class BaseScene(ABC):
         self._objects.clear()
         if objects := self._generate_objects_():
             self._objects.extend(list(objects))
+
         if self._debug:
-            print(f"[{self.__class__.__name__}] Objects after setup: {self._objects}")
+            print(f"[{self.__class__.__name__}] Objects after setup: {len(self._objects)}")
 
     # --- New Features ---
 
@@ -243,6 +292,37 @@ class BaseScene(ABC):
 
     # endregion
 
+    # region Private
+
+    def _on_scene_exit_(self, *args, **kwargs) -> None:  # prom
+        """Runs When exiting scene."""
+        if self._debug:
+            print(f"[{self.__class__.__name__}] on_exit called.")
+        self.on_exit(*args, **kwargs)
+
+    def _on_scene_last_exit_(self, *args, **kwargs) -> None:  # prom
+        """Runs the last time the scene is exited."""
+        if self._debug:
+            print(f"[{self.__class__.__name__}] on_last_exit called.")
+        self.on_last_exit(*args, **kwargs)
+
+    def _on_scene_enter_(self, *args, **kwargs) -> None:  # prom
+        """Runs when tntering Scene."""
+        if not self._first_entered:
+            self._on_scene_first_enter_(*args, **kwargs)
+            self._first_entered = True
+        if self._debug:
+            print(f"[{self.__class__.__name__}] on_enter called.")
+        self.on_enter(*args, **kwargs)
+
+    def _on_scene_first_enter_(self, *args, **kwargs) -> None:  # prom
+        """Runs the first time the scene is entered."""
+        if self._debug:
+            print(f"[{self.__class__.__name__}] on_first_enter called.")
+        self.on_first_enter(*args, **kwargs)
+
+    # endregion
+
     # region Hooks
 
     def on_enter(self, *args, **kwargs) -> None:
@@ -250,35 +330,24 @@ class BaseScene(ABC):
         Runs when entering the scene.
         Override in subclasses for custom behavior.
         """
-        if not self._first_entered:
-            self.on_first_enter(*args, **kwargs)
-            self._first_entered = True
-        if self._debug:
-            print(f"[{self.__class__.__name__}] on_enter called.")
 
     def on_exit(self, *args, **kwargs) -> None:
         """
         Runs when exiting the scene.
         Override in subclasses for custom behavior.
         """
-        if self._debug:
-            print(f"[{self.__class__.__name__}] on_exit called.")
 
     def on_first_enter(self, *args, **kwargs) -> None:
         """
         Runs the first time the scene is entered.
         Override in subclasses for custom behavior.
         """
-        if self._debug:
-            print(f"[{self.__class__.__name__}] on_first_enter called.")
 
     def on_last_exit(self, *args, **kwargs) -> None:
         """
         Runs the last time the scene is exited.
         Override in subclasses for custom behavior.
         """
-        if self._debug:
-            print(f"[{self.__class__.__name__}] on_last_exit called.")
 
     def on_pause(self, *args, **kwargs) -> None:
         """

@@ -1,6 +1,6 @@
 import os
+from typing import Optional
 from importlib import import_module
-from typing import Optional, Callable, Any
 
 import pygame
 from pygame.mixer import Sound, Channel
@@ -9,22 +9,28 @@ from xodex.utils.values import Values
 from xodex.core.singleton import Singleton
 from xodex.core.exceptions import NotRegistered, AlreadyRegistered, ObjectError
 
+
 class Sounds(Singleton):
     """
     Singleton class for managing sound effects and channels using pygame.mixer.
     Provides registration, playback, volume, and introspection utilities.
     """
 
-    def __init__(self):
-        # self.setting = import_module(os.getenv("XODEX_SETTINGS_MODULE"))
-        # self.sound_folder = self.setting.SOUND_DIR or ""
+    _channels: dict[str, Channel] = {}
+    _music: str = None
+    _channel_count: int = 0
 
-        self.sound_folder = "."
-
+    def __init__(self, folder: str = "."):
+        self.sound_folder = None
+        try:
+            xodex_settings = os.getenv("XODEX_SETTINGS_MODULE")
+            self.setting = import_module(xodex_settings)
+            self.sound_folder = self.setting.SOUND_DIR
+        except Exception:
+            pass
+        self.sound_folder = self.sound_folder or folder
         self.__sounds: dict[str, Sound] = {}
-        self.__channels: dict[str, Channel] = {}
-        self.preload_sounds(self.sound_folder)
-        self._channel_count = 0
+        self.load_sounds(self.sound_folder)
 
     def __len__(self) -> int:
         return len(self.__sounds)
@@ -32,90 +38,105 @@ class Sounds(Singleton):
     def __contains__(self, key: str) -> bool:
         return key in self.__sounds
 
-    def play_music(self, music_file: str, loops: int = -1, start: float = 0.0, fade_ms: int = 0) -> bool:
-        """
-        Play background music from a file.
-        """
+    def __repr__(self):
+        """Return a string representation of Sounds."""
+        return f"{self.__class__.__name__}()"
+
+    def __str__(self):
+        """Return a string representation of Sounds."""
+        return f"<{self.__class__.__name__} in {self.sound_folder}>"
+
+    # region Music
+
+    @classmethod
+    def play_music(cls, loops: int = -1, start: float = 0, fade_ms: int = 0):
+        """Play background music."""
         try:
-            pygame.mixer.music.load(music_file)
-            pygame.mixer.music.play(loops=loops, start=start, fade_ms=fade_ms)
-            return True
-        except Exception as e:
-            print(f"Error playing music: {e}")
-            return False
+            pygame.mixer.music.load(Sounds._music)
+            pygame.mixer.music.play(loops, start, fade_ms)
+        except Exception:
+            pass
 
-
-    # region Music 
-
-    def play_music(self, loops: int = 0, start: float = 0, fade_ms: int = 0):
-        """Unpause background music."""
-        pygame.mixer.music.play(loops,start,fade_ms)
-
-    def load_music(self,filename:str):
+    @classmethod
+    def set_music(cls, filename: str):
         """Load background music."""
-        pygame.mixer.music.load(os.path.join(self.sound_folder, filename))
+        cls._music = filename
 
-    def stop_music(self):
+    @classmethod
+    def stop_music(cls):
         """Stop playing background music."""
         pygame.mixer.music.stop()
 
-    def set_music_volume(self,volume:float):
+    @classmethod
+    def set_music_volume(cls, volume: float):
         """Pause background music."""
         pygame.mixer.music.set_volume(max(0.0, min(1.0, volume)))
 
-    def pause_music(self):
+    @classmethod
+    def pause_music(cls):
         """Pause background music."""
         pygame.mixer.music.pause()
 
-    def unpause_music(self):
+    @classmethod
+    def unpause_music(cls):
         """Unpause background music."""
         pygame.mixer.music.unpause()
 
-    # endregion Music
+    # endregion
 
-    # region Sound
-
-    def play(self, sound: str, channel: str = "", loops: int = 0, maxtime: int = 0, fade_ms: int = 0) -> Optional[Channel]:
-        """
-        Play a sound by name, optionally on a named channel.
-        """
+    # region Sound/Channel
+    def play(
+        self, sound: str, channel: str = "", loops: int = 0, maxtime: int = 0, fade_ms: int = 0
+    ) -> Optional[Channel]:
+        """Play a sound by name, optionally on a named channel."""
         try:
             if channel == "":
                 ch = self.__sounds[sound].play(loops, maxtime, fade_ms)
             else:
-                ch = self.__channels[channel].play(self.__sounds[sound], loops, maxtime, fade_ms)
+                ch = Sounds._channels[channel].play(self.__sounds[sound], loops, maxtime, fade_ms)
             return ch
         except KeyError:
             print(f"Sound or channel '{sound}'/'{channel}' not found.")
-            return None
 
-    def load(self,filename:str,sound_name:str=""):
-        """Load background music."""
-        if filename in os.listdir(self.sound_folder):
+    def stop(self, sound: str):
+        """Play a sound by name, optionally on a named channel."""
+        try:
+            self.__sounds[sound].stop()
+        except KeyError:
+            print(f"Sound '{sound}' not found.")
+        else:
             try:
-                sound = Sound(os.path.join(self.sound_folder, filename))
-                if sound_name== "":
-                    self.register(sound, os.path.splitext(filename)[0])
-                else:
-                    self.register(sound, sound_name)
-            except Exception as e:
-                print(f"Failed to load sound {filename}: {e}")
+                Sounds._channels[sound].stop()
+            except KeyError:
+                print(f"Channel '{sound}' not found.")
 
-    def stop(self):
-        """Stop playing background music."""
-        pygame.mixer.music.stop()
-
-    def set_volume(self,volume:float):
+    def set_volume(self, sound, volume: float):
         """Pause background music."""
-        pygame.mixer.music.set_volume(max(0.0, min(1.0, volume)))
+        try:
+            self.__sounds[sound].set_volume(max(0.0, min(1.0, volume)))
+        except KeyError:
+            print(f"Sound '{sound}' not found.")
+        else:
+            try:
+                Sounds._channels[sound].set_volume(max(0.0, min(1.0, volume)))
+            except KeyError:
+                print(f"Channel '{sound}' not found.")
 
-    def pause(self):
-        """Pause background music."""
-        pygame.mixer.music.pause()
+    @classmethod
+    def pause(cls, channel: str) -> None:
+        """Pause playback on a channel."""
+        try:
+            cls._channels[channel].pause()
+        except KeyError:
+            pass
 
-    def unpause(self):
-        """Unpause background music."""
-        pygame.mixer.music.unpause()
+    @classmethod
+    def unpause(cls, channel: str) -> None:
+        """Unpause playback on a channel."""
+        try:
+            cls._channels[channel].unpause()
+        except KeyError:
+            pass
 
     # endregion Sound
 
@@ -127,30 +148,18 @@ class Sounds(Singleton):
         """Unpause all channels."""
         pygame.mixer.unpause()
 
-    def channels(self) -> Values:
+    @classmethod
+    def channels(cls) -> Values:
         """Return all registered channels."""
-        return Values(self.__channels)
+        return Values(cls._channels)
 
     def sounds(self) -> Values:
         """Return all registered sounds."""
         return Values(self.__sounds)
 
-    def play(self, sound: str, channel: str = "", loops: int = 0, maxtime: int = 0, fade_ms: int = 0) -> Optional[Channel]:
-        """
-        Play a sound by name, optionally on a named channel.
-        """
-        try:
-            if channel == "":
-                ch = self.__sounds[sound].play(loops, maxtime, fade_ms)
-            else:
-                ch = self.__channels[channel].play(self.__sounds[sound], loops, maxtime, fade_ms)
-            self._trigger_callbacks(sound)
-            return ch
-        except KeyError:
-            print(f"Sound or channel '{sound}'/'{channel}' not found.")
-            return None
-
-    def play_if_not_busy(self, channel: str, sound: str, loops: int = 0, maxtime: int = 0, fade_ms: int = 0) -> Optional[Channel]:
+    def play_if_not_busy(
+        self, channel: str, sound: str, loops: int = 0, maxtime: int = 0, fade_ms: int = 0
+    ) -> Optional[Channel]:
         """
         Play a sound on a channel only if the channel is not busy.
         """
@@ -170,50 +179,25 @@ class Sounds(Singleton):
             return None
         return self.play(sound, channel)
 
-    def get_sound(self, channel: str) -> Optional[Sound]:
+    @classmethod
+    def get_sound(cls, channel: str) -> Optional[Sound]:
         """
         Get the currently playing Sound object on a channel.
         """
         try:
-            return self.__channels[channel].get_sound()
+            return cls._channels[channel].get_sound()
         except KeyError:
             return None
 
-    def is_busy(self, channel: str) -> bool:
+    @classmethod
+    def is_busy(cls, channel: str) -> bool:
         """
         Check if a channel is currently playing any sound.
         """
         try:
-            return self.__channels[channel].get_busy()
+            return cls._channels[channel].get_busy()
         except KeyError:
             return False
-
-    def stop(self, channel: str) -> None:
-        """
-        Stop playback on a channel.
-        """
-        try:
-            self.__channels[channel].stop()
-        except KeyError:
-            pass
-
-    def pause(self, channel: str) -> None:
-        """
-        Pause playback on a channel.
-        """
-        try:
-            self.__channels[channel].pause()
-        except KeyError:
-            pass
-
-    def unpause(self, channel: str) -> None:
-        """
-        Unpause playback on a channel.
-        """
-        try:
-            self.__channels[channel].unpause()
-        except KeyError:
-            pass
 
     def register(self, sound: Sound, sound_name: str):
         """
@@ -239,69 +223,57 @@ class Sounds(Singleton):
         """
         return sound_name in self.__sounds
 
-    def new_channel(self, channel_name: str):
-        """
-        Create and register a new Channel with a name.
-        """
+    @classmethod
+    def new_channel(cls, channel_name: str):
+        """Create and register a new Channel with a name."""
         if not channel_name:
             return
-        channel = Channel(self._channel_count)
-        self.__channels[channel_name] = channel
-        self._channel_count += 1
+        channel = Channel(cls._channel_count)
+        cls._channels[channel_name] = channel
+        cls._channel_count += 1
 
-    def set_volume(self, sound_name: str, volume: float):
-        """
-        Set volume for a specific sound (0.0 to 1.0).
-        """
-        if sound_name in self.__sounds:
-            self.__sounds[sound_name].set_volume(volume)
-
-    def set_channel_volume(self, channel_name: str, volume: float):
-        """
-        Set volume for a specific channel (0.0 to 1.0).
-        """
-        if channel_name in self.__channels:
-            self.__channels[channel_name].set_volume(volume)
-
-    def remove_stopped(self):
-        """
-        Remove channels that are not playing any sound.
-        """
-        to_remove = [name for name, ch in self.__channels.items() if not ch.get_busy()]
+    @classmethod
+    def remove_stopped(cls):
+        """Remove channels that are not playing any sound."""
+        to_remove = [name for name, ch in cls._channels.items() if not ch.get_busy()]
         for name in to_remove:
-            del self.__channels[name]
+            del cls._channels[name]
+
+    def load(self, filename: str, sound_name: str = ""):
+        """Load Sound music."""
+        if filename in os.listdir(self.sound_folder):
+            try:
+                sound = Sound(os.path.join(self.sound_folder, filename))
+                if sound_name == "":
+                    self.register(sound, os.path.splitext(filename)[0])
+                else:
+                    self.register(sound, sound_name)
+            except Exception as e:
+                print(f"Failed to load sound {filename}: {e}")
+
+    def load_sounds(self, directory: str, extensions: tuple = (".wav", ".ogg", ".mp3")):
+        """Load all sounds from a directory with given extensions."""
+        try:
+            for fname in os.listdir(directory):
+                if fname.endswith(extensions):
+                    self.load(fname)
+        except Exception:
+            print(f"Cannot find the path: '{directory}'")
 
     def list_sounds(self):
-        """
-        List all registered sound names.
-        """
+        """List all registered sound names."""
         return list(self.__sounds.keys())
 
-    def list_channels(self):
-        """
-        List all registered channel names.
-        """
-        return list(self.__channels.keys())
-
-    def preload_sounds(self, directory: str, extensions: tuple = ('.wav', '.ogg', '.mp3')):
-        """
-        Preload all sounds from a directory with given extensions.
-        """
-        for fname in os.listdir(directory):
-            if fname.endswith(extensions):
-                try:
-                    sound = Sound(os.path.join(directory, fname))
-                    self.register(sound, os.path.splitext(fname)[0])
-                except Exception as e:
-                    print(f"Failed to load sound {fname}: {e}")
+    @classmethod
+    def list_channels(cls):
+        """List all registered channel names."""
+        return list(cls._channels.keys())
 
     def clear(self):
         """
         Clear all registered sounds and channels.
         """
         self.__sounds.clear()
-        self.__channels.clear()
-        self._channel_count = 0
 
     def info(self) -> dict:
         """
@@ -309,10 +281,5 @@ class Sounds(Singleton):
         """
         return {
             "sounds": self.list_sounds(),
-            "channels": self.list_channels(),
+            "channels": Sounds.list_channels(),
         }
-
-sound = Sounds()
-print(sound.info())
-print(sound.info())
-print(sound.info())

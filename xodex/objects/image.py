@@ -31,9 +31,7 @@ class Image(DrawableObject):
     # @overload
     # def __init__(self, image: Union[str, Surface] = None) -> None: ...
 
-    def __init__(
-        self, image: Union[str, Surface] = None, pos: Tuple[int, int] = (0, 0)
-    ) -> None:
+    def __init__(self, image: Union[str, Surface] = None, pos: Tuple[int, int] = (0, 0)) -> None:
         if isinstance(image, str):
             self._image = loadimage(image)
         elif isinstance(image, Surface):
@@ -64,20 +62,20 @@ class Image(DrawableObject):
         return self._img_rect
 
     @rect.setter
-    def rect(self,new_rect:pygame.Rect) -> None:
+    def rect(self, new_rect: pygame.Rect) -> None:
         self._img_rect = new_rect
 
     @property
     def position(self) -> Tuple[int, int]:
         """Get or Set the (x, y) position of the image."""
         return (self._img_rect.x, self._img_rect.y)
-    
+
     @position.setter
     def position(self, x: int, y: int):
         self._img_rect.x = x
         self._img_rect.y = y
 
-    def pos(self, pos:Tuple[int,int]):
+    def pos(self, pos: Tuple[int, int]):
         self._img_rect.x = pos[0]
         self._img_rect.y = pos[1]
 
@@ -142,13 +140,9 @@ class Image(DrawableObject):
         Returns:
             Image: Self for chaining.
         """
-        impil = PIL.Image.frombytes(
-            "RGBA", self._img_rect.size, pygame.image.tobytes(self._image, "RGBA")
-        )
+        impil = PIL.Image.frombytes("RGBA", self._img_rect.size, pygame.image.tobytes(self._image, "RGBA"))
         impil = impil.filter(PIL.ImageFilter.GaussianBlur(radius=blur_count))
-        self._image = pygame.image.frombytes(
-            impil.tobytes(), impil.size, "RGBA"
-        ).convert()
+        self._image = pygame.image.frombytes(impil.tobytes(), impil.size, "RGBA").convert()
         return self
 
     def swap_color(self, from_color: Color, to_color: Color) -> "Image":
@@ -194,6 +188,68 @@ class Image(DrawableObject):
         surface.blit(self.image, self._img_rect)
 
 
+class MovingImage(Image):  # dino
+    """MovingImage"""
+
+    def __init__(
+        self, image: Union[str, Surface], pos: Tuple[int, int], win_width: int, win_height: int, speed: int = 3
+    ):
+        super().__init__(image, pos)
+        self.move_x = True
+        self.move_y = True
+        self.vel_x = speed
+        self.vel_y = speed
+        self.x_extra = self._img_rect.width - win_width
+        self.y_extra = self._img_rect.height - win_height
+
+    def perform_draw(self, surface, *args, **kwargs):
+        if self.move_x:
+            self._img_rect.x = -((-self._img_rect.x + self.vel_x) % self.x_extra)
+        if self.move_y:
+            self._img_rect.y = -((-self._img_rect.y + self.vel_y) % self.y_extra)
+        return super().perform_draw(surface, *args, **kwargs)
+
+    @property
+    def rect(self):
+        return self._img_rect
+
+    @property
+    def allow_x(self):
+        """Allow X Movement"""
+        return self.move_x
+
+    @allow_x.setter
+    def allow_x(self, allow: bool):
+        self.move_x = allow
+
+    @property
+    def speed_x(self):
+        """X Movement Speed"""
+        return self.vel_x
+
+    @speed_x.setter
+    def speed_x(self, speed: int):
+        self.vel_x = speed
+
+    @property
+    def allow_y(self):
+        """Allow Y Movement"""
+        return self.move_x
+
+    @allow_y.setter
+    def allow_y(self, allow: bool):
+        self.move_y = allow
+
+    @property
+    def speed_y(self):
+        """Y Movement Speed"""
+        return self.vel_y
+
+    @speed_y.setter
+    def speed_y(self, speed: int):
+        self.vel_y = speed
+
+
 # --- Main Demo ---
 def main():
     """main"""
@@ -212,7 +268,7 @@ def main():
 
         screen.fill((30, 30, 30))
         # image.perform_draw(screen)
-        screen.blit(image.image,(0,0))
+        screen.blit(image.image, (0, 0))
         pygame.display.flip()
 
 

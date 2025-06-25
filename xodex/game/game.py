@@ -17,7 +17,7 @@ OBJECTS_MODULE_NAME = "objects"
 class Game:
     """Game"""
 
-    def __init__(self, game: str = "", *args, **kwargs) -> None:
+    def __init__(self, game: str = "", **kwargs) -> None:
 
         # Full Python path to the game event.g. 'hello.hello'.
         self.game = game
@@ -116,12 +116,13 @@ class Game:
     def __process_all_draw(self) -> None:
         self.__screen.fill((255, 55, 23))
         self.__screen.blit(SceneManager().current.draw_scene(), (0, 0))
-        if self._show_fps:
-            fps = self.__clock.get_fps()
-            fps_surf = self._font.render(f"FPS: {fps:.1f}", True, (0, 0, 0))
-            self.__screen.blit(fps_surf, (10, 10))
-        if self._debug_overlay:
-            self._draw_debug_overlay()
+        if self._debug:
+            if self._show_fps:
+                fps = self.__clock.get_fps()
+                fps_surf = self._font.render(f"FPS: {fps:.1f}", True, (0, 0, 0))
+                self.__screen.blit(fps_surf, (10, 10))
+            if self._debug_overlay:
+                self._draw_debug_overlay()
         pygame.display.flip()
 
     def _draw_debug_overlay(self):

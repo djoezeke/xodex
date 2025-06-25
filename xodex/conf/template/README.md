@@ -30,7 +30,7 @@
 
 ## 📍 Overview
 
-This project is built using Xodex.
+>This project is built using Xodex.
 
 
 ### 🚀 Features
@@ -96,7 +96,7 @@ To run the {{ project_name }} game, follow these steps:
 
 1. **Clone the repository**:
 ```sh
-   git clone <repository-url>
+   git clone https://github.com/username/{{ project_name }}
    cd {{ project_name }}
 ```
 
@@ -111,6 +111,10 @@ To run the {{ project_name }} game, follow these steps:
    Execute the following command:
 ```sh
    python manage.py run
+```
+or:
+```sh
+   python -m {{ project_name }}
 ```
 
 4. **Building the game**:

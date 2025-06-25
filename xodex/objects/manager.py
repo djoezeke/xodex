@@ -5,9 +5,11 @@ Provides scene-based registration and querying of game objects.
 
 from typing import Union
 from xodex.utils.values import Values
-from xodex.objects.objects import Object, DrawableObject, EventfulObject, LogicalObject
+from xodex.objects.image import Image
+from xodex.objects.animator import Animator
 from xodex.core.singleton import Singleton
 from xodex.contrib.basicobjects import XodexText
+from xodex.objects.objects import Object, DrawableObject, EventfulObject, LogicalObject
 from xodex.core.exceptions import NotRegistered, AlreadyRegistered, ObjectError
 
 
@@ -53,6 +55,8 @@ class ObjectsManager(Singleton):
 
         # Register default objects
         self.register(XodexText, "XodexText")
+        self.register(Image, "Image")  # prom
+        self.register(Animator, "Animator")  # flappy
 
         if HAS_PYGAMEUI:
             self.register(UIFRAME, "UIFRAME")
@@ -80,9 +84,7 @@ class ObjectsManager(Singleton):
     def __contains__(self, key: str) -> bool:
         return key in self.__object_classes.keys()
 
-    def get_object(
-        self, object_name: str
-    ) -> Union[DrawableObject, EventfulObject, LogicalObject]:
+    def get_object(self, object_name: str) -> Union[DrawableObject, EventfulObject, LogicalObject]:
         """Get an object."""
         return self._get_object_(object_name)
 

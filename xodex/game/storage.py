@@ -2,16 +2,10 @@ import json
 import pickle
 
 from xodex.core.singleton import Singleton
-from xodex.utils.storage import (
-    JsonSerializer, JsonDeserializer,
-    BinarySerializer, BinaryDeserializer
-)
+from xodex.utils.storage import JsonSerializer, JsonDeserializer, BinarySerializer, BinaryDeserializer
 
-class Storage(
-    Singleton,
-    JsonSerializer, JsonDeserializer,
-    BinarySerializer, BinaryDeserializer
-):
+
+class Storage(Singleton, JsonSerializer, JsonDeserializer, BinarySerializer, BinaryDeserializer):
     """
     Persistent storage manager for game data.
 
@@ -72,4 +66,3 @@ class Storage(
         Args:
             event: Event object.
         """
-        pass
