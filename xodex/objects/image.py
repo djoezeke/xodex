@@ -5,11 +5,13 @@ and drawing utilities, such as scaling, flipping, blurring, color swapping,
 and rotation. Integrates with the DrawableObject interface for rendering.
 """
 
-from typing import Tuple, Union, overload
-import PIL.Image
-import PIL.ImageFilter
-import pygame
+from typing import Tuple, Union
+
 from pygame import Surface, Color
+import PIL.ImageFilter
+import PIL.ImageOps
+import PIL.Image
+import pygame
 
 from xodex.objects.objects import DrawableObject
 from xodex.utils.functions import loadimage
@@ -28,16 +30,33 @@ class Image(DrawableObject):
         _img_rect (pygame.Rect): The rectangle representing the image's position and size.
     """
 
-    # @overload
-    # def __init__(self, image: Union[str, Surface] = None) -> None: ...
+    def __init__(
+        self,
+        image: Union[str, Surface] = None,
+        pos: Tuple[int, int] = (0, 0),
+        alpha: int = None,
+        colorkey: Color = None,
+    ) -> None:
+        """
+        Initialize the Image.
 
-    def __init__(self, image: Union[str, Surface] = None, pos: Tuple[int, int] = (0, 0)) -> None:
+        Args:
+            image: Path to image file or pygame.Surface.
+            pos: Initial (x, y) position.
+            alpha: Optional alpha value (0-255).
+            colorkey: Optional color key for transparency.
+        """
         if isinstance(image, str):
             self._image = loadimage(image)
         elif isinstance(image, Surface):
-            self._image = image
+            self._image = image.copy()
         else:
             raise ValueError("Image must be initialized with a file path or pygame.Surface.")
+
+        if alpha is not None:
+            self._image.set_alpha(alpha)
+        if colorkey is not None:
+            self._image.set_colorkey(colorkey)
 
         self._img_rect = self._image.get_rect()
         self._img_rect.x, self._img_rect.y = pos
@@ -46,10 +65,10 @@ class Image(DrawableObject):
         return f"<{self.__class__.__name__}({self._image})>"
 
     def __copy__(self) -> "Image":
-        return Image(self._image)
+        return Image(self._image.copy(), self.position)
 
     def __deepcopy__(self, memo) -> "Image":
-        return Image(self._image)
+        return Image(self._image.copy(), self.position)
 
     @property
     def image(self) -> Surface:
@@ -71,13 +90,33 @@ class Image(DrawableObject):
         return (self._img_rect.x, self._img_rect.y)
 
     @position.setter
-    def position(self, x: int, y: int):
-        self._img_rect.x = x
-        self._img_rect.y = y
+    def position(self, pos: Tuple[int, int]):
+        self._img_rect.x, self._img_rect.y = pos
 
     def pos(self, pos: Tuple[int, int]):
-        self._img_rect.x = pos[0]
-        self._img_rect.y = pos[1]
+        """Set the (x, y) position."""
+        self._img_rect.x, self._img_rect.y = pos
+
+    def size(self) -> Tuple[int, int]:
+        """Return the (width, height) of the image."""
+        return self._img_rect.size
+
+    @classmethod
+    async def async_load(
+        cls, path: str, pos: Tuple[int, int] = (0, 0), alpha: int = None, colorkey: Color = None
+    ) -> "Image":
+        """
+        Asynchronously load an image from disk.
+
+        Args:
+            path (str): Path to the image file.
+            pos (Tuple[int, int]): Initial position.
+            alpha (int): Optional alpha value.
+            colorkey (Color): Optional color key.
+
+        Returns:
+            Image: Loaded Image instance.
+        """
 
     def scale(self, x: float, y: float) -> "Image":
         """
@@ -90,7 +129,7 @@ class Image(DrawableObject):
         Returns:
             Image: Self for chaining.
         """
-        self._image = pygame.transform.scale(self._image, (x, y))
+        self._image = pygame.transform.scale(self._image, (int(x), int(y)))
         topleft = self._img_rect.topleft
         self._img_rect = self._image.get_rect()
         self._img_rect.topleft = topleft
@@ -107,7 +146,7 @@ class Image(DrawableObject):
         Returns:
             Image: Self for chaining.
         """
-        self._image = pygame.transform.smoothscale(self._image, (x, y))
+        self._image = pygame.transform.smoothscale(self._image, (int(x), int(y)))
         topleft = self._img_rect.topleft
         self._img_rect = self._image.get_rect()
         self._img_rect.topleft = topleft
@@ -145,6 +184,33 @@ class Image(DrawableObject):
         self._image = pygame.image.frombytes(impil.tobytes(), impil.size, "RGBA").convert()
         return self
 
+    def crop(self, rect: pygame.Rect) -> "Image":
+        """
+        Crop the image to the given rectangle.
+
+        Args:
+            rect (pygame.Rect): Rectangle to crop.
+
+        Returns:
+            Image: New cropped Image.
+        """
+        cropped_surface = self._image.subsurface(rect).copy()
+        return Image(cropped_surface, (rect.x, rect.y))
+
+    def subimage(self, x: int, y: int, w: int, h: int) -> "Image":
+        """
+        Extract a subimage from the image.
+
+        Args:
+            x, y: Top-left corner.
+            w, h: Width and height.
+
+        Returns:
+            Image: New subimage.
+        """
+        rect = pygame.Rect(x, y, w, h)
+        return self.crop(rect)
+
     def swap_color(self, from_color: Color, to_color: Color) -> "Image":
         """
         Replace all pixels of a given color with another color.
@@ -156,10 +222,30 @@ class Image(DrawableObject):
         Returns:
             Image: Self for chaining.
         """
-        for x in range(self._image.get_width()):
-            for y in range(self._image.get_height()):
-                if self._image.get_at((x, y)) == from_color:
-                    self._image.set_at((x, y), to_color)
+        arr = pygame.surfarray.pixels3d(self._image)
+        r1, g1, b1 = from_color.r, from_color.g, from_color.b
+        r2, g2, b2 = to_color.r, to_color.g, to_color.b
+        mask = (arr[:, :, 0] == r1) & (arr[:, :, 1] == g1) & (arr[:, :, 2] == b1)
+        arr[:, :, 0][mask] = r2
+        arr[:, :, 1][mask] = g2
+        arr[:, :, 2][mask] = b2
+        del arr
+        return self
+
+    def tint(self, color: Color, alpha: int = 128) -> "Image":
+        """
+        Tint the image with a color.
+
+        Args:
+            color (Color): Tint color.
+            alpha (int): Alpha value for blending.
+
+        Returns:
+            Image: Self for chaining.
+        """
+        tint_surface = pygame.Surface(self._image.get_size(), pygame.SRCALPHA)
+        tint_surface.fill((*color, alpha))
+        self._image.blit(tint_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
         return self
 
     def rotate(self, angle: float) -> "Image":
@@ -178,6 +264,113 @@ class Image(DrawableObject):
         self._img_rect.topleft = topleft
         return self
 
+    def set_alpha(self, alpha: int) -> "Image":
+        """
+        Set the alpha transparency of the image.
+
+        Args:
+            alpha (int): Alpha value (0-255).
+
+        Returns:
+            Image: Self for chaining.
+        """
+        self._image.set_alpha(alpha)
+        return self
+
+    def set_colorkey(self, colorkey: Color) -> "Image":
+        """
+        Set the color key (transparent color) for the image.
+
+        Args:
+            colorkey (Color): Color to be transparent.
+
+        Returns:
+            Image: Self for chaining.
+        """
+        self._image.set_colorkey(colorkey)
+        return self
+
+    def get_pixel(self, x: int, y: int) -> Color:
+        """
+        Get the color of a pixel.
+
+        Args:
+            x (int): X coordinate.
+            y (int): Y coordinate.
+
+        Returns:
+            Color: The color at (x, y).
+        """
+        return self._image.get_at((x, y))
+
+    def set_pixel(self, x: int, y: int, color: Color):
+        """
+        Set the color of a pixel.
+
+        Args:
+            x (int): X coordinate.
+            y (int): Y coordinate.
+            color (Color): Color to set.
+        """
+        self._image.set_at((x, y), color)
+
+    def save(self, filename: str):
+        """
+        Save the image to a file.
+
+        Args:
+            filename (str): Path to save the image.
+        """
+        pygame.image.save(self._image, filename)
+
+    def filter_grayscale(self) -> "Image":
+        """
+        Convert the image to grayscale.
+
+        Returns:
+            Image: Self for chaining.
+        """
+        pil_img = PIL.Image.frombytes("RGBA", self._img_rect.size, pygame.image.tobytes(self._image, "RGBA"))
+        pil_img = PIL.ImageOps.grayscale(pil_img).convert("RGBA")
+        self._image = pygame.image.frombytes(pil_img.tobytes(), pil_img.size, "RGBA").convert()
+        return self
+
+    def filter_invert(self) -> "Image":
+        """
+        Invert the image colors.
+
+        Returns:
+            Image: Self for chaining.
+        """
+        pil_img = PIL.Image.frombytes("RGBA", self._img_rect.size, pygame.image.tobytes(self._image, "RGBA"))
+        pil_img = PIL.ImageOps.invert(pil_img.convert("RGB")).convert("RGBA")
+        self._image = pygame.image.frombytes(pil_img.tobytes(), pil_img.size, "RGBA").convert()
+        return self
+
+    def filter_sharpen(self) -> "Image":
+        """
+        Sharpen the image.
+
+        Returns:
+            Image: Self for chaining.
+        """
+        pil_img = PIL.Image.frombytes("RGBA", self._img_rect.size, pygame.image.tobytes(self._image, "RGBA"))
+        pil_img = pil_img.filter(PIL.ImageFilter.SHARPEN)
+        self._image = pygame.image.frombytes(pil_img.tobytes(), pil_img.size, "RGBA").convert()
+        return self
+
+    def filter_edge_enhance(self) -> "Image":
+        """
+        Enhance edges in the image.
+
+        Returns:
+            Image: Self for chaining.
+        """
+        pil_img = PIL.Image.frombytes("RGBA", self._img_rect.size, pygame.image.tobytes(self._image, "RGBA"))
+        pil_img = pil_img.filter(PIL.ImageFilter.EDGE_ENHANCE)
+        self._image = pygame.image.frombytes(pil_img.tobytes(), pil_img.size, "RGBA").convert()
+        return self
+
     def perform_draw(self, surface: Surface, *args, **kwargs) -> None:
         """
         Draw the image onto a surface.
@@ -188,8 +381,22 @@ class Image(DrawableObject):
         surface.blit(self.image, self._img_rect)
 
 
-class MovingImage(Image):  # dino
-    """MovingImage"""
+class MovingImage(Image):
+    """
+    Image that moves automatically within window bounds.
+
+    Args:
+        image: Path or Surface.
+        pos: Initial position.
+        win_width: Window width.
+        win_height: Window height.
+        speed: Initial speed.
+
+    Features:
+    - Bounces off window edges.
+    - Supports toggling movement in X/Y.
+    - Speed and direction control.
+    """
 
     def __init__(
         self, image: Union[str, Surface], pos: Tuple[int, int], win_width: int, win_height: int, speed: int = 3
@@ -199,14 +406,21 @@ class MovingImage(Image):  # dino
         self.move_y = True
         self.vel_x = speed
         self.vel_y = speed
-        self.x_extra = self._img_rect.width - win_width
-        self.y_extra = self._img_rect.height - win_height
+        self.win_width = win_width
+        self.win_height = win_height
 
     def perform_draw(self, surface, *args, **kwargs):
+        # Move and bounce off edges
         if self.move_x:
-            self._img_rect.x = -((-self._img_rect.x + self.vel_x) % self.x_extra)
+            self._img_rect.x += self.vel_x
+            if self._img_rect.left < 0 or self._img_rect.right > self.win_width:
+                self.vel_x = -self.vel_x
+                self._img_rect.x += self.vel_x
         if self.move_y:
-            self._img_rect.y = -((-self._img_rect.y + self.vel_y) % self.y_extra)
+            self._img_rect.y += self.vel_y
+            if self._img_rect.top < 0 or self._img_rect.bottom > self.win_height:
+                self.vel_y = -self.vel_y
+                self._img_rect.y += self.vel_y
         return super().perform_draw(surface, *args, **kwargs)
 
     @property
@@ -234,7 +448,7 @@ class MovingImage(Image):  # dino
     @property
     def allow_y(self):
         """Allow Y Movement"""
-        return self.move_x
+        return self.move_y
 
     @allow_y.setter
     def allow_y(self, allow: bool):
@@ -250,27 +464,54 @@ class MovingImage(Image):  # dino
         self.vel_y = speed
 
 
-# --- Main Demo ---
-def main():
-    """main"""
-    running = True
+class SpriteSheet(Image):
+    """
+    Image subclass for handling sprite sheets.
 
-    pygame.init()
-    screen = pygame.display.set_mode((800, 600))
-    pygame.display.set_caption("Image Demo")
+    Args:
+        image: Path or Surface.
+        frame_width: Width of each frame.
+        frame_height: Height of each frame.
 
-    image = Image("custom/pyxox/pyxox/data/images/Background.png", (0, 0)).scale(800, 600)
+    Usage:
+        sheet = SpriteSheet("spritesheet.png", 32, 32)
+        frame = sheet.get_frame(0, 1)
+    """
 
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+    def __init__(
+        self, image: Union[str, Surface], frame_width: int, frame_height: int, pos: Tuple[int, int] = (0, 0), **kwargs
+    ):
+        super().__init__(image, pos, **kwargs)
+        self.frame_width = frame_width
+        self.frame_height = frame_height
 
-        screen.fill((30, 30, 30))
-        # image.perform_draw(screen)
-        screen.blit(image.image, (0, 0))
-        pygame.display.flip()
+    def get_frame(self, col: int, row: int) -> Image:
+        """
+        Extract a frame from the sprite sheet.
 
+        Args:
+            col: Column index.
+            row: Row index.
 
-if __name__ == "__main__":
-    main()
+        Returns:
+            Image: The extracted frame as an Image.
+        """
+        x = col * self.frame_width
+        y = row * self.frame_height
+        rect = pygame.Rect(x, y, self.frame_width, self.frame_height)
+        return self.crop(rect)
+
+    def get_all_frames(self) -> list:
+        """
+        Extract all frames from the sprite sheet.
+
+        Returns:
+            list: List of Image frames.
+        """
+        frames = []
+        sheet_width, sheet_height = self.size()
+        for y in range(0, sheet_height, self.frame_height):
+            for x in range(0, sheet_width, self.frame_width):
+                rect = pygame.Rect(x, y, self.frame_width, self.frame_height)
+                frames.append(self.crop(rect))
+        return frames

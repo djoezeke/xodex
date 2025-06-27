@@ -15,13 +15,14 @@ from xodex.objects.manager import ObjectsManager, register
 from xodex.objects.objects import Object, DrawableObject, EventfulObject, LogicalObject
 
 __all__ = (
+    "make_xodex_object",
+    "ObjectsManager",
     "DrawableObject",
     "EventfulObject",
     "LogicalObject",
-    "ObjectsManager",
+    "register",
     "Objects",
     "Object",
-    "register",
 )
 
 
@@ -36,9 +37,7 @@ class Objects(list):
     # region Private
     def _check_type_(self, item):
         if not isinstance(item, self._allowed_types_):
-            raise ValueError(
-                f"Object type: {type(item)}/{item} is not in {self._allowed_types_}"
-            )
+            raise ValueError(f"Object type: {type(item)}/{item} is not in {self._allowed_types_}")
 
     def __iadd__(self, other):
         for item in other:
@@ -75,26 +74,20 @@ class Objects(list):
 
     def update_object(self, deltatime: float, *args, **kwargs) -> None:
         """Update all LogicalObjects."""
-        filtered: Iterable[LogicalObject] = filter(
-            lambda x: isinstance(x, LogicalObject), self
-        )
+        filtered: Iterable[LogicalObject] = filter(lambda x: isinstance(x, LogicalObject), self)
         for object in filtered:
             object.update_xodex_object(deltatime, *args, **kwargs)
 
     def draw_object(self, surface: Surface, *args, **kwargs) -> None:
         """Draw all DrawableObjects, sorted by z_index if present."""
-        filtered: Iterable[DrawableObject] = filter(
-            lambda x: isinstance(x, DrawableObject), self
-        )
-        sorted_objs =filtered # sorted(filtered, key=lambda object: getattr(object, "z_index", 0))
+        filtered: Iterable[DrawableObject] = filter(lambda x: isinstance(x, DrawableObject), self)
+        sorted_objs = filtered  # sorted(filtered, key=lambda object: getattr(object, "z_index", 0))
         for object in sorted_objs:
             object.draw_xodex_object(surface, *args, **kwargs)
 
     def handle_object(self, event: Event, *args, **kwargs) -> None:
         """Dispatch event to all EventfulObjects."""
-        filtered: Iterable[EventfulObject] = filter(
-            lambda x: isinstance(x, EventfulObject), self
-        )
+        filtered: Iterable[EventfulObject] = filter(lambda x: isinstance(x, EventfulObject), self)
         for object in filtered:
             object.handle_xodex_event(event, *args, **kwargs)
 
@@ -149,9 +142,7 @@ def make_xodex_object(
                 if not callable(getattr(object_cls, method, None)):
                     missing.append(method)
         if missing:
-            raise TypeError(
-                f"Class '{object_cls.__name__}' is missing required method(s): {', '.join(missing)}"
-            )
+            raise TypeError(f"Class '{object_cls.__name__}' is missing required method(s): {', '.join(missing)}")
 
     def decorator(object_cls):
         validate_methods(object_cls, base_classes)

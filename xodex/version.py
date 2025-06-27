@@ -24,4 +24,37 @@ class Version(tuple):
     patch = property(lambda self: self[2])
 
 
-vernum = Version(25, 6, 15)
+vernum = Version(25, 6, 27)
+
+
+def get_version():
+    """
+    Return the version as a tuple and string.
+
+    Returns:
+        tuple: (major, minor, patch)
+        str: version string
+    """
+    if isinstance(vernum, (tuple, list)):
+        return tuple(vernum), ".".join(map(str, vernum))
+    return (vernum,), str(vernum)
+
+
+def is_version_at_least(version):
+    """
+    Check if the current version is at least the given version.
+
+    Args:
+        version (str|tuple): Version string or tuple, e.g. "1.2.3" or (1,2,3)
+    Returns:
+        bool: True if current version >= version
+    """
+
+    def parse(v):
+        if isinstance(v, str):
+            return tuple(int(x) for x in v.split("."))
+        return tuple(v)
+
+    current = parse(vernum)
+    target = parse(version)
+    return current >= target

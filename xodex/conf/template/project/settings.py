@@ -7,7 +7,6 @@ You can customize game window, physics, assets, debugging, audio, localization, 
 
 For advanced settings and detailed explanations, see the Xodex documentation or this file's comments.
 """
-
 from pathlib import Path
 
 PROJECT = "{{ project_name }}"
@@ -24,7 +23,6 @@ WINDOW_SIZE = (WIDTH, HEIGHT)
 TITLE = "Xodex Game Engine"  # Window title
 VERSION = "{{ xodex_version }}"  # Game version string
 FULLSCREEN = False  # Set to True for fullscreen mode
-VSYNC = True  # Enable vertical sync for smoother graphics
 ICON_PATH = None  # Set to a path to your window icon, e.g. "asset/icon.png"
 
 # --- Physics & Gameplay ---
@@ -71,6 +69,7 @@ KEY_BINDINGS = {
     "pause": "p",  # Pause the game
     "quit": "escape",  # Quit the game
 }
+
 GAMEPAD_ENABLED = False  # Enable gamepad/controller support
 
 # --- Networking (for multiplayer or online features) ---

@@ -13,14 +13,29 @@ from xodex.core.exceptions import NotRegistered, AlreadyRegistered, ObjectError
 class Sounds(Singleton):
     """
     Singleton class for managing sound effects and channels using pygame.mixer.
-    Provides registration, playback, volume, and introspection utilities.
+    Provides registration, playback, volume, mute, fade, and introspection utilities.
+
+    Features:
+    - Register, unregister, and batch register/unregister sounds.
+    - Play, stop, pause, unpause, and fade in/out sounds and music.
+    - Master volume and mute/unmute support.
+    - Channel management and introspection.
+    - Dynamic (re)loading and refreshing of sounds.
+    - Optional callback on sound end (if supported).
     """
 
     _channels: dict[str, Channel] = {}
     _music: str = None
     _channel_count: int = 0
+    _master_volume: float = 1.0
+    _muted: bool = False
 
     def __init__(self, folder: str = "."):
+        """
+        Initialize the Sounds manager.
+
+        :param folder: Default folder to load sounds from.
+        """
         self.sound_folder = None
         try:
             xodex_settings = os.getenv("XODEX_SETTINGS_MODULE")
@@ -39,38 +54,39 @@ class Sounds(Singleton):
         return key in self.__sounds
 
     def __repr__(self):
-        """Return a string representation of Sounds."""
         return f"{self.__class__.__name__}()"
 
     def __str__(self):
-        """Return a string representation of Sounds."""
         return f"<{self.__class__.__name__} in {self.sound_folder}>"
 
     # region Music
 
     @classmethod
     def play_music(cls, loops: int = -1, start: float = 0, fade_ms: int = 0):
-        """Play background music."""
+        """Play background music with optional fade-in."""
         try:
             pygame.mixer.music.load(Sounds._music)
             pygame.mixer.music.play(loops, start, fade_ms)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Failed to play music: {e}")
 
     @classmethod
     def set_music(cls, filename: str):
-        """Load background music."""
+        """Set the music file to be played."""
         cls._music = filename
 
     @classmethod
-    def stop_music(cls):
-        """Stop playing background music."""
-        pygame.mixer.music.stop()
+    def stop_music(cls, fade_ms: int = 0):
+        """Stop playing background music, with optional fade-out."""
+        if fade_ms > 0:
+            pygame.mixer.music.fadeout(fade_ms)
+        else:
+            pygame.mixer.music.stop()
 
     @classmethod
     def set_music_volume(cls, volume: float):
-        """Pause background music."""
-        pygame.mixer.music.set_volume(max(0.0, min(1.0, volume)))
+        """Set background music volume (0.0 to 1.0)."""
+        pygame.mixer.music.set_volume(max(0.0, min(1.0, volume * cls._master_volume)))
 
     @classmethod
     def pause_music(cls):
@@ -82,24 +98,57 @@ class Sounds(Singleton):
         """Unpause background music."""
         pygame.mixer.music.unpause()
 
+    @classmethod
+    def fadeout_music(cls, fade_ms: int = 1000):
+        """Fade out the music over fade_ms milliseconds."""
+        pygame.mixer.music.fadeout(fade_ms)
+
+    @classmethod
+    def mute_music(cls):
+        """Mute background music."""
+        pygame.mixer.music.set_volume(0.0)
+
+    @classmethod
+    def unmute_music(cls):
+        """Unmute background music (restores master volume)."""
+        pygame.mixer.music.set_volume(cls._master_volume)
+
     # endregion
 
     # region Sound/Channel
+
     def play(
-        self, sound: str, channel: str = "", loops: int = 0, maxtime: int = 0, fade_ms: int = 0
+        self, sound: str, channel: str = "", loops: int = 0, maxtime: int = 0, fade_ms: int = 0, on_end=None
     ) -> Optional[Channel]:
-        """Play a sound by name, optionally on a named channel."""
+        """
+        Play a sound by name, optionally on a named channel, with fade-in and callback.
+
+        :param sound: Registered sound name.
+        :param channel: Channel name (optional).
+        :param loops: Number of loops.
+        :param maxtime: Max time to play in ms.
+        :param fade_ms: Fade-in time in ms.
+        :param on_end: Optional callback when sound ends (if supported).
+        :return: Channel object or None.
+        """
         try:
+            snd = self.__sounds[sound]
             if channel == "":
-                ch = self.__sounds[sound].play(loops, maxtime, fade_ms)
+                ch = snd.play(loops, maxtime, fade_ms)
             else:
-                ch = Sounds._channels[channel].play(self.__sounds[sound], loops, maxtime, fade_ms)
+                ch = Sounds._channels[channel].play(snd, loops, maxtime, fade_ms)
+            if ch and on_end and hasattr(ch, "set_endevent"):
+                ch.set_endevent(on_end)
             return ch
         except KeyError:
             print(f"Sound or channel '{sound}'/'{channel}' not found.")
 
     def stop(self, sound: str):
-        """Play a sound by name, optionally on a named channel."""
+        """
+        Stop a sound by name and its channel if exists.
+
+        :param sound: Registered sound name.
+        """
         try:
             self.__sounds[sound].stop()
         except KeyError:
@@ -108,19 +157,24 @@ class Sounds(Singleton):
             try:
                 Sounds._channels[sound].stop()
             except KeyError:
-                print(f"Channel '{sound}' not found.")
+                pass
 
-    def set_volume(self, sound, volume: float):
-        """Pause background music."""
+    def set_volume(self, sound: str, volume: float):
+        """
+        Set the volume for a sound and its channel.
+
+        :param sound: Registered sound name.
+        :param volume: Volume (0.0 to 1.0).
+        """
         try:
-            self.__sounds[sound].set_volume(max(0.0, min(1.0, volume)))
+            self.__sounds[sound].set_volume(max(0.0, min(1.0, volume * self._master_volume)))
         except KeyError:
             print(f"Sound '{sound}' not found.")
         else:
             try:
-                Sounds._channels[sound].set_volume(max(0.0, min(1.0, volume)))
+                Sounds._channels[sound].set_volume(max(0.0, min(1.0, volume * self._master_volume)))
             except KeyError:
-                print(f"Channel '{sound}' not found.")
+                pass
 
     @classmethod
     def pause(cls, channel: str) -> None:
@@ -137,6 +191,47 @@ class Sounds(Singleton):
             cls._channels[channel].unpause()
         except KeyError:
             pass
+
+    def fadeout(self, sound: str, fade_ms: int = 1000):
+        """
+        Fade out a sound by name.
+
+        :param sound: Registered sound name.
+        :param fade_ms: Fade-out time in ms.
+        """
+        try:
+            self.__sounds[sound].fadeout(fade_ms)
+        except KeyError:
+            print(f"Sound '{sound}' not found.")
+
+    def mute(self):
+        """Mute all sounds and music."""
+        self._muted = True
+        for s in self.__sounds.values():
+            s.set_volume(0.0)
+        pygame.mixer.music.set_volume(0.0)
+
+    def unmute(self):
+        """Unmute all sounds and music (restores master volume)."""
+        self._muted = False
+        for s in self.__sounds.values():
+            s.set_volume(self._master_volume)
+        pygame.mixer.music.set_volume(self._master_volume)
+
+    def set_master_volume(self, volume: float):
+        """
+        Set the master volume for all sounds and music.
+
+        :param volume: Volume (0.0 to 1.0).
+        """
+        self._master_volume = max(0.0, min(1.0, volume))
+        for s in self.__sounds.values():
+            s.set_volume(self._master_volume)
+        pygame.mixer.music.set_volume(self._master_volume)
+
+    def is_muted(self) -> bool:
+        """Return True if muted."""
+        return self._muted
 
     # endregion Sound
 
@@ -202,6 +297,9 @@ class Sounds(Singleton):
     def register(self, sound: Sound, sound_name: str):
         """
         Register a Sound object with a name.
+
+        :param sound: Sound object.
+        :param sound_name: Name to register.
         """
         if not isinstance(sound, Sound):
             raise ObjectError(f"The Sound {sound_name} is not of type Sound.")
@@ -209,19 +307,49 @@ class Sounds(Singleton):
             raise AlreadyRegistered(f"The Sound {sound_name} is already registered.")
         self.__sounds[sound_name] = sound
 
+    def batch_register(self, sounds: dict):
+        """
+        Register multiple sounds at once.
+
+        :param sounds: Dict of {name: Sound}.
+        """
+        for name, sound in sounds.items():
+            self.register(sound, name)
+
     def unregister(self, sound_name: str) -> None:
         """
         Unregister a Sound by name.
+
+        :param sound_name: Registered sound name.
         """
         if not self.isregistered(sound_name):
             raise NotRegistered(f"The Sound {sound_name} is not registered")
         del self.__sounds[sound_name]
 
+    def batch_unregister(self, sound_names: list):
+        """
+        Unregister multiple sounds at once.
+
+        :param sound_names: List of sound names.
+        """
+        for name in sound_names:
+            self.unregister(name)
+
     def isregistered(self, sound_name: str) -> bool:
         """
         Return True if a Sound is registered.
+
+        :param sound_name: Registered sound name.
         """
         return sound_name in self.__sounds
+
+    def exists(self, sound_name: str) -> bool:
+        """
+        Check if a sound file exists in the sound folder.
+
+        :param sound_name: Sound file name.
+        """
+        return os.path.exists(os.path.join(self.sound_folder, sound_name))
 
     @classmethod
     def new_channel(cls, channel_name: str):
@@ -240,19 +368,35 @@ class Sounds(Singleton):
             del cls._channels[name]
 
     def load(self, filename: str, sound_name: str = ""):
-        """Load Sound music."""
+        """
+        Load a Sound file and register it.
+
+        :param filename: Sound file name.
+        :param sound_name: Name to register (optional).
+        """
         if filename in os.listdir(self.sound_folder):
             try:
                 sound = Sound(os.path.join(self.sound_folder, filename))
                 if sound_name == "":
-                    self.register(sound, os.path.splitext(filename)[0])
+                    try:
+                        self.register(sound, os.path.splitext(filename)[0])
+                    except AlreadyRegistered:
+                        pass
                 else:
-                    self.register(sound, sound_name)
+                    try:
+                        self.register(sound, sound_name)
+                    except AlreadyRegistered:
+                        pass
             except Exception as e:
                 print(f"Failed to load sound {filename}: {e}")
 
     def load_sounds(self, directory: str, extensions: tuple = (".wav", ".ogg", ".mp3")):
-        """Load all sounds from a directory with given extensions."""
+        """
+        Load all sounds from a directory with given extensions.
+
+        :param directory: Directory to load from.
+        :param extensions: Tuple of allowed extensions.
+        """
         try:
             for fname in os.listdir(directory):
                 if fname.endswith(extensions):
@@ -260,12 +404,21 @@ class Sounds(Singleton):
         except Exception:
             print(f"Cannot find the path: '{directory}'")
 
-    def list_sounds(self):
+    def reload_sounds(self, clear: bool = False):
+        """
+        Reload all sounds from the current sound folder.
+        """
+        if clear:
+            self.__sounds.clear()
+        self.load_sounds(self.sound_folder)
+        return self
+
+    def list_sounds(self) -> list:
         """List all registered sound names."""
         return list(self.__sounds.keys())
 
     @classmethod
-    def list_channels(cls):
+    def list_channels(cls) -> list:
         """List all registered channel names."""
         return list(cls._channels.keys())
 
@@ -274,12 +427,18 @@ class Sounds(Singleton):
         Clear all registered sounds and channels.
         """
         self.__sounds.clear()
+        Sounds._channels.clear()
+        Sounds._channel_count = 0
 
     def info(self) -> dict:
         """
         Get a summary of the current sound system state.
+
+        :return: Dict with 'sounds' and 'channels' keys.
         """
         return {
             "sounds": self.list_sounds(),
             "channels": Sounds.list_channels(),
+            "muted": self._muted,
+            "master_volume": self._master_volume,
         }

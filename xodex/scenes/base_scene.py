@@ -1,15 +1,21 @@
-import os
+import asyncio
 from abc import ABC, abstractmethod
-from importlib import import_module
-from typing import Union, Generator
+from typing import Union, Generator, Callable, Optional, Any, TYPE_CHECKING
 
 import pygame
 from pygame.event import Event
 
-from xodex.objects import Objects, DrawableObject, EventfulObject, LogicalObject
+from xodex.conf import settings
+from xodex.game.sounds import Sounds
+from xodex.utils.log import get_xodex_logger
 from xodex.objects.manager import ObjectsManager
+from xodex.objects import Objects, DrawableObject, EventfulObject, LogicalObject
 
-# from xodex.scenes.manager import SceneManager
+logger = get_xodex_logger(__name__)
+
+if TYPE_CHECKING:
+    from xodex.scenes.manager import SceneManager
+
 
 __all__ = ("BaseScene",)
 
@@ -19,7 +25,8 @@ class BaseScene(ABC):
     Abstract base class for all scenes in the Xodex engine.
 
     Provides a standard interface and utility methods for scene management,
-    including object handling, drawing, updating, event processing, and lifecycle hooks.
+    including object handling, drawing, updating, event processing, lifecycle hooks,
+    async support, event queue, filtering, snapshot/export, and debug overlay.
 
     Attributes:
         setting: The imported settings module (from XODEX_SETTINGS_MODULE).
@@ -31,6 +38,11 @@ class BaseScene(ABC):
         _object: The global object manager's objects.
         _paused (bool): Whether the scene is currently paused.
         _background_color (tuple[int, int, int]): Background color for the scene.
+        _event_queue (list[Event]): Scene-level event queue.
+        _debug_overlay (bool): Whether to draw debug overlay.
+        _first_entered (bool): Whether the scene has been entered at least once.
+        _height (int): Scene surface height.
+        _width (int): Scene surface width.
 
     Methods:
         elapsed: Elapsed time since scene started (seconds).
@@ -46,27 +58,44 @@ class BaseScene(ABC):
         is_paused: Check if the scene is paused.
         set_background_color: Set the background color.
         get_background_color: Get the background color.
+        add_event: Add an event to the scene queue.
+        dispatch_events: Dispatch all queued events.
+        filter_objects: Filter objects by type or predicate.
+        snapshot: Return a copy of the scene surface.
+        export_image: Save the scene surface to an image file.
+        save_state/load_state: Save/load scene state (basic).
+        toggle_debug_overlay: Toggle debug overlay.
+        draw_debug_overlay: Draw debug info on the scene.
         on_enter/on_exit/on_first_enter/on_last_exit/on_pause/on_resume: Scene lifecycle hooks.
+
+    Usage:
+        class MyScene(BaseScene):
+            def _generate_objects_(self):
+                yield MyPlayer()
+                yield MyEnemy()
     """
 
     def __init__(self, *args, **kwargs) -> "BaseScene":
         """
         Initialize the scene, loading settings and preparing the surface and objects.
         """
-        self.setting = import_module(os.getenv("XODEX_SETTINGS_MODULE"))
-        self._size = getattr(self.setting, "WINDOW_SIZE", (560, 480)) or (560, 480)
-        self._debug = getattr(self.setting, "DEBUG", True)
+        from xodex.scenes.manager import SceneManager
+
+        self._size = settings.WINDOW_SIZE or (560, 480)
+        self._debug = settings.DEBUG or True
         self._start_time = pygame.time.get_ticks() / 1000
         self._screen = pygame.Surface(self._size)
         self._object = ObjectsManager().get_objects()
-        # self._scenes = SceneManager().get_scenes()  # prom
+        self._manager = SceneManager()
+        self._sounds = Sounds().reload_sounds()
         self._objects = Objects()
         self._paused = False
-        self._background_color = getattr(self.setting, "BACKGROUND_COLOR", (255, 255, 255))
+        self._background_color = (255, 255, 255)
         self._first_entered = False
-
-        self._height = self._size[1]  # prom
-        self._width = self._size[0]  # prom
+        self._height = self._size[1]
+        self._width = self._size[0]
+        self._event_queue: list[Event] = []
+        self._debug_overlay = False
 
     def __str__(self):
         """Return a string representation of the Scene."""
@@ -95,8 +124,10 @@ class BaseScene(ABC):
         """
         self._size = size
         self._screen = pygame.Surface(self._size)
+        self._height = self._size[1]
+        self._width = self._size[0]
         if self._debug:
-            print(f"SceneWindow resized to: {self._size}")
+            logger.info(f"SceneWindow resized to: {self._size}")
 
     # endregion
 
@@ -112,67 +143,40 @@ class BaseScene(ABC):
         """
         return pygame.time.get_ticks() / 1000 - self._start_time
 
-    @property  # prom
-    def height(self) -> pygame.Surface:
-        """
-        Return the Scene Surface Height.
-
-        Returns:
-            int : The surface height for this scene.
-        """
+    @property
+    def height(self) -> int:
+        """Return the Scene Surface Height."""
         return self._height
 
-    @property  # prom
-    def width(self) -> pygame.Surface:
-        """
-        Return the Scene Surface Width.
-
-        Returns:
-            int : The surface width for this scene.
-        """
+    @property
+    def width(self) -> int:
+        """Return the Scene Surface Width."""
         return self._width
 
     @property
     def screen(self) -> pygame.Surface:
-        """
-        Return the Scene Surface.
-
-        Returns:
-            pygame.Surface: The surface for this scene.
-        """
+        """Return the Scene Surface."""
         return self._screen
 
     @property
-    def object(self):
-        """
-        Return Object Manager's objects.
-
-        Returns:
-            Any: The objects managed by the global ObjectsManager.
-        """
+    def object(self) -> ObjectsManager:
+        """Return Object Manager's objects."""
         return self._object
 
-    # @property  # prom
-    # def scene(self):
-    #     """
-    #     Return Object Scnes's Scenes.
+    @property
+    def objects(self) -> Objects:
+        """Return all Scene's objects."""
+        return self._objects
 
-    #     Returns:
-    #         Any: The scenes managed by the global SceneManager.
-    #     """
-    #     return self._scenes
+    @property
+    def manager(self) -> "SceneManager":
+        """Return Scene Manager."""
+        return self._manager
 
-    # def get_scene(self, scene_name: str) -> Union["BaseScene", None]:  # prom
-    #     """
-    #     Get an scene by name from the global scene manager.
-
-    #     Args:
-    #         scene_name (str): The name of the object.
-
-    #     Returns:
-    #         Scene | None: The requested scene, or None if not found.
-    #     """
-    #     return SceneManager().get_scene(scene_name=scene_name)
+    @property
+    def sounds(self) -> Sounds:
+        """Return Sounds."""
+        return self._sounds.reload_sounds()
 
     def get_object(self, object_name: str) -> Union[DrawableObject, EventfulObject, LogicalObject, None]:
         """
@@ -188,23 +192,20 @@ class BaseScene(ABC):
 
     @property
     def size(self) -> tuple[int, int]:
-        """
-        Return the Scene Screen Size.
-
-        Returns:
-            tuple[int, int]: The (width, height) of the scene.
-        """
+        """Return the Scene Screen Size (width, height)."""
         return self._size
 
     def draw_scene(self, *args, **kwargs) -> pygame.Surface:
         """
-        Draw all objects to the scene surface.
+        Draw all objects to the scene surface, and optionally the debug overlay.
 
         Returns:
             pygame.Surface: The updated scene surface.
         """
         self._screen.fill(self._background_color)
         self._objects.draw_object(self._screen, *args, **kwargs)
+        if self._debug_overlay:
+            self.draw_debug_overlay()
         return self._screen
 
     def update_scene(self, deltatime: float, *args, **kwargs) -> None:
@@ -215,6 +216,14 @@ class BaseScene(ABC):
             deltatime (float): Time since last update (ms).
         """
         if not self._paused:
+            self._objects.update_object(deltatime, *args, **kwargs)
+
+    async def async_update_scene(self, deltatime: float, *args, **kwargs) -> None:
+        """
+        Async version of update_scene.
+        """
+        if not self._paused:
+            await asyncio.sleep(0)
             self._objects.update_object(deltatime, *args, **kwargs)
 
     def handle_scene(self, event: Event, *args, **kwargs) -> None:
@@ -229,6 +238,108 @@ class BaseScene(ABC):
         if not self._paused:
             self._objects.handle_object(event, *args, **kwargs)
 
+    def add_event(self, event: Event) -> None:
+        """
+        Add an event to the scene's event queue.
+
+        Args:
+            event (pygame.event.Event): The event to queue.
+        """
+        self._event_queue.append(event)
+
+    def dispatch_events(self) -> None:
+        """
+        Dispatch all queued events to the scene's objects.
+        """
+        while self._event_queue:
+            event = self._event_queue.pop(0)
+            self.handle_scene(event)
+
+    def filter_objects(
+        self, predicate: Optional[Callable[[Any], bool]] = None, obj_type: Optional[type] = None
+    ) -> list:
+        """
+        Filter objects in the scene by a predicate or type.
+
+        Args:
+            predicate: Callable that returns True for objects to include.
+            obj_type: Type to filter by.
+
+        Returns:
+            list: Filtered objects.
+        """
+        objs = list(self._objects)
+        if obj_type:
+            objs = [o for o in objs if isinstance(o, obj_type)]
+        if predicate:
+            objs = [o for o in objs if predicate(o)]
+        return objs
+
+    def snapshot(self) -> pygame.Surface:
+        """
+        Return a copy of the current scene surface.
+
+        Returns:
+            pygame.Surface: A copy of the scene's surface.
+        """
+        return self._screen.copy()
+
+    def export_image(self, filename: str) -> None:
+        """
+        Save the current scene surface to an image file.
+
+        Args:
+            filename (str): Path to save the image.
+        """
+        pygame.image.save(self._screen, filename)
+        if self._debug:
+            logger.info(f"[{self.__class__.__name__}] Scene exported to {filename}")
+
+    def save_state(self) -> dict:
+        """
+        Save the scene state (basic example).
+
+        Returns:
+            dict: Serializable state.
+        """
+        return {
+            "paused": self._paused,
+            "background_color": self._background_color,
+            "elapsed": self.elapsed,
+        }
+
+    def load_state(self, state: dict) -> None:
+        """
+        Load the scene state (basic example).
+
+        Args:
+            state (dict): State to load.
+        """
+        self._paused = state.get("paused", self._paused)
+        self._background_color = state.get("background_color", self._background_color)
+
+    def toggle_debug_overlay(self) -> None:
+        """
+        Toggle the debug overlay on/off.
+        """
+        self._debug_overlay = not self._debug_overlay
+
+    def draw_debug_overlay(self) -> None:
+        """
+        Draw debug information on the scene surface.
+        """
+        font = pygame.font.SysFont("consolas", 16)
+        info = [
+            f"Scene: {self.__class__.__name__}",
+            f"Elapsed: {self.elapsed:.2f}s",
+            f"Paused: {self._paused}",
+            f"Objects: {len(self._objects)}",
+            f"Size: {self._size}",
+        ]
+        for i, line in enumerate(info):
+            surf = font.render(line, True, (0, 0, 0))
+            self._screen.blit(surf, (8, 8 + i * 18))
+
     def setup(self):
         """
         Clear and regenerate scene objects by calling _generate_objects_.
@@ -236,11 +347,21 @@ class BaseScene(ABC):
         self._objects.clear()
         if objects := self._generate_objects_():
             self._objects.extend(list(objects))
-
         if self._debug:
-            print(f"[{self.__class__.__name__}] Objects after setup: {len(self._objects)}")
+            logger.info(f"[{self.__class__.__name__}] Objects after setup: {len(self._objects)}")
 
-    # --- New Features ---
+    async def async_setup(self):
+        """
+        Async version of setup.
+        """
+        self._objects.clear()
+        objects = self._generate_objects_()
+        if asyncio.iscoroutine(objects):
+            objects = await objects
+        if objects:
+            self._objects.extend(list(objects))
+        if self._debug:
+            logger.info(f"[{self.__class__.__name__}] Objects after setup: {len(self._objects)}")
 
     def pause(self):
         """Pause the scene (updates and event handling will be skipped)."""
@@ -248,7 +369,7 @@ class BaseScene(ABC):
             self._paused = True
             self.on_pause()
             if self._debug:
-                print(f"[{self.__class__.__name__}] Scene paused.")
+                logger.info(f"[{self.__class__.__name__}] Scene paused.")
 
     def resume(self):
         """Resume the scene (updates and event handling will continue)."""
@@ -256,7 +377,7 @@ class BaseScene(ABC):
             self._paused = False
             self.on_resume()
             if self._debug:
-                print(f"[{self.__class__.__name__}] Scene resumed.")
+                logger.info(f"[{self.__class__.__name__}] Scene resumed.")
 
     def toggle_pause(self):
         """Toggle the pause state of the scene."""
@@ -279,7 +400,7 @@ class BaseScene(ABC):
         """
         self._background_color = color
         if self._debug:
-            print(f"[{self.__class__.__name__}] Background color set to: {self._background_color}")
+            logger.info(f"[{self.__class__.__name__}] Background color set to: {self._background_color}")
 
     def get_background_color(self) -> tuple[int, int, int]:
         """
@@ -294,31 +415,31 @@ class BaseScene(ABC):
 
     # region Private
 
-    def _on_scene_exit_(self, *args, **kwargs) -> None:  # prom
+    def _on_scene_exit_(self, *args, **kwargs) -> None:
         """Runs When exiting scene."""
         if self._debug:
-            print(f"[{self.__class__.__name__}] on_exit called.")
+            logger.info(f"[{self.__class__.__name__}] on_exit called.")
         self.on_exit(*args, **kwargs)
 
-    def _on_scene_last_exit_(self, *args, **kwargs) -> None:  # prom
+    def _on_scene_last_exit_(self, *args, **kwargs) -> None:
         """Runs the last time the scene is exited."""
         if self._debug:
-            print(f"[{self.__class__.__name__}] on_last_exit called.")
+            logger.info(f"[{self.__class__.__name__}] on_last_exit called.")
         self.on_last_exit(*args, **kwargs)
 
-    def _on_scene_enter_(self, *args, **kwargs) -> None:  # prom
-        """Runs when tntering Scene."""
+    def _on_scene_enter_(self, *args, **kwargs) -> None:
+        """Runs when entering Scene."""
         if not self._first_entered:
             self._on_scene_first_enter_(*args, **kwargs)
             self._first_entered = True
         if self._debug:
-            print(f"[{self.__class__.__name__}] on_enter called.")
+            logger.info(f"[{self.__class__.__name__}] on_enter called.")
         self.on_enter(*args, **kwargs)
 
-    def _on_scene_first_enter_(self, *args, **kwargs) -> None:  # prom
+    def _on_scene_first_enter_(self, *args, **kwargs) -> None:
         """Runs the first time the scene is entered."""
         if self._debug:
-            print(f"[{self.__class__.__name__}] on_first_enter called.")
+            logger.info(f"[{self.__class__.__name__}] on_first_enter called.")
         self.on_first_enter(*args, **kwargs)
 
     # endregion
@@ -355,7 +476,7 @@ class BaseScene(ABC):
         Override in subclasses for custom behavior.
         """
         if self._debug:
-            print(f"[{self.__class__.__name__}] on_pause called.")
+            logger.info(f"[{self.__class__.__name__}] on_pause called.")
 
     def on_resume(self, *args, **kwargs) -> None:
         """
@@ -363,6 +484,6 @@ class BaseScene(ABC):
         Override in subclasses for custom behavior.
         """
         if self._debug:
-            print(f"[{self.__class__.__name__}] on_resume called.")
+            logger.info(f"[{self.__class__.__name__}] on_resume called.")
 
     # endregion
