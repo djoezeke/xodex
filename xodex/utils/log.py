@@ -155,6 +155,8 @@ LOG_FORMAT = "[%(asctime)s] %(levelname)s %(name)s: %(message)s"
 LOG_LEVEL = os.environ.get("XODEX_LOG_LEVEL", "DEBUG").upper()
 LOG_FILE = os.environ.get("XODEX_LOG_FILE", "xodex.log")
 
+LOG_FORMATTT = "[%(asctime)s] %(levelname)s %(name)s: %(lineno)d %(message)s"
+
 # --- Logger Factory and Utilities ---
 
 
@@ -190,7 +192,7 @@ def get_xodex_logger(module_name=None, level=None, use_color=True, json_logs=Fal
         fh = RotatingFileHandler(LOG_FILE, maxBytes=1_000_000, backupCount=3)
         fh.setFormatter(JSONFormatter() if json_logs else logging.Formatter(LOG_FORMAT))
         logger.addHandler(fh)
-        # Optional: Add syslog/Windows Event Log handler
+         # Optional: Add syslog/Windows Event Log handler
         # platform_handler = get_platform_handler()
         # if platform_handler:
         #     platform_handler.setLevel(logging.ERROR)
@@ -271,7 +273,7 @@ DEFAULT_LOGGING = {
     },
     "formatters": {
         "xodex": {
-            "()": ColoredFormatter,
+            " ()": ColoredFormatter,
             "format": LOG_FORMAT,
         },
         "json": {

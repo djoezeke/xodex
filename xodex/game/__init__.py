@@ -107,6 +107,7 @@ class Game(Singleton):
 
         super().__init__()
         pygame.init()
+
         self._size = settings.WINDOW_SIZE
         self._caption = settings.TITLE
         self._icon = settings.ICON_PATH
@@ -122,7 +123,7 @@ class Game(Singleton):
         flags = pygame.SCALED | pygame.RESIZABLE
         if self._fullscreen:
             flags |= pygame.FULLSCREEN
-        self.__screen = pygame.display.set_mode(self._size, flags)
+        self.__screen = pygame.display.set_mode(self._size, flags=flags)
 
         self.__clock = pygame.time.Clock()
         self.ready = self.objects_ready = self.scenes_ready = False
@@ -166,7 +167,7 @@ class Game(Singleton):
         flags = pygame.SCALED | pygame.RESIZABLE
         if self._fullscreen:
             flags |= pygame.FULLSCREEN
-        self.__screen = pygame.display.set_mode(self._size, flags)
+        self.__screen = pygame.display.set_mode(self._size, flags=flags)
 
     def save_screenshot(self, filename: str = None):
         """
@@ -309,7 +310,7 @@ class Game(Singleton):
         flags = pygame.SCALED | pygame.RESIZABLE
         if self._fullscreen:
             flags |= pygame.FULLSCREEN
-        self.__screen = pygame.display.set_mode(self._size, flags)
+        self.__screen = pygame.display.set_mode(self._size, flags=flags)
         if self._debug:
             print(f"Window resized to: {self._size}")
 
@@ -436,8 +437,8 @@ def run(project=None, on_setup_success=None, on_setup_failure=None, async_mode=F
     os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
     if project:
         os.environ.setdefault("XODEX_SETTINGS_MODULE", f"{project}.settings")
+    settings.configure()
     game = Game()
-    game.setup(on_success=on_setup_success, on_failure=on_setup_failure)
     if async_mode:
         import asyncio
 

@@ -7,7 +7,7 @@ Defines base classes for game objects:
 """
 
 import time
-from typing import  Union
+from typing import Union
 from abc import ABC, abstractmethod
 
 from pygame import Surface
@@ -52,9 +52,7 @@ class LogicalObject(Object, ABC):
         """
         if not getattr(self, "update_enabled", True):
             return
-        start_time = (
-            time.perf_counter() if getattr(self, "update_profile", False) else None
-        )
+        start_time = time.perf_counter() if getattr(self, "update_profile", False) else None
         try:
             self.before_update()
             self.perform_update(deltatime, *args, **kwargs)
@@ -141,13 +139,11 @@ class DrawableObject(Object, ABC):
 
         if not getattr(self, "draw_enabled", True):
             return
-        start_time = (
-            time.perf_counter() if getattr(self, "draw_profile", False) else None
-        )
+        start_time = time.perf_counter() if getattr(self, "draw_profile", False) else None
         try:
             self.before_draw()
             self.perform_draw(surface, *args, **kwargs)
-            self._after_draw_()
+            self.after_draw()
         except Exception as exc:
             self.on_draw_error(exc)
         finally:
@@ -182,9 +178,7 @@ class DrawableObject(Object, ABC):
     def after_draw(self) -> None:
         """Hook called after drawing. Override as needed."""
 
-    def on_draw_profile(
-        self, elapsed: float, surface: Surface, *args, **kwargs
-    ) -> None:
+    def on_draw_profile(self, elapsed: float, surface: Surface, *args, **kwargs) -> None:
         """
         Hook called with elapsed time if draw_profile is enabled.
 
@@ -232,9 +226,7 @@ class EventfulObject(Object, ABC):
         if not getattr(self, "event_enabled", True):
             return
 
-        start_time = (
-            time.perf_counter() if getattr(self, "event_profile", False) else None
-        )
+        start_time = time.perf_counter() if getattr(self, "event_profile", False) else None
         try:
             self.before_event()
             self.handle_event(event, *args, **kwargs)
@@ -296,7 +288,7 @@ def make_xodex_object(
     method_map: dict = None,
     hooks: dict = None,
     **kwargs,
-)-> Union[DrawableObject, EventfulObject, LogicalObject]:
+) -> Union[DrawableObject, EventfulObject, LogicalObject]:
     """
     Dynamically create a Xodex-compatible object class from any user class.
 
@@ -340,15 +332,9 @@ def make_xodex_object(
         "is_eventful": False,
         "is_logical": False,
     }
-    REQUIRED_METHODS.update(
-        {LogicalObject: method_map.get("perform_update", "perform_update")}
-    )
-    REQUIRED_METHODS.update(
-        {DrawableObject: method_map.get("perform_draw", "perform_draw")}
-    )
-    REQUIRED_METHODS.update(
-        {EventfulObject: method_map.get("handle_event", "handle_event")}
-    )
+    REQUIRED_METHODS.update({LogicalObject: method_map.get("perform_update", "perform_update")})
+    REQUIRED_METHODS.update({DrawableObject: method_map.get("perform_draw", "perform_draw")})
+    REQUIRED_METHODS.update({EventfulObject: method_map.get("handle_event", "handle_event")})
 
     def validate_methods(object_cls, base_classes, flags):
         missing = []
@@ -363,9 +349,7 @@ def make_xodex_object(
             if issubclass(base, LogicalObject):
                 flags["is_logical"] = True
         if missing:
-            raise TypeError(
-                f"Class '{object_cls.__name__}' is missing required method(s): {', '.join(missing)}"
-            )
+            raise TypeError(f"Class '{object_cls.__name__}' is missing required method(s): {', '.join(missing)}")
 
     def __rename_method__(object_cls, old_name, new_name):
         """Rename a method in the class dictionary."""
