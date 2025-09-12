@@ -1,16 +1,11 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "xodex"
-dynamic = ["version"]
+version = "0.1.0"
 description = "A modular, extensible Pygame game engine for rapid 2D game development."
 long_description = "A modern Customizable Pygame Game engine."
 long_description_content_type = "text/markdown"
 readme = "README.md"
-requires-python = ">=3.9"
-dependencies = ["pygame"]
+requires-python = ">=3.13"
 authors = [
   { name = "Sackey Ezekiel Etrue", email = "sackeyetrue@gmail.com" },
   {name = "Xodex Contributers"},
@@ -42,6 +37,14 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "pygame>=2.6.1",
+    "pygameui",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.15,<0.9.0"]
+build-backend = "uv_build"
 
 [project.scripts]
 xodex = "xodex.__main__:execute_from_command_line"
@@ -63,24 +66,20 @@ docs = [
   "sphinx",
 ]
 
-[tool.setuptools.packages.find]
-where="."
-exclude=['test']
-include=["xodex", "xodex.core", "xodex.objects", "xodex.scenes", "xodex.utils", "xodex.contrib", "xodex.game", "xodex.conf"]
+[tool.uv.sources]
+pygameui = { path = "../PygameUI", editable = true }
 
-[tool.setuptools.package-data]
-"xodex.conf.locale" = ["*.json"]
-"xodex.conf.template" = ["**/*"]
+# Configure Ruff's linting rules
+[tool.ruff]
+select = ["E", "W", "F", "I"] # Example: select error, warning, flake8-bugbear, and isort rules
+ignore = ["E501"] # Example: ignore line length errors
+line-length = 120 # Example: set line length
 
-[tool.black]
-line-length = 120
-target-version = ['py312']
-
-[tool.isort]
-profile = "black"
-line-length = 120
-known_first_party = ["xodex"]
-skip_glob = "**/__init__.py"
-
-[tool.setuptools.dynamic]
-version = {attr = "xodex.__version__"}
+# Further linting configurations
+[tool.ruff.lint]
+unfixable = ["F841"] # Example: prevent fixing of unused local variables
+    
+# Configure Ruff's formatter
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
