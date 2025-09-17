@@ -22,7 +22,7 @@ import importlib
 import warnings
 from types import ModuleType
 from xodex.core.singleton import Singleton
-from xodex.conf import configuration
+# from xodex.conf import configuration
 
 ENVIRONMENT_VARIABLE = "XODEX_SETTINGS_MODULE"
 
@@ -46,9 +46,9 @@ class Configuration(Singleton):
 
     def _load_defaults(self):
         """Load default settings from the base configuration module."""
-        for setting in dir(configuration):
-            if setting.isupper():
-                setattr(self, setting, getattr(configuration, setting))
+        # for setting in dir(configuration):
+        #     if setting.isupper():
+        #         setattr(self, setting, getattr(configuration, setting))
 
     def __repr__(self):
         return f"<{self.__class__.__name__} module={self.settings_module!r}>"
