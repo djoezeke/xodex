@@ -7,6 +7,7 @@ You can customize game window, physics, assets, debugging, audio, localization, 
 
 For advanced settings and detailed explanations, see the Xodex documentation or this file's comments.
 """
+
 from pathlib import Path
 
 PROJECT = "{{ project_name }}"
@@ -80,9 +81,7 @@ SERVER_PORT = 5000  # Default server port
 # --- Advanced/Experimental ---
 ENABLE_PARTICLE_SYSTEM = True  # Enable particle effects
 ENABLE_SCREEN_SHAKE = True  # Enable camera shake effect
-ENABLE_POST_PROCESSING = (
-    False  # Enable advanced visual effects (may impact performance)
-)
+ENABLE_POST_PROCESSING = False  # Enable advanced visual effects (may impact performance)
 
 # --- Custom User Settings (add your own below) ---
 CUSTOM_SETTINGS = {

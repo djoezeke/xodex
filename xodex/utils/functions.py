@@ -2,10 +2,10 @@ import os
 import PIL
 import PIL.Image
 import json
-from typing import Tuple, Union,overload
+from typing import Tuple, Union, overload
 
 import pygame
-from pygame import Color,Surface
+from pygame import Color, Surface
 # from xodex.objects.image import Image
 
 # --- GAME WINDOW ---
@@ -28,11 +28,12 @@ def exit_game():
     pygame.quit()
     raise SystemExit
 
-  
+
 def quit():
     """Quit Game"""
     pygame.quit()
     raise SystemExit
+
 
 # endregion Window
 
@@ -59,7 +60,7 @@ def loadsound(filename: str) -> pygame.mixer.Sound:
     return sound
 
 
-def loadimage(filename: str,surface=True, scale: int = 1, colorkey: Color = None) -> Surface:
+def loadimage(filename: str, surface=True, scale: int = 1, colorkey: Color = None) -> Surface:
     """
     Load an image with error handling and optional scaling.
 
@@ -82,13 +83,13 @@ def loadimage(filename: str,surface=True, scale: int = 1, colorkey: Color = None
             if colorkey == -1:
                 colorkey = image.get_at((0, 0))
                 image.set_colorkey(colorkey, pygame.RLEACCEL)
-        return image # if surface else Image(image)
+        return image  # if surface else Image(image)
     except pygame.error as e:
         print(f"Error loading image {filename}: {e}")
-        return Surface((100, 100)) # if surface else Image(Surface((0,0)))
+        return Surface((100, 100))  # if surface else Image(Surface((0,0)))
 
 
-def loadgif(filename: str,surface=True) -> list[Surface]:
+def loadgif(filename: str, surface=True) -> list[Surface]:
     """loadgif"""
 
     if not os.path.isfile(filename):
@@ -175,13 +176,13 @@ def loadgif(filename: str,surface=True) -> list[Surface]:
     return frames
 
 
-def loadimages(path: str,surface=True, sort=True):
+def loadimages(path: str, surface=True, sort=True):
     """load images in a directory"""
     images: list[Surface] = []
     list_dir = sorted(os.listdir(path)) if sort else os.listdir(path)
     for img_name in list_dir:
         img_path = os.path.join(path, img_name)
-        images.append(loadimage(img_path,surface))
+        images.append(loadimage(img_path, surface))
     return images
 
 
@@ -197,7 +198,8 @@ def loadmap(filename: str) -> dict:
         print(f"Error loading tile map {filename}: {e}")
         return {}
 
-def splitsheet(sheet: Union[str, Surface],frame_size: tuple[int,int] = (64, 80),num_frames: int = None):
+
+def splitsheet(sheet: Union[str, Surface], frame_size: tuple[int, int] = (64, 80), num_frames: int = None):
     """frames"""
 
     if isinstance(sheet, str):
@@ -206,28 +208,29 @@ def splitsheet(sheet: Union[str, Surface],frame_size: tuple[int,int] = (64, 80),
         sheet = sheet
 
     frames: list = []
-    sheet_width, sheet_height =sheet.get_size()
+    sheet_width, sheet_height = sheet.get_size()
 
     cols = sheet_width // frame_size[0]
     rows = sheet_height // frame_size[1]
     count = 0
 
     for y in range(rows):
-            for x in range(cols):
-                if num_frames is not None and count >= num_frames:
-                    break
-                rect = pygame.Rect(
-                    x * frame_size[0],
-                    y * frame_size[1],
-                    frame_size[0],
-                    frame_size[1],
-                )
-                frame = sheet.subsurface(rect).copy()
-                frames.append(frame)
-                count += 1
+        for x in range(cols):
             if num_frames is not None and count >= num_frames:
                 break
+            rect = pygame.Rect(
+                x * frame_size[0],
+                y * frame_size[1],
+                frame_size[0],
+                frame_size[1],
+            )
+            frame = sheet.subsurface(rect).copy()
+            frames.append(frame)
+            count += 1
+        if num_frames is not None and count >= num_frames:
+            break
     return frames
+
 
 def fadescreen(screen: pygame.Surface, fade_speed: int = 5) -> None:
     """Create a fade-to-black effect on the screen."""
@@ -245,6 +248,7 @@ def fadescreen(screen: pygame.Surface, fade_speed: int = 5) -> None:
 # --- INPUTS  ---
 # region Inputs
 
+
 def mouse_x():
     """Return mouse X position"""
     return get_mouse_x()
@@ -253,6 +257,7 @@ def mouse_x():
 def mouse_y():
     """Return mouse Y position"""
     return get_mouse_y()
+
 
 def get_mouse_pos():
     """returns mouse X and Y position"""
@@ -280,11 +285,13 @@ def set_mouse_pos(pos):
     """set mouse X and Y position"""
     pygame.mouse.set_pos(pos)
 
+
 def mouse_pressed():
     """Return True if any mouse button is pressed else False"""
     pygame.event.clear()
     mouseState = pygame.mouse.get_pressed()
     return True in mouseState
+
 
 def left_clicked():
     """Return True if mouse left button is pressed else False"""
@@ -294,7 +301,8 @@ def left_clicked():
         return True
     else:
         return False
-    
+
+
 def right_clicked():
     """Return True if mouse right button is pressed else False"""
     pygame.event.clear()
@@ -303,7 +311,8 @@ def right_clicked():
         return True
     else:
         return False
-    
+
+
 def scroll_clicked():
     """Return True if mouse scroll button is pressed else False"""
     pygame.event.clear()
@@ -315,9 +324,11 @@ def scroll_clicked():
 
 
 def key_pressed(keycheck=""):
-  """key pressed"""
+    """key pressed"""
+
 
 # endregion Inputs
+
 
 def draw_text_centered(surface, text, font, color, center):
     """
@@ -332,6 +343,7 @@ def draw_text_centered(surface, text, font, color, center):
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect(center=center)
     surface.blit(text_surface, text_rect)
+
 
 def check_collision(rect1: pygame.Rect, rect2: pygame.Rect, buffer: int = 0) -> bool:
     """
@@ -386,9 +398,7 @@ def render_text(
         print(f"Error rendering text: {e}")
 
 
-def keep_in_bounds(
-    rect: pygame.Rect, screen_width: int, screen_height: int
-) -> pygame.Rect:
+def keep_in_bounds(rect: pygame.Rect, screen_width: int, screen_height: int) -> pygame.Rect:
     """
     Keep a rectangle within screen boundaries.
 
@@ -408,4 +418,3 @@ def keep_in_bounds(
     if rect.bottom > screen_height:
         rect.bottom = screen_height
     return rect
-

@@ -192,7 +192,7 @@ def get_xodex_logger(module_name=None, level=None, use_color=True, json_logs=Fal
         fh = RotatingFileHandler(LOG_FILE, maxBytes=1_000_000, backupCount=3)
         fh.setFormatter(JSONFormatter() if json_logs else logging.Formatter(LOG_FORMAT))
         logger.addHandler(fh)
-         # Optional: Add syslog/Windows Event Log handler
+        # Optional: Add syslog/Windows Event Log handler
         # platform_handler = get_platform_handler()
         # if platform_handler:
         #     platform_handler.setLevel(logging.ERROR)

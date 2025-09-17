@@ -1,3 +1,7 @@
+[build-system]
+requires = ["uv_build>=0.8.15,<0.9.0"]
+build-backend = "uv_build"
+
 [project]
 name = "xodex"
 version = "0.1.0"
@@ -34,12 +38,9 @@ license-files = ["LICEN[CS]E*"]
 dependencies = [
     "pillow>=11.3.0",
     "pygame>=2.6.1",
-    "pygameui",
+    "uinex",
 ]
 
-[build-system]
-requires = ["uv_build>=0.8.15,<0.9.0"]
-build-backend = "uv_build"
 
 [project.scripts]
 xodex = "xodex.__main__:execute_from_command_line"
@@ -52,27 +53,30 @@ Issues = "https://github.com/djoezeke/xodex/issues"
 Source = "https://github.com/djoezeke/xodex"
 
 [dependency-groups]
-dev = [
-  "ruff",
-  "pytest"
-]
+dev = []
 
 [project.optional-dependencies]
-dev = [
-  "pytest",
-]
-docs = [
-]
+dev = []
+docs = []
 
 [tool.uv]
+package = true 
 default-groups = ["dev"]
 
 [tool.uv.sources]
-pygameui = { path = "../uinex", editable = true }
+uinex = { path = "../uinex", editable = true }
+
+[tool.uv.build-backend]
+module-name = "xodex"
+module-root = ""
+source-include = ["*.md",]
+source-exclude = ["tests/",]
+wheel-exclude = ["*.bin"]
+namespaces = false
 
 # Configure Ruff's linting rules
 [tool.ruff]
-src = ["src"]
+src = ["xodex", "tests"]
 fix = true
 show-fixes = true
 output-format = "full"

@@ -10,6 +10,7 @@ from xodex.objects.image import Image
 from xodex.objects.animator import Animator
 from xodex.utils.functions import splitsheet
 
+
 class SpriteSheet:
     """
     Splits a sprite sheet image into individual frames.
@@ -24,9 +25,13 @@ class SpriteSheet:
     """
 
     @overload
-    def __init__(self, image: Union[str, pygame.Surface], frame_width: int = 64, frame_height: int = 80, num_frames: int = None): ...
+    def __init__(
+        self, image: Union[str, pygame.Surface], frame_width: int = 64, frame_height: int = 80, num_frames: int = None
+    ): ...
 
-    def __init__(self, image: Union[str, pygame.Surface], frame_size: Tuple[int, int] = (64, 80), num_frames: int = None):
+    def __init__(
+        self, image: Union[str, pygame.Surface], frame_size: Tuple[int, int] = (64, 80), num_frames: int = None
+    ):
         self._frames: List[Image] = [Image(img) for img in splitsheet(image, frame_size, num_frames)]
 
     def __call__(self):
@@ -130,6 +135,7 @@ class SpriteSheet:
         """Return all frames as pygame.Surface objects."""
         return [frame.image for frame in self._frames]
 
+
 class SheetAnimator(Animator):
     """
     Animator for sprite sheets.
@@ -157,7 +163,7 @@ class SheetAnimator(Animator):
         pingpong: bool = False,
         reverse: bool = False,
         on_finish: Optional[callable] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             SpriteSheet(sheet, (frame_width, frame_height), num_frames).frames(),
@@ -166,5 +172,5 @@ class SheetAnimator(Animator):
             pingpong,
             reverse,
             on_finish,
-            **kwargs
+            **kwargs,
         )

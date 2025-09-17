@@ -62,7 +62,7 @@ class BaseCommand:
         )
         parser.add_argument(
             "--pythonpath",
-            help=("A directory to add to the Python path, e.g. " '"/home/python3/bin".'),
+            help=('A directory to add to the Python path, e.g. "/home/python3/bin".'),
         )
         parser.add_argument(
             "--traceback",
