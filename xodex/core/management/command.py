@@ -81,11 +81,13 @@ class BaseCommand:
         )
         parser.add_argument(
             "--project",
-            help=("Run the command within the given project directory [env: XODEX_PROJECT=]."),
+            help=(
+                "Run the command within the given project directory [env: XODEX_PROJECT=]."
+            ),
         )
         parser.add_argument(
             "--settings",
-            help=("The path to a `uv.toml` file to use for configuration [env: XODEX_SETTINGS_FILE=]"),
+            help=("The path to a `settings.py` configuration [env: XODEX_SETTINGS=]"),
         )
         parser.add_argument(
             "-V",
@@ -99,7 +101,6 @@ class BaseCommand:
     def print_help(self, prog_name):
         """Print the help message for this command."""
         parser = self.parser(prog_name)
-        # parser.print_help()
         console.print(parser.format_help())
 
     def execute(self, argv):
@@ -118,8 +119,12 @@ class BaseCommand:
 
     def add_arguments(self, parser):
         """Entry point for subclassed commands to add custom arguments."""
-        raise NotImplementedError("subclasses of BaseCommand must provide a add_arguments() method")
+        raise NotImplementedError(
+            "subclasses of BaseCommand must provide a add_arguments() method"
+        )
 
     def handle(self, options):
         """The actual logic of the command. Subclasses must implementthis method."""
-        raise NotImplementedError("subclasses of BaseCommand must provide a handle() method")
+        raise NotImplementedError(
+            "subclasses of BaseCommand must provide a handle() method"
+        )

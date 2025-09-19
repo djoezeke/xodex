@@ -18,7 +18,10 @@ console = Console(
     theme=Theme(
         {
             "help": "bold cyan",
-            "desc": "dim white",
+            "usage": "bold cyan",
+            "group": "underline",
+            "option": "bold cyan",
+            "description": "bold white",
             "error": "bold red",
             "success": "bold green",
             "warning": "yellow",
@@ -85,13 +88,32 @@ class ManagementUtility:
         Print help for all available commands using rich formatting.
         """
         console.print("'[bold]xodex help <subcommand>[/bold]' for help on a specific subcommand.", style="help")
-        table = Table(show_header=True, box=None, header_style="bold magenta")
-        table.add_column("Commands:", style="cyan", no_wrap=True)
-        table.add_column("", style="desc")
-        for name, cmd in self.commands.items():
-            desc = getattr(cmd, "description", "")
-            table.add_row(f"  {name}", f"  {desc}")
-        console.print(table)
+        commands = Table(box=None)
+        commands.add_column("Commands:", header_style="group", style="option")
+        commands.add_column(style="description")
+        commands.add_row("start", "")
+        commands.add_row("build", "")
+        commands.add_row("serve", "")
+        commands.add_row("shell", "")
+        commands.add_row("version", "Display xodex version")
+        commands.add_row("help", "")
+
+        options = Table(show_header=True, box=None)
+        options.add_column("Global Options:", header_style="group", style="option")
+        options.add_column(style="description")
+        options.add_row("-q, --quiet", "Use quiet output.")
+        options.add_row("-v, --verbose", "Use verbose output.")
+        options.add_row("    --no-color", "Don't colorize the command output.")
+        options.add_row("    --directory", "Change to the given directory prior to running the command.")
+        options.add_row("    --project", "Run the command within the given project directory [env: XODEX_PROJECT=].")
+        options.add_row("    --settings", "The path to a `settings.py` configuration [env: XODEX_SETTINGS=].")
+        options.add_row("-h, --help", "Display the concise help for this command.")
+        options.add_row("-V, --version", "Show the xodex version number and exit.")
+
+        print()
+        console.print(commands)
+        print()
+        console.print(options)
 
     def fetch_command(self, name) -> BaseCommand:
         """
@@ -136,10 +158,7 @@ class ManagementUtility:
             "--project",
             help=("Run the command within the given project directory [env: XODEX_PROJECT=]."),
         )
-        parser.add_argument(
-            "--settings",
-            help=("The path to a `uv.toml` file to use for configuration [env: XODEX_SETTINGS_FILE=]"),
-        )
+        parser.add_argument("--settings", help="The path to a `settings.py` configuration [env: XODEX_SETTINGS=]")
         parser.add_argument(
             "-V",
             "--version",
