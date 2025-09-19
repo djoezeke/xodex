@@ -21,7 +21,7 @@ Usage:
 """
 
 import sys
-import traceback
+
 from xodex.utils.log import get_xodex_logger
 
 

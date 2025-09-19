@@ -1,6 +1,6 @@
 """Main Game Scene"""
 
-from typing import Generator
+from collections.abc import Generator
 
 from xodex.scenes.base_scene import BaseScene
 

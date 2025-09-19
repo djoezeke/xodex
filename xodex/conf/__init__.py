@@ -17,11 +17,13 @@ Usage:
     settings.validate("DEBUG", lambda v: isinstance(v, bool))
 """
 
-import os
 import importlib
+import os
 import warnings
 from types import ModuleType
+
 from xodex.core.singleton import Singleton
+
 # from xodex.conf import configuration
 
 ENVIRONMENT_VARIABLE = "XODEX_SETTINGS_MODULE"

@@ -4,17 +4,18 @@ Provides scene-based registration and querying of game objects.
 """
 
 import asyncio
-from typing import Callable, Optional, Type
+from collections.abc import Callable
 
-from xodex.utils.log import get_xodex_logger
-
-from xodex.utils.values import Values
-from xodex.objects.image import Image
-from xodex.objects.objects import Object
+from xodex.contrib.basicobjects import XodexText
+from xodex.core.exceptions import AlreadyRegistered
+from xodex.core.exceptions import NotRegistered
+from xodex.core.exceptions import ObjectError
 from xodex.core.singleton import Singleton
 from xodex.objects.animator import Animator
-from xodex.contrib.basicobjects import XodexText
-from xodex.core.exceptions import NotRegistered, AlreadyRegistered, ObjectError
+from xodex.objects.image import Image
+from xodex.objects.objects import Object
+from xodex.utils.log import get_xodex_logger
+from xodex.utils.values import Values
 
 try:
     import pygameui
@@ -24,26 +25,24 @@ except ImportError:
     HAS_PYGAMEUI = False
 
 if HAS_PYGAMEUI:
-    from xodex.contrib.pygameui import (
-        UIBUTTON,
-        UICHECKBUTTON,
-        UICOMBOBOX,
-        UIENTRY,
-        UIFLOODGAUGE,
-        UIFRAME,
-        UILABEL,
-        UILISTBOX,
-        UIMENUBUTTON,
-        UIMETER,
-        UIPROGRESSBAR,
-        UIRADIOBUTTON,
-        UISCALE,
-        UISEPERATOR,
-        UISIZEGRIP,
-        UISPINBOX,
-        UITEXTBOX,
-        UITREEVIEW,
-    )
+    from xodex.contrib.pygameui import UIBUTTON
+    from xodex.contrib.pygameui import UICHECKBUTTON
+    from xodex.contrib.pygameui import UICOMBOBOX
+    from xodex.contrib.pygameui import UIENTRY
+    from xodex.contrib.pygameui import UIFLOODGAUGE
+    from xodex.contrib.pygameui import UIFRAME
+    from xodex.contrib.pygameui import UILABEL
+    from xodex.contrib.pygameui import UILISTBOX
+    from xodex.contrib.pygameui import UIMENUBUTTON
+    from xodex.contrib.pygameui import UIMETER
+    from xodex.contrib.pygameui import UIPROGRESSBAR
+    from xodex.contrib.pygameui import UIRADIOBUTTON
+    from xodex.contrib.pygameui import UISCALE
+    from xodex.contrib.pygameui import UISEPERATOR
+    from xodex.contrib.pygameui import UISIZEGRIP
+    from xodex.contrib.pygameui import UISPINBOX
+    from xodex.contrib.pygameui import UITEXTBOX
+    from xodex.contrib.pygameui import UITREEVIEW
 
 __all__ = ("ObjectsManager", "register")
 
@@ -70,7 +69,7 @@ class ObjectsManager(Singleton):
     """
 
     def __init__(self):
-        self.__object_classes: dict[str, Type[Object]] = {}
+        self.__object_classes: dict[str, type[Object]] = {}
         self._user_hooks: dict[str, list[Callable]] = {}
 
         # Register default objects
@@ -101,7 +100,7 @@ class ObjectsManager(Singleton):
     # region Properties
 
     @property
-    def all(self) -> list[Type[Object]]:
+    def all(self) -> list[type[Object]]:
         """Return a list of all registered object classes."""
         return list(self.__object_classes.values())
 
@@ -114,7 +113,7 @@ class ObjectsManager(Singleton):
 
     # region Registration
 
-    def register(self, object_class: Type[Object], object_name: str) -> None:
+    def register(self, object_class: type[Object], object_name: str) -> None:
         """
         Register an object class with a given name.
 
@@ -149,7 +148,7 @@ class ObjectsManager(Singleton):
         """Return True if an object is registered by name."""
         return object_name in self.__object_classes
 
-    def get_object(self, object_name: str) -> Type[Object]:
+    def get_object(self, object_name: str) -> type[Object]:
         """
         Get a registered object class by name.
 
@@ -175,7 +174,7 @@ class ObjectsManager(Singleton):
 
     # region Lookup
 
-    def get_object_by_index(self, index: int) -> Optional[Type[Object]]:
+    def get_object_by_index(self, index: int) -> type[Object] | None:
         """
         Get an object class by index.
 
@@ -191,7 +190,7 @@ class ObjectsManager(Singleton):
         logger.warning(f"Object index {index} out of range.")
         return None
 
-    def find_object_by_class(self, cls: Type[Object]) -> Optional[str]:
+    def find_object_by_class(self, cls: type[Object]) -> str | None:
         """
         Find the registered name for a given object class.
 
@@ -243,7 +242,7 @@ class ObjectsManager(Singleton):
 
     # region Private
 
-    def _get_object_(self, object_name: str) -> Type[Object]:
+    def _get_object_(self, object_name: str) -> type[Object]:
         _object = self.__object_classes.get(object_name)
         if _object is not None:
             return _object

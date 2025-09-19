@@ -1,10 +1,10 @@
 """Image Tests"""
 
-from unittest.mock import MagicMock, patch
-import pytest
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pygame
-
+import pytest
 from xodex.objects.image import Image
 
 

@@ -1,5 +1,4 @@
 import pytest
-from xodex.scenes.manager import SceneManager
 
 
 class TestSceneManager:

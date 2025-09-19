@@ -1,14 +1,17 @@
 import asyncio
-from typing import Union, Callable, Optional, Any, Type
+from collections.abc import Callable
+from typing import Any
+
 from pygame import Surface
 
-from xodex.utils.log import get_xodex_logger
-
-from xodex.utils.values import Values
+from xodex.contrib.mainscene import XodexMainScene
+from xodex.core.exceptions import AlreadyRegistered
+from xodex.core.exceptions import NotRegistered
+from xodex.core.exceptions import SceneError
 from xodex.core.singleton import Singleton
 from xodex.scenes.base_scene import BaseScene
-from xodex.contrib.mainscene import XodexMainScene
-from xodex.core.exceptions import NotRegistered, AlreadyRegistered, SceneError
+from xodex.utils.log import get_xodex_logger
+from xodex.utils.values import Values
 
 try:
     import pygameui
@@ -46,7 +49,7 @@ class SceneManager(Singleton):
     """
 
     def __init__(self):
-        self.__scene_classes: dict[str, Type[BaseScene]] = {}
+        self.__scene_classes: dict[str, type[BaseScene]] = {}
         self.__scenes: list[BaseScene] = []
         self._user_hooks: dict[str, list[Callable]] = {}
 
@@ -63,7 +66,7 @@ class SceneManager(Singleton):
         return self.get_scenes()
 
     @property
-    def current(self) -> Optional[BaseScene]:
+    def current(self) -> BaseScene | None:
         """Return the current (top) scene, or None if stack is empty."""
         try:
             return self.__scenes[-1]
@@ -72,7 +75,7 @@ class SceneManager(Singleton):
             return None
 
     @property
-    def previous(self) -> Optional[BaseScene]:
+    def previous(self) -> BaseScene | None:
         """Return the previous scene, or None if not available."""
         if len(self.__scenes) > 1:
             return self.__scenes[-2]
@@ -92,7 +95,7 @@ class SceneManager(Singleton):
 
     # region Scene Registration
 
-    def register(self, scene_class: Type[BaseScene], scene_name: str) -> None:
+    def register(self, scene_class: type[BaseScene], scene_name: str) -> None:
         """
         Register a scene class with a given name.
 
@@ -127,7 +130,7 @@ class SceneManager(Singleton):
 
     # region Registry Lookup
 
-    def get_scene_class(self, scene_name: str) -> Type[BaseScene]:
+    def get_scene_class(self, scene_name: str) -> type[BaseScene]:
         """
         Get a registered scene class by name.
 
@@ -151,7 +154,7 @@ class SceneManager(Singleton):
 
     # region Stack Navigation
 
-    def append(self, scene: Union[str, BaseScene], *args, **kwargs) -> None:
+    def append(self, scene: str | BaseScene, *args, **kwargs) -> None:
         """
         Push a new scene onto the stack.
 
@@ -168,7 +171,7 @@ class SceneManager(Singleton):
         self._run_hook("after_enter")
         logger.info(f"Appended scene: {scene}")
 
-    def pop(self) -> Optional[BaseScene]:
+    def pop(self) -> BaseScene | None:
         """
         Pop the current scene and return it.
 
@@ -191,7 +194,7 @@ class SceneManager(Singleton):
         self.__scenes.clear()
         logger.info("Cleared all scenes from stack.")
 
-    def reset(self, scene: Union[str, BaseScene], *args, **kwargs) -> None:
+    def reset(self, scene: str | BaseScene, *args, **kwargs) -> None:
         """
         Replace all scenes with a new one.
 
@@ -209,7 +212,7 @@ class SceneManager(Singleton):
         self._run_hook("after_enter")
         logger.info(f"Reset scene stack with: {scene}")
 
-    def swap(self, scene: Union[str, BaseScene], *args, **kwargs) -> None:
+    def swap(self, scene: str | BaseScene, *args, **kwargs) -> None:
         """
         Swap the current scene with a new one.
 
@@ -238,7 +241,7 @@ class SceneManager(Singleton):
 
     # region Stack Lookup
 
-    def get_scene(self, scene_name: str) -> Optional[BaseScene]:
+    def get_scene(self, scene_name: str) -> BaseScene | None:
         """
         Get a scene instance from the stack by name.
 
@@ -254,7 +257,7 @@ class SceneManager(Singleton):
         logger.warning(f"Scene '{scene_name}' not found in stack.")
         return None
 
-    def get_scene_by_index(self, index: int) -> Optional[BaseScene]:
+    def get_scene_by_index(self, index: int) -> BaseScene | None:
         """
         Get a scene instance by index in the stack.
 
@@ -287,7 +290,7 @@ class SceneManager(Singleton):
         if self.current:
             self.current.handle(event)
 
-    def process_draw(self) -> Optional[Surface]:
+    def process_draw(self) -> Surface | None:
         """Draw the current scene and return the surface."""
         if self.current:
             return self.current.draw()
@@ -299,10 +302,10 @@ class SceneManager(Singleton):
 
     def transition_to(
         self,
-        new_scene: Union[str, BaseScene],
+        new_scene: str | BaseScene,
         transition_type: str = "fade",
         duration: float = 1.0,
-        on_complete: Optional[Callable] = None,
+        on_complete: Callable | None = None,
     ) -> None:
         """
         Transition to a new scene with an effect.
@@ -324,7 +327,7 @@ class SceneManager(Singleton):
             if on_complete:
                 on_complete()
 
-    def _fade_transition(self, new_scene: BaseScene, duration: float, on_complete: Optional[Callable] = None):
+    def _fade_transition(self, new_scene: BaseScene, duration: float, on_complete: Callable | None = None):
         """Fade out, switch scene, fade in."""
         import pygame
 
@@ -342,7 +345,7 @@ class SceneManager(Singleton):
         if on_complete:
             on_complete()
 
-    def _slide_transition(self, new_scene: BaseScene, duration: float, on_complete: Optional[Callable] = None):
+    def _slide_transition(self, new_scene: BaseScene, duration: float, on_complete: Callable | None = None):
         """Slide transition (left to right)."""
         import pygame
 
@@ -362,10 +365,10 @@ class SceneManager(Singleton):
 
     async def async_transition_to(
         self,
-        new_scene: Union[str, BaseScene],
+        new_scene: str | BaseScene,
         transition_type: str = "fade",
         duration: float = 1.0,
-        on_complete: Optional[Callable] = None,
+        on_complete: Callable | None = None,
     ) -> None:
         """
         Async version of transition_to.

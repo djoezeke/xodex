@@ -1,11 +1,13 @@
+import json
 import os
+from typing import overload
+
 import PIL
 import PIL.Image
-import json
-from typing import Tuple, Union, overload
-
 import pygame
-from pygame import Color, Surface
+from pygame import Color
+from pygame import Surface
+
 # from xodex.objects.image import Image
 
 # --- GAME WINDOW ---
@@ -199,7 +201,7 @@ def loadmap(filename: str) -> dict:
         return {}
 
 
-def splitsheet(sheet: Union[str, Surface], frame_size: tuple[int, int] = (64, 80), num_frames: int = None):
+def splitsheet(sheet: str | Surface, frame_size: tuple[int, int] = (64, 80), num_frames: int = None):
     """frames"""
 
     if isinstance(sheet, str):
@@ -376,9 +378,9 @@ def fade_screen(screen: pygame.Surface, fade_speed: int = 5) -> None:
 def render_text(
     screen: pygame.Surface,
     text: str,
-    pos: Tuple[int, int],
+    pos: tuple[int, int],
     font_size: int = 24,
-    color: Tuple[int, int, int] = (255, 255, 255),
+    color: tuple[int, int, int] = (255, 255, 255),
 ) -> None:
     """
     Render text on the screen with a specified font size and color.

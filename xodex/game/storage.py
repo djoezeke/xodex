@@ -1,11 +1,14 @@
 import json
-import pickle
 import os
+import pickle
 import shutil
-from typing import Any, Optional
+from typing import Any
 
 from xodex.core.singleton import Singleton
-from xodex.utils.storage import JsonSerializer, JsonDeserializer, BinarySerializer, BinaryDeserializer
+from xodex.utils.storage import BinaryDeserializer
+from xodex.utils.storage import BinarySerializer
+from xodex.utils.storage import JsonDeserializer
+from xodex.utils.storage import JsonSerializer
 
 
 class BaseStorage(JsonSerializer, JsonDeserializer, BinarySerializer, BinaryDeserializer):
@@ -38,7 +41,7 @@ class BaseStorage(JsonSerializer, JsonDeserializer, BinarySerializer, BinaryDese
     autosave: bool = False
     autoload: bool = True
 
-    def __init__(self, filename: Optional[str] = None, data_path: Optional[str] = None, binary: Optional[bool] = None):
+    def __init__(self, filename: str | None = None, data_path: str | None = None, binary: bool | None = None):
         """
         Initialize the storage.
 
@@ -66,7 +69,7 @@ class BaseStorage(JsonSerializer, JsonDeserializer, BinarySerializer, BinaryDese
         """Check if the storage file exists."""
         return os.path.isfile(self.get_filepath())
 
-    def backup(self, backup_path: Optional[str] = None) -> Optional[str]:
+    def backup(self, backup_path: str | None = None) -> str | None:
         """
         Create a backup of the storage file.
 
@@ -86,7 +89,7 @@ class BaseStorage(JsonSerializer, JsonDeserializer, BinarySerializer, BinaryDese
             print(f"Backup failed: {e}")
             return None
 
-    def restore(self, backup_path: Optional[str] = None) -> bool:
+    def restore(self, backup_path: str | None = None) -> bool:
         """
         Restore storage from a backup file.
 

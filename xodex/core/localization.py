@@ -1,9 +1,9 @@
 """Localization manager for handling multi-language support."""
 
-import os
 import json
 import locale
-import pathlib
+import os
+
 from xodex.core.singleton import Singleton
 
 __all__ = ("Localization", "localize")
@@ -68,7 +68,7 @@ class Localization(Singleton):
             path = os.path.join(self.folder, f"{lang}.json")
 
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
             if fallback:
                 self.fallback_translations = data

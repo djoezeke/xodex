@@ -1,15 +1,22 @@
 import asyncio
-from abc import ABC, abstractmethod
-from typing import Union, Generator, Callable, Optional, Any, TYPE_CHECKING
+from abc import ABC
+from abc import abstractmethod
+from collections.abc import Callable
+from collections.abc import Generator
+from typing import Any
+from typing import TYPE_CHECKING
 
 import pygame
 from pygame.event import Event
 
 from xodex.conf import settings
 from xodex.game.sounds import Sounds
-from xodex.utils.log import get_xodex_logger
+from xodex.objects import DrawableObject
+from xodex.objects import EventfulObject
+from xodex.objects import LogicalObject
+from xodex.objects import Objects
 from xodex.objects.manager import ObjectsManager
-from xodex.objects import Objects, DrawableObject, EventfulObject, LogicalObject
+from xodex.utils.log import get_xodex_logger
 
 logger = get_xodex_logger(__name__)
 
@@ -178,7 +185,7 @@ class BaseScene(ABC):
         """Return Sounds."""
         return self._sounds.reload_sounds()
 
-    def get_object(self, object_name: str) -> Union[DrawableObject, EventfulObject, LogicalObject, None]:
+    def get_object(self, object_name: str) -> DrawableObject | EventfulObject | LogicalObject | None:
         """
         Get an object by name from the global object manager.
 
@@ -255,9 +262,7 @@ class BaseScene(ABC):
             event = self._event_queue.pop(0)
             self.handle_scene(event)
 
-    def filter_objects(
-        self, predicate: Optional[Callable[[Any], bool]] = None, obj_type: Optional[type] = None
-    ) -> list:
+    def filter_objects(self, predicate: Callable[[Any], bool] | None = None, obj_type: type | None = None) -> list:
         """
         Filter objects in the scene by a predicate or type.
 

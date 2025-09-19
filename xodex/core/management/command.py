@@ -1,13 +1,23 @@
-"""
-Base classes for writing management commands (named commands which can
-be executed through ``xodex`` or ``manage.py``).
-"""
-
+import argparse
 import os
 import sys
-import argparse
+
+from rich.console import Console
+from rich.theme import Theme
 
 from xodex.version import vernum
+
+console = Console(
+    theme=Theme(
+        {
+            "help": "bold cyan",
+            "desc": "dim white",
+            "error": "bold red",
+            "success": "bold green",
+            "warning": "yellow",
+        }
+    )
+)
 
 
 def handle_default_options(options):
@@ -16,10 +26,10 @@ def handle_default_options(options):
     so that ManagementUtility can handle them before searching for
     user commands.
     """
-    if options.settings:
-        os.environ["XODEX_SETTINGS_MODULE"] = options.settings
-    if options.pythonpath:
-        sys.path.insert(0, options.pythonpath)
+    # if options.settings:
+    #     os.environ["XODEX_SETTINGS_MODULE"] = options.settings
+    # if options.pythonpath:
+    #     sys.path.insert(0, options.pythonpath)
 
 
 class BaseCommand:
@@ -32,9 +42,9 @@ class BaseCommand:
     """
 
     def __init__(self, description, usage=None):
+        self.usage = usage or "%(prog)s <command> [options] [args]"
         self.description = description
         self.version = str(vernum)
-        self.usage = usage or "%(prog)s <command> [options] [args]"
 
     def parser(self, prog_name, **kwargs):
         """Create and return the ``ArgumentParser`` which will be used toparse the arguments to this command."""
@@ -42,45 +52,55 @@ class BaseCommand:
         parser = argparse.ArgumentParser(
             prog=os.path.basename(prog_name),
             usage=self.usage,
-            description="Xodex Management Utility",
+            description=self.description,
+            epilog="Use `xodex help <command>` for more options",
         )
 
-        parser.add_argument("-v", "--verbosity", type=int, default=1, choices=[1, 2, 3], help="Verbosity level (1-3).")
+        self.add_arguments(parser)
+
         parser.add_argument(
-            "--version",
-            action="version",
-            version=self.version,
-            help="Show program's version number and exit.",
-        )
-        parser.add_argument(
-            "--settings",
-            help=(
-                "The Python path to a settings module, e.g. "
-                '"myproject.settings". If this isn\'t provided, the '
-                "XODEX_SETTINGS_MODULE environment variable will be used."
-            ),
-        )
-        parser.add_argument(
-            "--pythonpath",
-            help=('A directory to add to the Python path, e.g. "/home/python3/bin".'),
-        )
-        parser.add_argument(
-            "--traceback",
+            "-q",
+            "--quiet",
             action="store_true",
-            help="Raise on ArgumentError exceptions.",
+            help="Use quiet output.",
+        )
+        parser.add_argument(
+            "-v",
+            "--verbose",
+            action="store_true",
+            help="Use verbose output.",
         )
         parser.add_argument(
             "--no-color",
             action="store_true",
             help="Don't colorize the command output.",
         )
-        self.add_arguments(parser)
+        parser.add_argument(
+            "--directory",
+            help=("Change to the given directory prior to running the command."),
+        )
+        parser.add_argument(
+            "--project",
+            help=("Run the command within the given project directory [env: XODEX_PROJECT=]."),
+        )
+        parser.add_argument(
+            "--settings",
+            help=("The path to a `uv.toml` file to use for configuration [env: XODEX_SETTINGS_FILE=]"),
+        )
+        parser.add_argument(
+            "-V",
+            "--version",
+            action="version",
+            version=self.version,
+            help="Show the xodex version number and exit.",
+        )
         return parser
 
     def print_help(self, prog_name):
         """Print the help message for this command."""
         parser = self.parser(prog_name)
-        parser.print_help()
+        # parser.print_help()
+        console.print(parser.format_help())
 
     def execute(self, argv):
         """execute"""

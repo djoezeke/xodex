@@ -4,13 +4,15 @@ Provides animation logic for a sequence of frames (Image or pygame.Surface).
 Supports looping, ping-pong, reverse, and callbacks on finish.
 """
 
-from typing import Callable, Optional, Tuple, List, Union
-import pygame
+from collections.abc import Callable
 
+import pygame
 from pygame import Surface
 
 from xodex.objects.image import Image
-from xodex.objects.objects import DrawableObject, EventfulObject, LogicalObject
+from xodex.objects.objects import DrawableObject
+from xodex.objects.objects import EventfulObject
+from xodex.objects.objects import LogicalObject
 
 
 class Animator(DrawableObject, EventfulObject, LogicalObject):
@@ -52,18 +54,18 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
 
     def __init__(
         self,
-        frames: List[Union[Image, Surface, str]],
+        frames: list[Image | Surface | str],
         frame_duration: int = 100,
         loop: bool = True,
         pingpong: bool = False,
         reverse: bool = False,
-        on_finish: Optional[Callable] = None,
-        on_frame: Optional[Callable] = None,
-        on_loop: Optional[Callable] = None,
-        on_pingpong: Optional[Callable] = None,
+        on_finish: Callable | None = None,
+        on_frame: Callable | None = None,
+        on_loop: Callable | None = None,
+        on_pingpong: Callable | None = None,
         **kwargs,
     ):
-        self._frames: List[Image] = []
+        self._frames: list[Image] = []
         for frame in frames:
             if isinstance(frame, Surface):
                 self._frames.append(Image(frame))
@@ -96,7 +98,7 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
             self._img_rect.y = position[1]
 
     @classmethod
-    async def async_from_paths(cls, paths: List[str], **kwargs) -> "Animator":
+    async def async_from_paths(cls, paths: list[str], **kwargs) -> "Animator":
         """
         Asynchronously load frames from file paths.
 
@@ -140,12 +142,12 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
         self._img_rect = pygame.Rect(x, y, width, height)
 
     @property
-    def position(self) -> Tuple[int, int]:
+    def position(self) -> tuple[int, int]:
         """Get the (x, y) position of the image."""
         return (self._img_rect.x, self._img_rect.y)
 
     @position.setter
-    def position(self, pos: Tuple[int, int]):
+    def position(self, pos: tuple[int, int]):
         """Set the (x, y) position of the image."""
         self._img_rect.x = pos[0]
         self._img_rect.y = pos[1]
@@ -157,7 +159,7 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
         self._finished = False
         self._paused = False
 
-    def get_image(self) -> Optional[Image]:
+    def get_image(self) -> Image | None:
         """Get the current frame's image."""
         if not self._frames:
             return None
@@ -217,7 +219,7 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
         """Get the total number of frames."""
         return len(self._frames)
 
-    def set_frames(self, frames: List[Union[Image, Surface]]):
+    def set_frames(self, frames: list[Image | Surface]):
         """Set the animation frames and reset."""
         _frames = []
         for frame in frames:

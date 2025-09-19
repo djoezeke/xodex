@@ -1,5 +1,4 @@
 import pytest
-from xodex.objects.manager import ObjectsManager
 
 
 class TestObjectManager:

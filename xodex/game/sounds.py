@@ -1,13 +1,15 @@
 import os
-from typing import Optional
 from importlib import import_module
 
 import pygame
-from pygame.mixer import Sound, Channel
+from pygame.mixer import Channel
+from pygame.mixer import Sound
 
-from xodex.utils.values import Values
+from xodex.core.exceptions import AlreadyRegistered
+from xodex.core.exceptions import NotRegistered
+from xodex.core.exceptions import ObjectError
 from xodex.core.singleton import Singleton
-from xodex.core.exceptions import NotRegistered, AlreadyRegistered, ObjectError
+from xodex.utils.values import Values
 
 
 class Sounds(Singleton):
@@ -119,7 +121,7 @@ class Sounds(Singleton):
 
     def play(
         self, sound: str, channel: str = "", loops: int = 0, maxtime: int = 0, fade_ms: int = 0, on_end=None
-    ) -> Optional[Channel]:
+    ) -> Channel | None:
         """
         Play a sound by name, optionally on a named channel, with fade-in and callback.
 
@@ -254,7 +256,7 @@ class Sounds(Singleton):
 
     def play_if_not_busy(
         self, channel: str, sound: str, loops: int = 0, maxtime: int = 0, fade_ms: int = 0
-    ) -> Optional[Channel]:
+    ) -> Channel | None:
         """
         Play a sound on a channel only if the channel is not busy.
         """
@@ -262,7 +264,7 @@ class Sounds(Singleton):
             return self.play(sound, channel, loops, maxtime, fade_ms)
         return None
 
-    def reset_play(self, channel: str, sound: str) -> Optional[Channel]:
+    def reset_play(self, channel: str, sound: str) -> Channel | None:
         """
         Play a sound on a channel only if it's not already playing that sound.
         """
@@ -275,7 +277,7 @@ class Sounds(Singleton):
         return self.play(sound, channel)
 
     @classmethod
-    def get_sound(cls, channel: str) -> Optional[Sound]:
+    def get_sound(cls, channel: str) -> Sound | None:
         """
         Get the currently playing Sound object on a channel.
         """

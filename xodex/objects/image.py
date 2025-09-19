@@ -5,13 +5,12 @@ and drawing utilities, such as scaling, flipping, blurring, color swapping,
 and rotation. Integrates with the DrawableObject interface for rendering.
 """
 
-from typing import Tuple, Union
-
-from pygame import Surface, Color
+import PIL.Image
 import PIL.ImageFilter
 import PIL.ImageOps
-import PIL.Image
 import pygame
+from pygame import Color
+from pygame import Surface
 
 from xodex.objects.objects import DrawableObject
 from xodex.utils.functions import loadimage
@@ -32,8 +31,8 @@ class Image(DrawableObject):
 
     def __init__(
         self,
-        image: Union[str, Surface] = None,
-        pos: Tuple[int, int] = (0, 0),
+        image: str | Surface = None,
+        pos: tuple[int, int] = (0, 0),
         alpha: int = None,
         colorkey: Color = None,
     ) -> None:
@@ -85,25 +84,25 @@ class Image(DrawableObject):
         self._img_rect = new_rect
 
     @property
-    def position(self) -> Tuple[int, int]:
+    def position(self) -> tuple[int, int]:
         """Get or Set the (x, y) position of the image."""
         return (self._img_rect.x, self._img_rect.y)
 
     @position.setter
-    def position(self, pos: Tuple[int, int]):
+    def position(self, pos: tuple[int, int]):
         self._img_rect.x, self._img_rect.y = pos
 
-    def pos(self, pos: Tuple[int, int]):
+    def pos(self, pos: tuple[int, int]):
         """Set the (x, y) position."""
         self._img_rect.x, self._img_rect.y = pos
 
-    def size(self) -> Tuple[int, int]:
+    def size(self) -> tuple[int, int]:
         """Return the (width, height) of the image."""
         return self._img_rect.size
 
     @classmethod
     async def async_load(
-        cls, path: str, pos: Tuple[int, int] = (0, 0), alpha: int = None, colorkey: Color = None
+        cls, path: str, pos: tuple[int, int] = (0, 0), alpha: int = None, colorkey: Color = None
     ) -> "Image":
         """
         Asynchronously load an image from disk.
@@ -398,9 +397,7 @@ class MovingImage(Image):
     - Speed and direction control.
     """
 
-    def __init__(
-        self, image: Union[str, Surface], pos: Tuple[int, int], win_width: int, win_height: int, speed: int = 3
-    ):
+    def __init__(self, image: str | Surface, pos: tuple[int, int], win_width: int, win_height: int, speed: int = 3):
         super().__init__(image, pos)
         self.move_x = True
         self.move_y = True
@@ -479,7 +476,7 @@ class SpriteSheet(Image):
     """
 
     def __init__(
-        self, image: Union[str, Surface], frame_width: int, frame_height: int, pos: Tuple[int, int] = (0, 0), **kwargs
+        self, image: str | Surface, frame_width: int, frame_height: int, pos: tuple[int, int] = (0, 0), **kwargs
     ):
         super().__init__(image, pos, **kwargs)
         self.frame_width = frame_width

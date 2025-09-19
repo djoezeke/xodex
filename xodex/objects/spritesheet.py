@@ -4,10 +4,12 @@ SpriteSheet: Utility for splitting a sprite sheet into frames.
 SheetAnimator: Animator for sprite sheets.
 """
 
-from typing import Tuple, Union, List, Optional, overload
+from typing import overload
+
 import pygame
-from xodex.objects.image import Image
+
 from xodex.objects.animator import Animator
+from xodex.objects.image import Image
 from xodex.utils.functions import splitsheet
 
 
@@ -26,13 +28,11 @@ class SpriteSheet:
 
     @overload
     def __init__(
-        self, image: Union[str, pygame.Surface], frame_width: int = 64, frame_height: int = 80, num_frames: int = None
+        self, image: str | pygame.Surface, frame_width: int = 64, frame_height: int = 80, num_frames: int = None
     ): ...
 
-    def __init__(
-        self, image: Union[str, pygame.Surface], frame_size: Tuple[int, int] = (64, 80), num_frames: int = None
-    ):
-        self._frames: List[Image] = [Image(img) for img in splitsheet(image, frame_size, num_frames)]
+    def __init__(self, image: str | pygame.Surface, frame_size: tuple[int, int] = (64, 80), num_frames: int = None):
+        self._frames: list[Image] = [Image(img) for img in splitsheet(image, frame_size, num_frames)]
 
     def __call__(self):
         return iter(self._frames)
@@ -73,7 +73,7 @@ class SpriteSheet:
 
     def addframe(
         self,
-        sheet: Union[str, pygame.Surface],
+        sheet: str | pygame.Surface,
         frame_width: int = 64,
         frame_height: int = 80,
         num_frames: int = 1,
@@ -127,11 +127,11 @@ class SpriteSheet:
         """
         return self.images()[frame_idx]
 
-    def frames(self) -> List[Image]:
+    def frames(self) -> list[Image]:
         """Return all frames as Image objects."""
         return self._frames
 
-    def images(self) -> List[pygame.Surface]:
+    def images(self) -> list[pygame.Surface]:
         """Return all frames as pygame.Surface objects."""
         return [frame.image for frame in self._frames]
 
@@ -154,7 +154,7 @@ class SheetAnimator(Animator):
 
     def __init__(
         self,
-        sheet: Union[str, pygame.Surface],
+        sheet: str | pygame.Surface,
         frame_width: int = 64,
         frame_height: int = 80,
         num_frames: int = None,
@@ -162,7 +162,7 @@ class SheetAnimator(Animator):
         loop: bool = True,
         pingpong: bool = False,
         reverse: bool = False,
-        on_finish: Optional[callable] = None,
+        on_finish: callable | None = None,
         **kwargs,
     ):
         super().__init__(

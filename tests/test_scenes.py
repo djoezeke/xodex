@@ -1,8 +1,7 @@
 import os
-import types
-import pytest
-import pygame
 
+import pygame
+import pytest
 from xodex.scenes.base_scene import BaseScene
 
 

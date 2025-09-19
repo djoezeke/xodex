@@ -7,8 +7,8 @@ Defines base classes for game objects:
 """
 
 import time
-from typing import Union
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 
 from pygame import Surface
 from pygame.event import Event
@@ -288,7 +288,7 @@ def make_xodex_object(
     method_map: dict = None,
     hooks: dict = None,
     **kwargs,
-) -> Union[DrawableObject, EventfulObject, LogicalObject]:
+) -> DrawableObject | EventfulObject | LogicalObject:
     """
     Dynamically create a Xodex-compatible object class from any user class.
 

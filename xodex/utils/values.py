@@ -12,13 +12,15 @@ Usage:
     for k in v: print(k, v[k])
 """
 
-from typing import Any, Dict, Iterator, Optional, Union
+from collections.abc import Iterator
+from typing import Any
+from typing import Union
 
 
 class Values:
     """Flexible attribute container with dict-like and object-like access."""
 
-    def __init__(self, defaults: Optional[dict] = None, **kwargs):
+    def __init__(self, defaults: dict | None = None, **kwargs):
         """
         Initialize with an optional dict or keyword arguments.
 
@@ -73,7 +75,7 @@ class Values:
         else:
             return False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Return a shallow copy of the attributes as a dict."""
         return dict(self.__dict__)
 

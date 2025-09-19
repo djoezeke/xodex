@@ -43,6 +43,5 @@ How it works:
 See the Xodex documentation for more advanced usage and patterns.
 """
 
-from xodex.objects.manager import register
 
 # Register your {{ project_name }} Objects here.

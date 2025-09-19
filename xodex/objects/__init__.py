@@ -6,13 +6,17 @@ Provides:
 - Base object types: DrawableObject, EventfulObject, LogicalObject.
 """
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from pygame import Surface
 from pygame.event import Event
 
-from xodex.objects.manager import ObjectsManager, register
-from xodex.objects.objects import Object, DrawableObject, EventfulObject, LogicalObject
+from xodex.objects.manager import ObjectsManager
+from xodex.objects.manager import register
+from xodex.objects.objects import DrawableObject
+from xodex.objects.objects import EventfulObject
+from xodex.objects.objects import LogicalObject
+from xodex.objects.objects import Object
 
 __all__ = (
     "make_xodex_object",

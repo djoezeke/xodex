@@ -29,10 +29,10 @@ Author: djoezeke
 License: See LICENSE file.
 """
 
+import logging
 import os
 import sys
 import time
-import logging
 from importlib import import_module
 
 import pygame

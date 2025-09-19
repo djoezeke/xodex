@@ -38,6 +38,7 @@ license-files = ["LICEN[CS]E*"]
 dependencies = [
     "pillow>=11.3.0",
     "pygame>=2.6.1",
+    "rich>=14.1.0",
     "uinex",
 ]
 

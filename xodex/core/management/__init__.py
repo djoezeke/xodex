@@ -1,32 +1,41 @@
 """Management"""
 
-import os
-import sys
-import pkgutil
 import argparse
 import importlib
+import os
+import pkgutil
+import sys
 
+from rich.console import Console
+from rich.table import Table
+from rich.theme import Theme
+
+from xodex.core.management.command import BaseCommand
+from xodex.core.management.command import handle_default_options
 from xodex.version import vernum
-from xodex.core.management.command import BaseCommand, handle_default_options
 
-try:
-    from colorama import Fore, Style, init as colorama_init
-
-    colorama_init()
-    COLOR_ENABLED = True
-except ImportError:
-    COLOR_ENABLED = False
+console = Console(
+    theme=Theme(
+        {
+            "help": "bold cyan",
+            "desc": "dim white",
+            "error": "bold red",
+            "success": "bold green",
+            "warning": "yellow",
+        }
+    )
+)
 
 
 __all__ = ("ManagementUtility",)
 
 
-def cprint(text, color=None):
-    """cprint"""
-    if COLOR_ENABLED and color:
-        print(getattr(Fore, color.upper(), "") + text + Style.RESET_ALL)
+def cprint(text, style=None):
+    """Rich colored print"""
+    if style:
+        console.print(text, style=style)
     else:
-        print(text)
+        console.print(text)
 
 
 class ManagementUtility:
@@ -53,7 +62,7 @@ class ManagementUtility:
         try:
             package = importlib.import_module(self.commands_package)
         except ImportError:
-            print(f"Could not import commands package: {self.commands_package}")
+            console.print(f"[error]Could not import commands package: {self.commands_package}")
             return commands
 
         package_path = package.__path__
@@ -68,18 +77,21 @@ class ManagementUtility:
                     if isinstance(obj, type) and issubclass(obj, BaseCommand) and obj is not BaseCommand:
                         commands[name] = obj
             except Exception as e:
-                print(f"Error importing command '{name}': {e}")
+                console.print(f"[error]Error importing command '{name}': {e}")
         return commands
 
     def main_help(self):
         """
-        Print help for all available commands.
+        Print help for all available commands using rich formatting.
         """
-        print("Type 'xodex help <subcommand>' for help on a specific subcommand.\n")
-        print("Available commands:")
+        console.print("'[bold]xodex help <subcommand>[/bold]' for help on a specific subcommand.", style="help")
+        table = Table(show_header=True, box=None, header_style="bold magenta")
+        table.add_column("Commands:", style="cyan", no_wrap=True)
+        table.add_column("", style="desc")
         for name, cmd in self.commands.items():
             desc = getattr(cmd, "description", "")
-            print(f"  {name:15} {desc}")
+            table.add_row(f"  {name}", f"  {desc}")
+        console.print(table)
 
     def fetch_command(self, name) -> BaseCommand:
         """
@@ -95,16 +107,52 @@ class ManagementUtility:
             prog=self.prog_name,
             usage="%(prog)s <subcommand> [options] [args]",
             description="Xodex Management Utility",
+            epilog="Use `xodex help <command>` for more options",
             add_help=False,
         )
 
-        parser.add_argument("--settings")
-        parser.add_argument("--pythonpath")
+        parser.add_argument(
+            "-q",
+            "--quiet",
+            action="store_true",
+            help="Use quiet output.",
+        )
+        parser.add_argument(
+            "-v",
+            "--verbose",
+            action="store_true",
+            help="Use verbose output.",
+        )
+        parser.add_argument(
+            "--no-color",
+            action="store_true",
+            help="Don't colorize the command output.",
+        )
+        parser.add_argument(
+            "--directory",
+            help=("Change to the given directory prior to running the command."),
+        )
+        parser.add_argument(
+            "--project",
+            help=("Run the command within the given project directory [env: XODEX_PROJECT=]."),
+        )
+        parser.add_argument(
+            "--settings",
+            help=("The path to a `uv.toml` file to use for configuration [env: XODEX_SETTINGS_FILE=]"),
+        )
+        parser.add_argument(
+            "-V",
+            "--version",
+            action="version",
+            version=str(vernum),
+            help="Show the xodex version number and exit.",
+        )
         parser.add_argument("command", nargs="?")
 
         try:
             options, args = parser.parse_known_args(self.argv[2:])
             handle_default_options(options)
+            print(options)
         except argparse.ArgumentError:
             pass
 
@@ -113,19 +161,18 @@ class ManagementUtility:
         except IndexError:
             command = "help"
 
-        if command in ["--help", "-h", "help"]:
-            if options.command:
-                command = self.fetch_command(options.command)
-                if command:
-                    command.print_help(self.argv[0])
+        if command in ["help", "-h", "--help"]:
+            command_obj = self.fetch_command(options.command)
+            if command_obj:
+                command_obj.print_help(self.argv[1])
             else:
                 self.main_help()
-        elif command in ["--version", "-v"]:
-            print(str(vernum))
+        if command in ["version", "-V", "--version"]:
+            console.print(f"[success]{vernum}")
         else:
-            command = self.fetch_command(command)
-            if command:
-                command.execute(self.argv)
+            command_obj = self.fetch_command(command)
+            if command_obj:
+                command_obj.execute(self.argv)
 
 
 def execute_from_command_line(argv=None):

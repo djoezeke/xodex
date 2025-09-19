@@ -1,7 +1,9 @@
-import pytest
 import pygame
-
-from xodex.objects import Objects, LogicalObject, DrawableObject, EventfulObject
+import pytest
+from xodex.objects import DrawableObject
+from xodex.objects import EventfulObject
+from xodex.objects import LogicalObject
+from xodex.objects import Objects
 
 # --- Dummy implementations for testing ---
 

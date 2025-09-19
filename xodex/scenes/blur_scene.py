@@ -1,9 +1,15 @@
 from abc import ABC
-from typing import Callable, Optional, Literal
-from PIL import Image, ImageFilter, ImageChops
+from collections.abc import Callable
+from typing import Literal
 
 import pygame
-from pygame import Surface, time, image, Rect
+from PIL import Image
+from PIL import ImageChops
+from PIL import ImageFilter
+from pygame import image
+from pygame import Rect
+from pygame import Surface
+from pygame import time
 
 from xodex.scenes.base_scene import BaseScene
 
@@ -48,11 +54,11 @@ class BlurScene(BaseScene, ABC):
         blur_count: int = 1,
         blur_duration: float = 1.0,
         blur_type: Literal["gaussian", "box", "motion", "custom"] = "gaussian",
-        blur_region: Optional[Rect] = None,
-        blur_mask: Optional[Surface] = None,
-        on_blur_start: Optional[Callable] = None,
-        on_blur_progress: Optional[Callable[[float], None]] = None,
-        on_blur_complete: Optional[Callable] = None,
+        blur_region: Rect | None = None,
+        blur_mask: Surface | None = None,
+        on_blur_start: Callable | None = None,
+        on_blur_progress: Callable[[float], None] | None = None,
+        on_blur_complete: Callable | None = None,
         **kwargs,
     ) -> "BlurScene":
         super().__init__(*args, **kwargs)

@@ -1,29 +1,35 @@
 """Management command for generating Xodex projects from templates."""
 
 import os
-import re
 import pathlib
+import re
 from importlib.util import find_spec
 
+from rich.console import Console
+from rich.table import Table
+from rich.theme import Theme
 from xodex.core.management.command import BaseCommand
 
-try:
-    from colorama import Fore, Style, init as colorama_init
-
-    colorama_init()
-    COLOR_ENABLED = True
-except ImportError:
-    COLOR_ENABLED = False
+console = Console(
+    theme=Theme(
+        {
+            "info": "cyan",
+            "warning": "yellow",
+            "error": "bold red",
+            "success": "bold green",
+        }
+    )
+)
 
 __all__ = ("XodexGenerator", "StartCommand")
 
 
-def cprint(text, color=None):
-    """cprint"""
-    if COLOR_ENABLED and color:
-        print(getattr(Fore, color.upper(), "") + text + Style.RESET_ALL)
+def cprint(text, style=None):
+    """Rich colored print"""
+    if style:
+        console.print(text, style=style)
     else:
-        print(text)
+        console.print(text)
 
 
 class XodexGenerator:
@@ -104,10 +110,10 @@ class XodexGenerator:
         self.xodex_dir = pathlib.Path(__file__).parent.parent.parent.parent
         self.template_dir = os.path.join(self.xodex_dir, "conf", "template")
 
-    def log(self, message, color=None, level=1):
+    def log(self, message, style=None, level=1):
         """Log a message if verbosity is high enough."""
         if self.verbosity >= level:
-            cprint(message, color)
+            cprint(message, style)
 
     def render_template(self, content):
         """
@@ -210,7 +216,7 @@ class XodexGenerator:
 
                 if os.path.exists(new_path):
                     if self.force:
-                        self.log(f"Overwriting {new_path} (force mode)", "YELLOW", 2)
+                        self.log(f"Overwriting {new_path} (force mode)", "warning", 2)
                     elif self.interactive:
                         resp = input(f"{new_path} exists. Overwrite [y/N/rename]? ").strip().lower()
                         if resp == "y":
@@ -218,10 +224,10 @@ class XodexGenerator:
                         elif resp == "rename":
                             new_path = input("Enter new filename: ").strip()
                         else:
-                            self.log(f"Skipped {new_path}", "YELLOW")
+                            self.log(f"Skipped {new_path}", "warning")
                             continue
                     else:
-                        self.log(f"{new_path} already exists. Skipping.", "YELLOW")
+                        self.log(f"{new_path} already exists. Skipping.", "warning")
                         continue
 
                 self.pre_copy_hook(old_path, new_path)
@@ -235,7 +241,7 @@ class XodexGenerator:
                         with open(old_path, "rb") as src_file:
                             content = src_file.read()
                         if self.dry_run:
-                            self.log(f"[DRY RUN] Would copy binary: {new_path}", "CYAN")
+                            self.log(f"[DRY RUN] Would copy binary: {new_path}", "info")
                         else:
                             with open(new_path, "wb") as dst_file:
                                 dst_file.write(content)
@@ -244,7 +250,7 @@ class XodexGenerator:
                             content = template_file.read()
                         rendered = self.render_template(content)
                         if self.dry_run:
-                            self.log(f"[DRY RUN] Would create: {new_path}", "CYAN")
+                            self.log(f"[DRY RUN] Would create: {new_path}", "info")
                         else:
                             with open(new_path, "w", encoding="utf-8") as new_file:
                                 new_file.write(rendered)
@@ -252,7 +258,7 @@ class XodexGenerator:
                     if not self.dry_run and new_filename in self.file_permissions:
                         os.chmod(new_path, self.file_permissions[new_filename])
                 except Exception as e:
-                    self.log(f"Error copying {old_path} to {new_path}: {e}", "RED")
+                    self.log(f"Error copying {old_path} to {new_path}: {e}", "error")
                     continue
 
                 self.post_copy_hook(old_path, new_path)
@@ -276,11 +282,11 @@ class XodexGenerator:
             gitignore_path = os.path.join(self.main_dir, ".gitignore")
             if not os.path.exists(gitignore_path):
                 if self.dry_run:
-                    self.log(f"[DRY RUN] Would create: {gitignore_path}", "CYAN")
+                    self.log(f"[DRY RUN] Would create: {gitignore_path}", "info")
                 else:
                     with open(gitignore_path, "w", encoding="utf-8") as f:
                         f.write("__pycache__/\n*.pyc\n*.pyo\n*.log\nsave/\n")
-                    self.log("Added .gitignore", "CYAN", 2)
+                    self.log("Added .gitignore", "info", 2)
 
     def generate(self):
         """
@@ -296,14 +302,14 @@ class XodexGenerator:
                     os.makedirs(self.main_dir)
                 # self.log(f"Created directory: {self.main_dir}", "CYAN")
             else:
-                self.log(f"'{self.main_dir}' already exists", "YELLOW")
+                self.log(f"'{self.main_dir}' already exists", "warning")
         except Exception as e:
-            self.log(f"Failed to create directory '{self.main_dir}': {e}", "RED")
+            self.log(f"Failed to create directory '{self.main_dir}': {e}", "error")
             return
 
         self.copy_template()
         self.post_process()
-        self.log(f"App '{self.name}' created successfully!", "GREEN")
+        self.log(f"App '{self.name}' created successfully!", "success")
 
     def validate_name(self):
         """
@@ -312,13 +318,13 @@ class XodexGenerator:
         Checks for valid identifier and module name conflicts.
         """
         if self.name is None:
-            self.log("you must provide a project name", "YELLOW")
+            self.log("You must provide a project name", "warning")
 
         # Check it's a valid directory name.
         if not self.name.isidentifier():
             self.log(
                 f"'{self.name}' is not a valid a project name. \nPlease make sure {self.name} is a valid identifier.",
-                "YELLOW",
+                "warning",
             )
 
         # Check that __spec__ doesn't exist.
@@ -327,7 +333,7 @@ class XodexGenerator:
                 f"'{self.name}' conflicts with the name of an existing Python "
                 "module and cannot be used as a project name. Please try "
                 "another name.",
-                "YELLOW",
+                "warning",
             )
 
 
@@ -384,7 +390,7 @@ class StartCommand(BaseCommand):
         if not name:
             name = input("Enter the name for your game: ").strip()
         if not name:
-            cprint("Error: Game name is required.", "RED")
+            cprint("[error]Game name is required.", style="error")
             return
 
         # Parse context variables
@@ -425,7 +431,7 @@ class StartCommand(BaseCommand):
             exclude_patterns=exclude_patterns,
             include_patterns=include_patterns,
             file_permissions=file_permissions,
-            verbosity=options.verbosity,
+            verbosity=getattr(options, "verbosity", 1),
         )
         generator.generate()
 
@@ -438,12 +444,14 @@ class StartCommand(BaseCommand):
 
         template_dir = Path(__file__).parent.parent.parent.parent / "conf" / "template"
         if not template_dir.exists():
-            print(f"No templates directory found at '{template_dir}'.")
+            console.print(f"[warning]No templates directory found at '{template_dir}'.", style="warning")
             return
-        print("Available templates:")
+        table = Table(title="Available Templates", show_header=True, header_style="bold magenta")
+        table.add_column("Template Name", style="cyan")
         for name in os.listdir(template_dir):
             if name != "assets" and os.path.isdir(template_dir / name):
-                print(f"  - {name}")
+                table.add_row(name)
+        console.print(table)
 
     @staticmethod
     def parse_key_value_list(items):

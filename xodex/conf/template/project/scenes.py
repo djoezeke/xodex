@@ -43,6 +43,5 @@ How it works:
 See the Xodex documentation for more advanced scene management and transitions.
 """
 
-from xodex.scenes.manager import register
 
 # Register your {{ project_name }} Scenes here.
