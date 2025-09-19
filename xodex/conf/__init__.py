@@ -109,15 +109,15 @@ class Configuration(Singleton):
                 if setting.isupper():
                     setting_value = getattr(mod, setting)
                     if setting in tuple_settings and not isinstance(setting_value, (list, tuple)):
-                        warnings.warn(f"The {setting} setting must be a list or a tuple.")
+                        warnings.warn(f"The {setting} setting must be a list or a tuple.", stacklevel=2)
                         continue
                     if setting in dict_settings and not isinstance(setting_value, dict):
-                        warnings.warn(f"The {setting} setting must be a dict.")
+                        warnings.warn(f"The {setting} setting must be a dict.", stacklevel=2)
                         continue
                     setattr(self, setting, setting_value)
                     self._explicit_settings.add(setting)
         except Exception as e:
-            warnings.warn(f"Failed to configure settings: {e}")
+            warnings.warn(f"Failed to configure settings: {e}", stacklevel=2)
 
     def validate(self, setting, validator, warn=True):
         """
@@ -133,7 +133,7 @@ class Configuration(Singleton):
         value = getattr(self, setting, None)
         valid = validator(value)
         if not valid and warn:
-            warnings.warn(f"Validation failed for setting '{setting}': {value!r}")
+            warnings.warn(f"Validation failed for setting '{setting}': {value!r}", stacklevel=2)
         return valid
 
     def reload(self):
@@ -181,7 +181,7 @@ class Configuration(Singleton):
         """
         for name in settings:
             if not hasattr(self, name):
-                warnings.warn(f"Required setting '{name}' is missing.")
+                warnings.warn(f"Required setting '{name}' is missing.", stacklevel=2)
 
 
 settings = Configuration()
