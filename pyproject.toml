@@ -5,7 +5,7 @@ build-backend = "uv_build"
 [project]
 name = "xodex"
 version = "0.1.0"
-description = "A modular, extensible Pygame game engine for rapid 2D game development."
+description = "Python Game Development Engine (Pygame-based)."
 long_description = "A modern Customizable Pygame Game engine."
 long_description_content_type = "text/markdown"
 readme = "README.md"
@@ -41,7 +41,6 @@ dependencies = [
     "rich>=14.1.0",
     "uinex",
 ]
-
 
 [project.scripts]
 xodex = "xodex.__main__:execute_from_command_line"
