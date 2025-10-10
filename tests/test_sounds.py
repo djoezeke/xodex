@@ -1,7 +1,7 @@
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pygame
+import pytest
 from xodex.game.sounds import Sounds
 
 

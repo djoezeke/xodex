@@ -1,6 +1,6 @@
 import os
-from setuptools import setup, find_packages
-from xodex.version import vernum
+from setuptools import find_packages, setup
+from xodex.utils.version import vernum
 
 
 def readme():
@@ -32,45 +32,47 @@ setup(
     license="MIT",
     packages=find_packages(
         where=".",
-        exclude=['test'],
-        include=["xodex", "xodex.core", "xodex.objects", "xodex.scenes", "xodex.utils", "xodex.contrib", "xodex.game", "xodex.conf"]
-        ),
+        exclude=["tests"],
+        include=[
+            "xodex",
+            "xodex.core",
+            "xodex.game",
+            "xodex.conf",
+            "xodex.scene",
+            "xodex.utils",
+            "xodex.object",
+            "xodex.contrib",
+        ],
+    ),
     py_modules=["xodex"],
-    install_requires=["pygame>=2.0.0",],
+    install_requires=["pygame>=2.6.1", "pillow>=11.3.0", "rich>=14.1.0"],
     extras_require={
-        "dev": ["pytest", "black","isort"],
-        "docs": ["sphinx"],
+        "dev": [],
+        "docs": [],
     },
-    python_requires=">=3.9",
-    keywords=[
-        "pygame", "game engine", "2d", "xodex", "games", "engine", "framework"
-    ],
+    python_requires=">=3.13",
+    keywords=["pygame", "game engine", "2d", "xodex", "games", "engine", "framework"],
     platforms=["any"],
     classifiers=[
-        "Development Status :: 1 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: POSIX",
-        "Operating System :: Unix",
-        "Operating System :: MacOS",
+        "Operating System :: OS Independent",
         "Topic :: Games/Entertainment",
-        "Topic :: Software Development :: Libraries :: pygame",
-        "Typing :: Typed",
+        "Topic :: Multimedia :: Graphics",
+        "Topic :: Software Development :: Libraries :: Application Frameworks",
     ],
-    setup_requires=['setuptools', "wheel"],
-    options={'bdist_wheel': {'universal': False}},
     entry_points={
-        'pyinstaller40': ['hook-dirs = xodex.conf.hook:get_hook_dirs'],
-        "console_scripts": ["xodex=xodex.__main__:execute_from_command_line",],
+        "pyinstaller40": ["hook-dirs = xodex.conf.hook:get_hook_dirs"],
+        "console_scripts": [
+            "xodex=xodex.__main__:execute_from_command_line",
+        ],
     },
+    setup_requires=["setuptools", "wheel"],
+    options={"bdist_wheel": {"universal": False}},
     zip_safe=False,
     include_package_data=True,
 )

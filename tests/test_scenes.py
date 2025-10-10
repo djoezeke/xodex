@@ -1,9 +1,8 @@
 import os
-import types
-import pytest
-import pygame
 
-from xodex.scenes.base_scene import BaseScene
+import pygame
+import pytest
+from xodex.scene.base import BaseScene
 
 
 # Mock settings module for testing

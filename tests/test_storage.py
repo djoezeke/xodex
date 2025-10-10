@@ -1,9 +1,7 @@
 import os
-import tempfile
-import json
 import pickle
-import pytest
 
+import pytest
 from xodex.game.storage import Storage
 
 
