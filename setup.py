@@ -1,7 +1,5 @@
 import os
-
-from setuptools import find_packages
-from setuptools import setup
+from setuptools import find_packages, setup
 from xodex.utils.version import vernum
 
 
@@ -67,14 +65,14 @@ setup(
         "Topic :: Multimedia :: Graphics",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
     ],
-    setup_requires=["setuptools", "wheel"],
-    options={"bdist_wheel": {"universal": False}},
     entry_points={
         "pyinstaller40": ["hook-dirs = xodex.conf.hook:get_hook_dirs"],
         "console_scripts": [
             "xodex=xodex.__main__:execute_from_command_line",
         ],
     },
+    setup_requires=["setuptools", "wheel"],
+    options={"bdist_wheel": {"universal": False}},
     zip_safe=False,
     include_package_data=True,
 )

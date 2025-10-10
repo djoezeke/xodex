@@ -8,8 +8,8 @@ from typing import overload
 
 import pygame
 
-from xodex.object.animator import Animator
-from xodex.object.image import Image
+from xodex.contrib.objects.animator import Animator
+from xodex.contrib.objects.image import Image
 from xodex.utils.functions import splitsheet
 
 

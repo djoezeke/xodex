@@ -20,7 +20,6 @@ Usage:
 import importlib
 import os
 import warnings
-from types import ModuleType
 
 from xodex.utils.singleton import Singleton
 

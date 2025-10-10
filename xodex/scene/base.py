@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from xodex.scene.manager import SceneManager
 
 
-__all__ = ("BaseScene",)
+__all__ = ("Scene",)
 
 
 class BaseScene(ABC):
@@ -492,3 +492,7 @@ class BaseScene(ABC):
             logger.info(f"[{self.__class__.__name__}] on_resume called.")
 
     # endregion
+
+
+class Scene(BaseScene):
+    """Scene"""

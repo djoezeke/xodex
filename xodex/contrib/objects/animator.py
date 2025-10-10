@@ -9,7 +9,7 @@ from collections.abc import Callable
 import pygame
 from pygame import Surface
 
-from xodex.object.image import Image
+from xodex.contrib.objects.image import Image
 from xodex.object.base import DrawableObject
 from xodex.object.base import EventfulObject
 from xodex.object.base import LogicalObject
@@ -300,7 +300,7 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
         frame_changed = False
         while self._time_accum >= self._frame_duration:
             self._time_accum -= self._frame_duration
-            prev_frame = self._current_frame
+            # prev_frame = self._current_frame
             self._current_frame += self._direction
             frame_changed = True
             if self._pingpong:

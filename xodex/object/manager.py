@@ -6,43 +6,16 @@ Provides scene-based registration and querying of game objects.
 import asyncio
 from collections.abc import Callable
 
+from xodex.contrib.objects.animator import Animator
+from xodex.contrib.objects.image import Image
 from xodex.contrib.objects.text import XodexText
 from xodex.core.exceptions import AlreadyRegistered
 from xodex.core.exceptions import NotRegistered
 from xodex.core.exceptions import ObjectError
-from xodex.utils.singleton import Singleton
-from xodex.object.animator import Animator
-from xodex.object.image import Image
 from xodex.object.base import Object
 from xodex.utils.log import get_xodex_logger
+from xodex.utils.singleton import Singleton
 from xodex.utils.values import Values
-
-try:
-    import pygameui
-
-    HAS_PYGAMEUI = True
-except ImportError:
-    HAS_PYGAMEUI = False
-
-if HAS_PYGAMEUI:
-    from xodex.contrib.pygameui import UIBUTTON
-    from xodex.contrib.pygameui import UICHECKBUTTON
-    from xodex.contrib.pygameui import UICOMBOBOX
-    from xodex.contrib.pygameui import UIENTRY
-    from xodex.contrib.pygameui import UIFLOODGAUGE
-    from xodex.contrib.pygameui import UIFRAME
-    from xodex.contrib.pygameui import UILABEL
-    from xodex.contrib.pygameui import UILISTBOX
-    from xodex.contrib.pygameui import UIMENUBUTTON
-    from xodex.contrib.pygameui import UIMETER
-    from xodex.contrib.pygameui import UIPROGRESSBAR
-    from xodex.contrib.pygameui import UIRADIOBUTTON
-    from xodex.contrib.pygameui import UISCALE
-    from xodex.contrib.pygameui import UISEPERATOR
-    from xodex.contrib.pygameui import UISIZEGRIP
-    from xodex.contrib.pygameui import UISPINBOX
-    from xodex.contrib.pygameui import UITEXTBOX
-    from xodex.contrib.pygameui import UITREEVIEW
 
 __all__ = ("ObjectsManager", "register")
 
@@ -76,26 +49,6 @@ class ObjectsManager(Singleton):
         self.register(XodexText, "XodexText")
         self.register(Image, "Image")
         self.register(Animator, "Animator")
-
-        if HAS_PYGAMEUI:
-            self.register(UIFRAME, "UIFRAME")
-            self.register(UILABEL, "UILABEL")
-            self.register(UIENTRY, "UIENTRY")
-            self.register(UIMETER, "UIMETER")
-            self.register(UISCALE, "UISCALE")
-            self.register(UIBUTTON, "UIBUTTON")
-            self.register(UITEXTBOX, "UITEXTBOX")
-            self.register(UISPINBOX, "UISPINBOX")
-            self.register(UILISTBOX, "UILISTBOX")
-            self.register(UISIZEGRIP, "UISIZEGRIP")
-            self.register(UITREEVIEW, "UITREEVIEW")
-            self.register(UICOMBOBOX, "UICOMBOBOX")
-            self.register(UISEPERATOR, "UISEPERATOR")
-            self.register(UIMENUBUTTON, "UIMENUBUTTON")
-            self.register(UIFLOODGAUGE, "UIFLOODGAUGE")
-            self.register(UICHECKBUTTON, "UICHECKBUTTON")
-            self.register(UIRADIOBUTTON, "UIRADIOBUTTON")
-            self.register(UIPROGRESSBAR, "UIPROGRESSBAR")
 
     # region Properties
 

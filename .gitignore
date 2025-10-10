@@ -225,6 +225,7 @@ __marimo__/
 
 # uv Python package manager
 uv.lock
+.python-version
 
 # Xodex build artifacts
 TODO.md

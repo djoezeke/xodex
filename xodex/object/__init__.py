@@ -11,12 +11,12 @@ from collections.abc import Iterable
 from pygame import Surface
 from pygame.event import Event
 
-from xodex.object.manager import ObjectsManager
-from xodex.object.manager import register
 from xodex.object.base import DrawableObject
 from xodex.object.base import EventfulObject
 from xodex.object.base import LogicalObject
 from xodex.object.base import Object
+from xodex.object.manager import ObjectsManager
+from xodex.object.manager import register
 
 __all__ = (
     "make_xodex_object",

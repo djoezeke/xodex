@@ -8,7 +8,7 @@ import pygame
 from pygame import Color
 from pygame import Surface
 
-# from xodex.objects.image import Image
+from xodex.contrib.objects.image import Image
 
 # --- GAME WINDOW ---
 # region Window
@@ -124,7 +124,7 @@ def loadgif(filename: str, surface=True) -> list[Surface]:
         while 1:
             try:
                 duration: float = image.info["duration"]
-            except:
+            except KeyError:
                 duration = 100
 
             duration *= 0.001  # convert to milliseconds!

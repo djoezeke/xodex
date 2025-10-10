@@ -8,9 +8,9 @@ from xodex.contrib.scenes.xodex import XodexMainScene
 from xodex.core.exceptions import AlreadyRegistered
 from xodex.core.exceptions import NotRegistered
 from xodex.core.exceptions import SceneError
-from xodex.utils.singleton import Singleton
 from xodex.scene.base import BaseScene
 from xodex.utils.log import get_xodex_logger
+from xodex.utils.singleton import Singleton
 from xodex.utils.values import Values
 
 __all__ = ("SceneManager", "register")
@@ -18,13 +18,7 @@ __all__ = ("SceneManager", "register")
 logger = get_xodex_logger(__name__)
 
 
-class BaseManager: ...
-
-
-class Manager(BaseManager): ...
-
-
-class SceneManager(Singleton):
+class BaseManager(Singleton):
     """
     Scene Manager with stack navigation, transitions, scene lookup, and hooks.
 
@@ -425,6 +419,9 @@ class SceneManager(Singleton):
     def __len__(self) -> int:
         """Return the number of scenes in the stack."""
         return len(self.__scenes)
+
+
+class SceneManager(BaseManager): ...
 
 
 def register(cls=None, *, name: str = None):

@@ -5,12 +5,13 @@ and drawing utilities, such as scaling, flipping, blurring, color swapping,
 and rotation. Integrates with the DrawableObject interface for rendering.
 """
 
-import PIL.Image
-import PIL.ImageFilter
-import PIL.ImageOps
 import pygame
 from pygame import Color
 from pygame import Surface
+
+import PIL.Image
+import PIL.ImageOps
+import PIL.ImageFilter
 
 from xodex.object.base import DrawableObject
 from xodex.utils.functions import loadimage

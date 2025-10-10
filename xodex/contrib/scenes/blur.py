@@ -3,22 +3,23 @@ from collections.abc import Callable
 from typing import Literal
 
 import pygame
-from PIL import Image
-from PIL import ImageChops
-from PIL import ImageFilter
+from pygame import time
 from pygame import image
 from pygame import Rect
 from pygame import Surface
-from pygame import time
+
+from PIL import Image
+from PIL import ImageChops
+from PIL import ImageFilter
 
 from xodex.scene.base import BaseScene
 
 __all__ = (
     "BlurScene",
-    "GaussianBlurScene",
     "BoxBlurScene",
     "MotionBlurScene",
     "MaskedBlurScene",
+    "GaussianBlurScene",
 )
 
 

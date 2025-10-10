@@ -37,7 +37,7 @@ def get_version():
     """
     if isinstance(vernum, (tuple, list)):
         return tuple(vernum), ".".join(map(str, vernum))
-    return (vernum,), str(vernum)
+    return str(vernum)
 
 
 def is_version_at_least(version):
