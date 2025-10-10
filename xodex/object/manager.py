@@ -6,14 +6,14 @@ Provides scene-based registration and querying of game objects.
 import asyncio
 from collections.abc import Callable
 
-from xodex.contrib.basicobjects import XodexText
+from xodex.contrib.objects.text import XodexText
 from xodex.core.exceptions import AlreadyRegistered
 from xodex.core.exceptions import NotRegistered
 from xodex.core.exceptions import ObjectError
-from xodex.core.singleton import Singleton
-from xodex.objects.animator import Animator
-from xodex.objects.image import Image
-from xodex.objects.objects import Object
+from xodex.utils.singleton import Singleton
+from xodex.object.animator import Animator
+from xodex.object.image import Image
+from xodex.object.base import Object
 from xodex.utils.log import get_xodex_logger
 from xodex.utils.values import Values
 

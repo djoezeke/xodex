@@ -11,7 +11,7 @@ from pygame import Rect
 from pygame import Surface
 from pygame import time
 
-from xodex.scenes.base_scene import BaseScene
+from xodex.scene.base import BaseScene
 
 __all__ = (
     "BlurScene",

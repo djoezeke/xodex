@@ -12,7 +12,7 @@ import pygame
 from pygame import Color
 from pygame import Surface
 
-from xodex.objects.objects import DrawableObject
+from xodex.object.base import DrawableObject
 from xodex.utils.functions import loadimage
 
 

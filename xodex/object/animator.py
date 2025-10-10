@@ -9,10 +9,10 @@ from collections.abc import Callable
 import pygame
 from pygame import Surface
 
-from xodex.objects.image import Image
-from xodex.objects.objects import DrawableObject
-from xodex.objects.objects import EventfulObject
-from xodex.objects.objects import LogicalObject
+from xodex.object.image import Image
+from xodex.object.base import DrawableObject
+from xodex.object.base import EventfulObject
+from xodex.object.base import LogicalObject
 
 
 class Animator(DrawableObject, EventfulObject, LogicalObject):

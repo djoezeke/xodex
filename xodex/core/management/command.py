@@ -5,7 +5,7 @@ import sys
 from rich.console import Console
 from rich.theme import Theme
 
-from xodex.version import vernum
+from xodex.utils.version import vernum
 
 console = Console(
     theme=Theme(

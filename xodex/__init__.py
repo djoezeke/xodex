@@ -11,10 +11,8 @@ Features:
 - Ready for use with __all__ for clean imports
 """
 
-from xodex.version import get_version
-from xodex.version import is_version_at_least
-from xodex.version import vernum
+from xodex.utils.version import vernum
 
-__all__ = ("__version__", "get_version", "is_version_at_least")
+__all__ = "__version__"
 
 __version__ = str(vernum)

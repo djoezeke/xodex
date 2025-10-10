@@ -39,8 +39,8 @@ import pygame
 from pygame.event import Event
 
 from xodex.conf import settings
-from xodex.core.singleton import Singleton
-from xodex.scenes.manager import SceneManager
+from xodex.utils.singleton import Singleton
+from xodex.scene.manager import SceneManager
 
 # from xodex.core.localization import localize
 

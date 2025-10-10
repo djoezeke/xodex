@@ -4,7 +4,7 @@ import json
 import locale
 import os
 
-from xodex.core.singleton import Singleton
+from xodex.utils.singleton import Singleton
 
 __all__ = ("Localization", "localize")
 

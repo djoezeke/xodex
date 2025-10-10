@@ -12,7 +12,7 @@ from rich.theme import Theme
 
 from xodex.core.management.command import BaseCommand
 from xodex.core.management.command import handle_default_options
-from xodex.version import vernum
+from xodex.utils.version import vernum
 
 console = Console(
     theme=Theme(

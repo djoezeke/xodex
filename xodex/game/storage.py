@@ -4,7 +4,7 @@ import pickle
 import shutil
 from typing import Any
 
-from xodex.core.singleton import Singleton
+from xodex.utils.singleton import Singleton
 from xodex.utils.storage import BinaryDeserializer
 from xodex.utils.storage import BinarySerializer
 from xodex.utils.storage import JsonDeserializer

@@ -16,6 +16,12 @@ from pygame.event import Event
 __all__ = ("DrawableObject", "Object", "EventfulObject", "LogicalObject")
 
 
+class BaseManager: ...
+
+
+class Manager(BaseManager): ...
+
+
 class Object:
     """Base class for all game objects."""
 

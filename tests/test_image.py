@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pygame
 import pytest
-from xodex.objects.image import Image
+from xodex.object.image import Image
 
 
 @pytest.fixture

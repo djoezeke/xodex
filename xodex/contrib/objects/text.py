@@ -1,7 +1,7 @@
 import pygame
 
 from xodex.core.localization import localize
-from xodex.objects.objects import DrawableObject
+from xodex.object.base import DrawableObject
 
 
 class XodexText(DrawableObject):

@@ -2,7 +2,7 @@ import os
 
 import pygame
 import pytest
-from xodex.scenes.base_scene import BaseScene
+from xodex.scene.base import BaseScene
 
 
 # Mock settings module for testing

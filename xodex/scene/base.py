@@ -11,17 +11,17 @@ from pygame.event import Event
 
 from xodex.conf import settings
 from xodex.game.sounds import Sounds
-from xodex.objects import DrawableObject
-from xodex.objects import EventfulObject
-from xodex.objects import LogicalObject
-from xodex.objects import Objects
-from xodex.objects.manager import ObjectsManager
+from xodex.object import DrawableObject
+from xodex.object import EventfulObject
+from xodex.object import LogicalObject
+from xodex.object import Objects
+from xodex.object.manager import ObjectsManager
 from xodex.utils.log import get_xodex_logger
 
 logger = get_xodex_logger(__name__)
 
 if TYPE_CHECKING:
-    from xodex.scenes.manager import SceneManager
+    from xodex.scene.manager import SceneManager
 
 
 __all__ = ("BaseScene",)
@@ -86,7 +86,7 @@ class BaseScene(ABC):
         """
         Initialize the scene, loading settings and preparing the surface and objects.
         """
-        from xodex.scenes.manager import SceneManager
+        from xodex.scene.manager import SceneManager
 
         self._size = settings.WINDOW_SIZE or (560, 480)
         self._debug = settings.DEBUG or True

@@ -2,7 +2,7 @@
 
 from collections.abc import Generator
 
-from xodex.scenes.base_scene import BaseScene
+from xodex.scene.base import BaseScene
 
 # from xodex.core.localization import localize
 

@@ -8,7 +8,7 @@ from pygame.mixer import Sound
 from xodex.core.exceptions import AlreadyRegistered
 from xodex.core.exceptions import NotRegistered
 from xodex.core.exceptions import ObjectError
-from xodex.core.singleton import Singleton
+from xodex.utils.singleton import Singleton
 from xodex.utils.values import Values
 
 

@@ -4,28 +4,24 @@ from typing import Any
 
 from pygame import Surface
 
-from xodex.contrib.mainscene import XodexMainScene
+from xodex.contrib.scenes.xodex import XodexMainScene
 from xodex.core.exceptions import AlreadyRegistered
 from xodex.core.exceptions import NotRegistered
 from xodex.core.exceptions import SceneError
-from xodex.core.singleton import Singleton
-from xodex.scenes.base_scene import BaseScene
+from xodex.utils.singleton import Singleton
+from xodex.scene.base import BaseScene
 from xodex.utils.log import get_xodex_logger
 from xodex.utils.values import Values
-
-try:
-    import pygameui
-
-    HAS_PYGAMEUI = True
-except ImportError:
-    HAS_PYGAMEUI = False
-
-if HAS_PYGAMEUI:
-    from xodex.contrib.pygameui.uiscene import XodexUIScene
 
 __all__ = ("SceneManager", "register")
 
 logger = get_xodex_logger(__name__)
+
+
+class BaseManager: ...
+
+
+class Manager(BaseManager): ...
 
 
 class SceneManager(Singleton):
@@ -55,8 +51,6 @@ class SceneManager(Singleton):
 
         # Register default scenes
         self.register(XodexMainScene, "XodexMainScene")
-        if HAS_PYGAMEUI:
-            self.register(XodexUIScene, "XodexUIScene")
 
     # region Properties
 

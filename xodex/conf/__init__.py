@@ -22,7 +22,7 @@ import os
 import warnings
 from types import ModuleType
 
-from xodex.core.singleton import Singleton
+from xodex.utils.singleton import Singleton
 
 # from xodex.conf import configuration
 

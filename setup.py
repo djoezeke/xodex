@@ -2,7 +2,7 @@ import os
 
 from setuptools import find_packages
 from setuptools import setup
-from xodex.version import vernum
+from xodex.utils.version import vernum
 
 
 def readme():
@@ -34,16 +34,16 @@ setup(
     license="MIT",
     packages=find_packages(
         where=".",
-        exclude=["test"],
+        exclude=["tests"],
         include=[
             "xodex",
             "xodex.core",
-            "xodex.objects",
-            "xodex.scenes",
-            "xodex.utils",
-            "xodex.contrib",
             "xodex.game",
             "xodex.conf",
+            "xodex.scene",
+            "xodex.utils",
+            "xodex.object",
+            "xodex.contrib",
         ],
     ),
     py_modules=["xodex"],
