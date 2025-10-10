@@ -6,6 +6,8 @@ Defines base classes for game objects:
 - EventfulObject: Objects that handle events.
 """
 
+from __future__ import annotations
+
 import time
 from abc import ABC
 from abc import abstractmethod

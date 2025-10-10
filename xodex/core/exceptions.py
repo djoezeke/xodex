@@ -20,6 +20,8 @@ Usage:
     raise PluginLoadError(plugin="myplugin", reason="Missing dependency")
 """
 
+from __future__ import annotations
+
 import sys
 
 # from xodex.utils.log import get_xodex_logger
@@ -159,11 +161,7 @@ class PluginLoadError(PluginError):
     default_code = "plugin_load_error"
 
     def __init__(self, *args, plugin=None, reason=None, **kwargs):
-        msg = (
-            f"Failed to load plugin '{plugin}': {reason}"
-            if plugin
-            else "Plugin load error"
-        )
+        msg = f"Failed to load plugin '{plugin}': {reason}" if plugin else "Plugin load error"
         super().__init__(msg, *args, plugin=plugin, reason=reason, **kwargs)
         self.plugin = plugin
         self.reason = reason
@@ -204,11 +202,7 @@ class ValidationError(XodexError, ValueError):
     default_code = "validation_error"
 
     def __init__(self, *args, field=None, value=None, reason=None, **kwargs):
-        msg = (
-            f"Invalid value for {field!r}: {value!r} ({reason})"
-            if field
-            else "Validation error"
-        )
+        msg = f"Invalid value for {field!r}: {value!r} ({reason})" if field else "Validation error"
         super().__init__(msg, *args, field=field, value=value, reason=reason, **kwargs)
         self.field = field
         self.value = value

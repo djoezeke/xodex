@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 from typing import overload
@@ -62,9 +64,7 @@ def loadsound(filename: str) -> pygame.mixer.Sound:
     return sound
 
 
-def loadimage(
-    filename: str, surface=True, scale: int = 1, colorkey: Color = None
-) -> Surface:
+def loadimage(filename: str, surface=True, scale: int = 1, colorkey: Color = None) -> Surface:
     """
     Load an image with error handling and optional scaling.
 
@@ -203,9 +203,7 @@ def loadmap(filename: str) -> dict:
         return {}
 
 
-def splitsheet(
-    sheet: str | Surface, frame_size: tuple[int, int] = (64, 80), num_frames: int = None
-):
+def splitsheet(sheet: str | Surface, frame_size: tuple[int, int] = (64, 80), num_frames: int = None):
     """frames"""
 
     if isinstance(sheet, str):
@@ -404,9 +402,7 @@ def render_text(
         print(f"Error rendering text: {e}")
 
 
-def keep_in_bounds(
-    rect: pygame.Rect, screen_width: int, screen_height: int
-) -> pygame.Rect:
+def keep_in_bounds(rect: pygame.Rect, screen_width: int, screen_height: int) -> pygame.Rect:
     """
     Keep a rectangle within screen boundaries.
 

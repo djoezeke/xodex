@@ -13,13 +13,13 @@ Usage:
     from xodex.conf import settings
 """
 
+import importlib
 import os
 import warnings
-import importlib
 
 from xodex.conf import xsettings
-from xodex.utils.singleton import Singleton
 from xodex.core.exceptions import ImproperlyConfigured
+from xodex.utils.singleton import Singleton
 
 ENVIRONMENT_VARIABLE = "XODEX_SETTINGS_MODULE"
 
@@ -47,18 +47,14 @@ class Settings:
         for setting in dir(module):
             if setting.isupper():
                 setting_value = getattr(module, setting)
-                if setting in tuple_settings and not isinstance(
-                    setting_value, (list, tuple)
-                ):
+                if setting in tuple_settings and not isinstance(setting_value, (list, tuple)):
                     warnings.warn(
                         f"The {setting} setting must be a list or a tuple.",
                         stacklevel=2,
                     )
                     continue
                 if setting in dict_settings and not isinstance(setting_value, dict):
-                    warnings.warn(
-                        f"The {setting} setting must be a dict.", stacklevel=2
-                    )
+                    warnings.warn(f"The {setting} setting must be a dict.", stacklevel=2)
                     continue
                 setattr(self, setting, setting_value)
                 self._explicit_settings.add(setting)

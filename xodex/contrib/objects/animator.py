@@ -4,6 +4,8 @@ Provides animation logic for a sequence of frames (Image or pygame.Surface).
 Supports looping, ping-pong, reverse, and callbacks on finish.
 """
 
+from __future__ import annotations
+
 from collections.abc import Callable
 
 import pygame
@@ -98,7 +100,7 @@ class Animator(DrawableObject, EventfulObject, LogicalObject):
             self._img_rect.y = position[1]
 
     @classmethod
-    async def async_from_paths(cls, paths: list[str], **kwargs) -> "Animator":
+    async def async_from_paths(cls, paths: list[str], **kwargs) -> Animator:
         """
         Asynchronously load frames from file paths.
 

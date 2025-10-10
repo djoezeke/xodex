@@ -1,5 +1,7 @@
 """Localization manager for handling multi-language support."""
 
+from __future__ import annotations
+
 import json
 import locale
 import os

@@ -1,5 +1,7 @@
 import os
-from setuptools import find_packages, setup
+
+from setuptools import find_packages
+from setuptools import setup
 from xodex.utils.version import vernum
 
 
@@ -47,8 +49,19 @@ setup(
     py_modules=["xodex"],
     install_requires=["pygame>=2.6.1", "pillow>=11.3.0", "rich>=14.1.0"],
     extras_require={
-        "dev": [],
-        "docs": [],
+        "dev": [
+            # We add xodex[standard] so `uv sync` considers the extras.
+            "xodex[standard]",
+            "ruff",  # format & check
+            "pytest",  # testing
+            "twine",  # check dist
+        ],
+        "docs": [
+            "mkdocs==1.6.1",
+            "mkdocs-material==9.6.13",
+            "mkdocstrings-python==1.16.12",
+            "mkdocs-llmstxt==0.2.0",
+        ],
     },
     python_requires=">=3.13",
     keywords=["pygame", "game engine", "2d", "xodex", "games", "engine", "framework"],

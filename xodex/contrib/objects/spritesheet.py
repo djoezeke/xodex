@@ -4,6 +4,8 @@ SpriteSheet: Utility for splitting a sprite sheet into frames.
 SheetAnimator: Animator for sprite sheets.
 """
 
+from __future__ import annotations
+
 from typing import overload
 
 import pygame

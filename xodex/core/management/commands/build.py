@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from xodex.core.management.command import BaseCommand
 
 
