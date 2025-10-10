@@ -1,15 +1,15 @@
 import os
-from importlib import import_module
 
 import pygame
-from pygame.mixer import Channel
 from pygame.mixer import Sound
+from pygame.mixer import Channel
 
-from xodex.core.exceptions import AlreadyRegistered
-from xodex.core.exceptions import NotRegistered
-from xodex.core.exceptions import ObjectError
-from xodex.utils.singleton import Singleton
+from xodex.conf import settings
 from xodex.utils.values import Values
+from xodex.utils.singleton import Singleton
+from xodex.core.exceptions import ObjectError
+from xodex.core.exceptions import NotRegistered
+from xodex.core.exceptions import AlreadyRegistered
 
 
 class Sounds(Singleton):
@@ -39,13 +39,7 @@ class Sounds(Singleton):
         :param folder: Default folder to load sounds from.
         """
         self.sound_folder = None
-        try:
-            xodex_settings = os.getenv("XODEX_SETTINGS_MODULE")
-            self.setting = import_module(xodex_settings)
-            self.sound_folder = self.setting.SOUND_DIR
-        except Exception:
-            pass
-        self.sound_folder = self.sound_folder or folder
+        self.sound_folder = settings.SOUND_DIR or folder
         self.__sounds: dict[str, Sound] = {}
         self.load_sounds(self.sound_folder)
 
@@ -120,7 +114,13 @@ class Sounds(Singleton):
     # region Sound/Channel
 
     def play(
-        self, sound: str, channel: str = "", loops: int = 0, maxtime: int = 0, fade_ms: int = 0, on_end=None
+        self,
+        sound: str,
+        channel: str = "",
+        loops: int = 0,
+        maxtime: int = 0,
+        fade_ms: int = 0,
+        on_end=None,
     ) -> Channel | None:
         """
         Play a sound by name, optionally on a named channel, with fade-in and callback.
@@ -169,12 +169,16 @@ class Sounds(Singleton):
         :param volume: Volume (0.0 to 1.0).
         """
         try:
-            self.__sounds[sound].set_volume(max(0.0, min(1.0, volume * self._master_volume)))
+            self.__sounds[sound].set_volume(
+                max(0.0, min(1.0, volume * self._master_volume))
+            )
         except KeyError:
             print(f"Sound '{sound}' not found.")
         else:
             try:
-                Sounds._channels[sound].set_volume(max(0.0, min(1.0, volume * self._master_volume)))
+                Sounds._channels[sound].set_volume(
+                    max(0.0, min(1.0, volume * self._master_volume))
+                )
             except KeyError:
                 pass
 
@@ -255,7 +259,12 @@ class Sounds(Singleton):
         return Values(self.__sounds)
 
     def play_if_not_busy(
-        self, channel: str, sound: str, loops: int = 0, maxtime: int = 0, fade_ms: int = 0
+        self,
+        channel: str,
+        sound: str,
+        loops: int = 0,
+        maxtime: int = 0,
+        fade_ms: int = 0,
     ) -> Channel | None:
         """
         Play a sound on a channel only if the channel is not busy.

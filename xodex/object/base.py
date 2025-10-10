@@ -13,7 +13,7 @@ from abc import abstractmethod
 from pygame import Surface
 from pygame.event import Event
 
-__all__ = ("DrawableObject", "Object", "EventfulObject", "LogicalObject")
+__all__ = ("Object", "DrawableObject", "EventfulObject", "LogicalObject")
 
 
 class BaseObject:

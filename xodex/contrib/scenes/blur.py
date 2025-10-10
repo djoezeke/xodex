@@ -1,6 +1,6 @@
 from abc import ABC
-from collections.abc import Callable
 from typing import Literal
+from collections.abc import Callable
 
 import pygame
 from pygame import time

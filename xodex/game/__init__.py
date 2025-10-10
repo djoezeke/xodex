@@ -29,20 +29,18 @@ Author: djoezeke
 License: See LICENSE file.
 """
 
-import logging
 import os
 import sys
 import time
+import logging
 from importlib import import_module
 
 import pygame
 from pygame.event import Event
 
 from xodex.conf import settings
-from xodex.scene.manager import SceneManager
 from xodex.utils.singleton import Singleton
-
-# from xodex.core.localization import localize
+from xodex.scene.manager import SceneManager
 
 
 class Game(Singleton):
@@ -131,6 +129,8 @@ class Game(Singleton):
         pygame.display.set_caption(self._caption)
         if self._icon:
             self.set_icon(self._icon)
+
+        self.setup()
 
         scene = SceneManager().get_scene_class(self._mainscene)
         SceneManager().reset(scene=scene())
@@ -346,7 +346,7 @@ class Game(Singleton):
 
         # Reconfigure settings in case of changes
         try:
-            settings.configure()
+            # settings.configure()
             # Repopulate key attributes from settings
             self._size = settings.WINDOW_SIZE
             self._caption = settings.TITLE
@@ -371,7 +371,7 @@ class Game(Singleton):
 
             # Import user objects module
             try:
-                import_path = f"{game_module.__name__}.objects.objects"
+                import_path = f"{game_module.__name__}.objects"
                 import_module(import_path)
                 logging.info(f"Registered user objects from {import_path}")
                 self.objects_ready = True
@@ -381,7 +381,7 @@ class Game(Singleton):
 
             # Import user scenes module
             try:
-                import_path = f"{game_module.__name__}.scenes.scenes"
+                import_path = f"{game_module.__name__}.scenes"
                 import_module(import_path)
                 logging.info(f"Registered user scenes from {import_path}")
                 self.scenes_ready = True
@@ -437,8 +437,10 @@ def run(project=None, on_setup_success=None, on_setup_failure=None, async_mode=F
     os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
     if project:
         os.environ.setdefault("XODEX_SETTINGS_MODULE", f"{project}.settings")
-    settings.configure()
+    if not settings.configured:
+        settings._setup()
     game = Game()
+    # game.setup()
     if async_mode:
         import asyncio
 

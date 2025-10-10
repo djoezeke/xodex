@@ -1,14 +1,14 @@
-import json
 import os
+import json
 import pickle
 import shutil
 from typing import Any
 
 from xodex.utils.singleton import Singleton
-from xodex.utils.storage import BinaryDeserializer
+from xodex.utils.storage import JsonSerializer
 from xodex.utils.storage import BinarySerializer
 from xodex.utils.storage import JsonDeserializer
-from xodex.utils.storage import JsonSerializer
+from xodex.utils.storage import BinaryDeserializer
 
 
 class BaseStorage(JsonSerializer, JsonDeserializer, BinarySerializer, BinaryDeserializer):

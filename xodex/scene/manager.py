@@ -1,17 +1,18 @@
 import asyncio
-from collections.abc import Callable
 from typing import Any
+from collections.abc import Callable
 
 from pygame import Surface
 
-from xodex.contrib.scenes.xodex import XodexMainScene
-from xodex.core.exceptions import AlreadyRegistered
-from xodex.core.exceptions import NotRegistered
-from xodex.core.exceptions import SceneError
-from xodex.scene.base import BaseScene
 from xodex.utils.log import get_xodex_logger
-from xodex.utils.singleton import Singleton
+
 from xodex.utils.values import Values
+from xodex.scene.base import BaseScene
+from xodex.utils.singleton import Singleton
+from xodex.core.exceptions import SceneError
+from xodex.core.exceptions import NotRegistered
+from xodex.core.exceptions import AlreadyRegistered
+from xodex.contrib.scenes.xodex import XodexMainScene
 
 __all__ = ("SceneManager", "register")
 
@@ -240,7 +241,10 @@ class BaseManager(Singleton):
             The scene instance, or None if not found.
         """
         for scene in self.__scenes:
-            if getattr(scene, "name", None) == scene_name or scene.__class__.__name__ == scene_name:
+            if (
+                getattr(scene, "name", None) == scene_name
+                or scene.__class__.__name__ == scene_name
+            ):
                 return scene
         logger.warning(f"Scene '{scene_name}' not found in stack.")
         return None
@@ -315,7 +319,9 @@ class BaseManager(Singleton):
             if on_complete:
                 on_complete()
 
-    def _fade_transition(self, new_scene: BaseScene, duration: float, on_complete: Callable | None = None):
+    def _fade_transition(
+        self, new_scene: BaseScene, duration: float, on_complete: Callable | None = None
+    ):
         """Fade out, switch scene, fade in."""
         import pygame
 
@@ -333,7 +339,9 @@ class BaseManager(Singleton):
         if on_complete:
             on_complete()
 
-    def _slide_transition(self, new_scene: BaseScene, duration: float, on_complete: Callable | None = None):
+    def _slide_transition(
+        self, new_scene: BaseScene, duration: float, on_complete: Callable | None = None
+    ):
         """Slide transition (left to right)."""
         import pygame
 
@@ -362,7 +370,12 @@ class BaseManager(Singleton):
         Async version of transition_to.
         """
         loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, lambda: self.transition_to(new_scene, transition_type, duration, on_complete))
+        await loop.run_in_executor(
+            None,
+            lambda: self.transition_to(
+                new_scene, transition_type, duration, on_complete
+            ),
+        )
 
     # endregion
 
