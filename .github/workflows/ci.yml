@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    name: Xodex Test, Lint, Check & Format
+    name: Xodex Test, Lint, Type Check & Format.
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
@@ -28,11 +28,11 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Xodex Ruff Format.
+      - name: Xodex Ruff Formatting.
         run: uv run ruff format --check --diff
-      - name: Xodex Type Checking
+      - name: Xodex Ruff Type Checking.
         run: uv run ruff check --fix xodex tests
       - name: Prettier Markdown Fromating
         run: npx prettier --prose-wrap always --check "**/*.md"
-      - name: Xodex Testing
+      - name: Xodex Pytest Unittesting.
         run: uv run pytest
