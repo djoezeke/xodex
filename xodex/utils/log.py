@@ -28,6 +28,8 @@ Author: djoezeke
 License: See LICENSE file.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import logging.config
@@ -160,9 +162,7 @@ LOG_FORMATTT = "[%(asctime)s] %(levelname)s %(name)s: %(lineno)d %(message)s"
 # --- Logger Factory and Utilities ---
 
 
-def get_xodex_logger(
-    module_name=None, level=None, use_color=True, json_logs=False, propagate=False
-):
+def get_xodex_logger(module_name=None, level=None, use_color=True, json_logs=False, propagate=False):
     """
     Get a per-module logger for Xodex, with colored console output and rotating file logging.
 
@@ -249,16 +249,12 @@ def configure_logging(logging_config, logging_settings):
         try:
             module_path, class_name = logging_config.rsplit(".", 1)
         except ValueError as err:
-            raise ImportError(
-                f"{logging_config} doesn't look like a module path"
-            ) from err
+            raise ImportError(f"{logging_config} doesn't look like a module path") from err
         try:
             module = import_module(module_path)
             logging_config_func = getattr(module, class_name)
         except AttributeError as err:
-            raise ImportError(
-                f"Module {module_path} does not define a {class_name} attribute/class"
-            ) from err
+            raise ImportError(f"Module {module_path} does not define a {class_name} attribute/class") from err
 
         logging.config.dictConfig(DEFAULT_LOGGING)
         if logging_settings:

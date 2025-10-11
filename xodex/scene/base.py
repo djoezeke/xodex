@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 from abc import ABC
 from abc import abstractmethod
@@ -82,7 +84,7 @@ class BaseScene(ABC):
                 yield MyEnemy()
     """
 
-    def __init__(self, *args, **kwargs) -> "BaseScene":
+    def __init__(self, *args, **kwargs) -> BaseScene:
         """
         Initialize the scene, loading settings and preparing the surface and objects.
         """
@@ -176,7 +178,7 @@ class BaseScene(ABC):
         return self._objects
 
     @property
-    def manager(self) -> "SceneManager":
+    def manager(self) -> SceneManager:
         """Return Scene Manager."""
         return self._manager
 

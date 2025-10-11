@@ -29,18 +29,18 @@ Author: djoezeke
 License: See LICENSE file.
 """
 
+import logging
 import os
 import sys
 import time
-import logging
 from importlib import import_module
 
 import pygame
 from pygame.event import Event
 
 from xodex.conf import settings
-from xodex.utils.singleton import Singleton
 from xodex.scene.manager import SceneManager
+from xodex.utils.singleton import Singleton
 
 
 class Game(Singleton):

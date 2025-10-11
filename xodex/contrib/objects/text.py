@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pygame
 
 from xodex.core.localization import localize
@@ -30,9 +32,7 @@ class XodexText(DrawableObject):
         self._alpha = alpha
         self._position = position
         self._text = localize(text)
-        self._font = pygame.font.SysFont(
-            self._font_name, self._font_size, self._bold, self._italic
-        )
+        self._font = pygame.font.SysFont(self._font_name, self._font_size, self._bold, self._italic)
         self._surface = None
         self._render_text()
 
@@ -84,9 +84,7 @@ class XodexText(DrawableObject):
             self._bold = bold
         if italic is not None:
             self._italic = italic
-        self._font = pygame.font.SysFont(
-            self._font_name, self._font_size, self._bold, self._italic
-        )
+        self._font = pygame.font.SysFont(self._font_name, self._font_size, self._bold, self._italic)
         self._render_text()
 
     def set_alpha(self, alpha: int):

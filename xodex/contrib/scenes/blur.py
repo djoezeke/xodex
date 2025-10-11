@@ -1,16 +1,17 @@
+from __future__ import annotations
+
 from abc import ABC
-from typing import Literal
 from collections.abc import Callable
+from typing import Literal
 
 import pygame
-from pygame import time
-from pygame import image
-from pygame import Rect
-from pygame import Surface
-
 from PIL import Image
 from PIL import ImageChops
 from PIL import ImageFilter
+from pygame import image
+from pygame import Rect
+from pygame import Surface
+from pygame import time
 
 from xodex.scene.base import BaseScene
 
@@ -61,7 +62,7 @@ class BlurScene(BaseScene, ABC):
         on_blur_progress: Callable[[float], None] | None = None,
         on_blur_complete: Callable | None = None,
         **kwargs,
-    ) -> "BlurScene":
+    ) -> BlurScene:
         super().__init__(*args, **kwargs)
         self._blur_count = blur_count
         self._blur_duration = blur_duration

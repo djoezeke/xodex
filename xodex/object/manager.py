@@ -3,20 +3,21 @@
 Provides scene-based registration and querying of game objects.
 """
 
+from __future__ import annotations
+
 import asyncio
 from collections.abc import Callable
 
-from xodex.utils.log import get_xodex_logger
-
-from xodex.object.base import Object
-from xodex.utils.values import Values
-from xodex.utils.singleton import Singleton
-from xodex.core.exceptions import ObjectError
-from xodex.contrib.objects.image import Image
-from xodex.core.exceptions import NotRegistered
-from xodex.contrib.objects.text import XodexText
 from xodex.contrib.objects.animator import Animator
+from xodex.contrib.objects.image import Image
+from xodex.contrib.objects.text import XodexText
 from xodex.core.exceptions import AlreadyRegistered
+from xodex.core.exceptions import NotRegistered
+from xodex.core.exceptions import ObjectError
+from xodex.object.base import Object
+from xodex.utils.log import get_xodex_logger
+from xodex.utils.singleton import Singleton
+from xodex.utils.values import Values
 
 __all__ = ("ObjectsManager", "register")
 
@@ -79,9 +80,7 @@ class BaseManager(Singleton):
         if not issubclass(object_class, Object):
             raise ObjectError(f"{object_class} is not a subclass of Object.")
         if self.is_registered(object_name):
-            raise AlreadyRegistered(
-                f"The Object '{object_name}' is already registered."
-            )
+            raise AlreadyRegistered(f"The Object '{object_name}' is already registered.")
         self.__object_classes[object_name] = object_class
         logger.info(f"Registered object '{object_name}'.")
         self._run_hook("after_register", object_class, object_name)

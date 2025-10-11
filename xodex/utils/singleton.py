@@ -1,5 +1,7 @@
 """Singleton"""
 
+from __future__ import annotations
+
 __all__ = ("Singleton", "singleton")
 
 

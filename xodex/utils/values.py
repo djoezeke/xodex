@@ -12,9 +12,10 @@ Usage:
     for k in v: print(k, v[k])
 """
 
+from __future__ import annotations
+
 from collections.abc import Iterator
 from typing import Any
-from typing import Union
 
 
 class Values:
@@ -79,7 +80,7 @@ class Values:
         """Return a shallow copy of the attributes as a dict."""
         return dict(self.__dict__)
 
-    def update(self, other: Union[dict, "Values"], **kwargs) -> None:
+    def update(self, other: dict | Values, **kwargs) -> None:
         """
         Update attributes from another dict, Values, or keyword arguments.
 
@@ -94,11 +95,11 @@ class Values:
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def copy(self) -> "Values":
+    def copy(self) -> Values:
         """Return a shallow copy of this Values object."""
         return Values(self.to_dict())
 
-    def merge(self, other: Union[dict, "Values"], **kwargs) -> "Values":
+    def merge(self, other: dict | Values, **kwargs) -> Values:
         """
         Return a new Values with merged attributes.
 

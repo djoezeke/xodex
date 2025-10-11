@@ -1,5 +1,7 @@
 """Main Game Scene"""
 
+from __future__ import annotations
+
 from collections.abc import Generator
 
 from xodex.scene.base import BaseScene

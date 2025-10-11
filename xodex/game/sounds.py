@@ -1,15 +1,17 @@
+from __future__ import annotations
+
 import os
 
 import pygame
-from pygame.mixer import Sound
 from pygame.mixer import Channel
+from pygame.mixer import Sound
 
 from xodex.conf import settings
-from xodex.utils.values import Values
-from xodex.utils.singleton import Singleton
-from xodex.core.exceptions import ObjectError
-from xodex.core.exceptions import NotRegistered
 from xodex.core.exceptions import AlreadyRegistered
+from xodex.core.exceptions import NotRegistered
+from xodex.core.exceptions import ObjectError
+from xodex.utils.singleton import Singleton
+from xodex.utils.values import Values
 
 
 class Sounds(Singleton):
@@ -169,16 +171,12 @@ class Sounds(Singleton):
         :param volume: Volume (0.0 to 1.0).
         """
         try:
-            self.__sounds[sound].set_volume(
-                max(0.0, min(1.0, volume * self._master_volume))
-            )
+            self.__sounds[sound].set_volume(max(0.0, min(1.0, volume * self._master_volume)))
         except KeyError:
             print(f"Sound '{sound}' not found.")
         else:
             try:
-                Sounds._channels[sound].set_volume(
-                    max(0.0, min(1.0, volume * self._master_volume))
-                )
+                Sounds._channels[sound].set_volume(max(0.0, min(1.0, volume * self._master_volume)))
             except KeyError:
                 pass
 

@@ -5,13 +5,14 @@ and drawing utilities, such as scaling, flipping, blurring, color swapping,
 and rotation. Integrates with the DrawableObject interface for rendering.
 """
 
+from __future__ import annotations
+
+import PIL.Image
+import PIL.ImageFilter
+import PIL.ImageOps
 import pygame
 from pygame import Color
 from pygame import Surface
-
-import PIL.Image
-import PIL.ImageOps
-import PIL.ImageFilter
 
 from xodex.object.base import DrawableObject
 from xodex.utils.functions import loadimage
@@ -64,10 +65,10 @@ class Image(DrawableObject):
     def __repr__(self):
         return f"<{self.__class__.__name__}({self._image})>"
 
-    def __copy__(self) -> "Image":
+    def __copy__(self) -> Image:
         return Image(self._image.copy(), self.position)
 
-    def __deepcopy__(self, memo) -> "Image":
+    def __deepcopy__(self, memo) -> Image:
         return Image(self._image.copy(), self.position)
 
     @property
@@ -104,7 +105,7 @@ class Image(DrawableObject):
     @classmethod
     async def async_load(
         cls, path: str, pos: tuple[int, int] = (0, 0), alpha: int = None, colorkey: Color = None
-    ) -> "Image":
+    ) -> Image:
         """
         Asynchronously load an image from disk.
 
@@ -118,7 +119,7 @@ class Image(DrawableObject):
             Image: Loaded Image instance.
         """
 
-    def scale(self, x: float, y: float) -> "Image":
+    def scale(self, x: float, y: float) -> Image:
         """
         Scale the image to (x, y) size.
 
@@ -135,7 +136,7 @@ class Image(DrawableObject):
         self._img_rect.topleft = topleft
         return self
 
-    def smoothscale(self, x: float, y: float) -> "Image":
+    def smoothscale(self, x: float, y: float) -> Image:
         """
         Smoothly scale the image to (x, y) size.
 
@@ -152,7 +153,7 @@ class Image(DrawableObject):
         self._img_rect.topleft = topleft
         return self
 
-    def flip(self, flip_x: bool, flip_y: bool) -> "Image":
+    def flip(self, flip_x: bool, flip_y: bool) -> Image:
         """
         Flip the image horizontally and/or vertically.
 
@@ -169,7 +170,7 @@ class Image(DrawableObject):
         self._img_rect.topleft = topleft
         return self
 
-    def blur(self, blur_count: float = 5) -> "Image":
+    def blur(self, blur_count: float = 5) -> Image:
         """
         Apply a Gaussian blur to the image.
 
@@ -184,7 +185,7 @@ class Image(DrawableObject):
         self._image = pygame.image.frombytes(impil.tobytes(), impil.size, "RGBA").convert()
         return self
 
-    def crop(self, rect: pygame.Rect) -> "Image":
+    def crop(self, rect: pygame.Rect) -> Image:
         """
         Crop the image to the given rectangle.
 
@@ -197,7 +198,7 @@ class Image(DrawableObject):
         cropped_surface = self._image.subsurface(rect).copy()
         return Image(cropped_surface, (rect.x, rect.y))
 
-    def subimage(self, x: int, y: int, w: int, h: int) -> "Image":
+    def subimage(self, x: int, y: int, w: int, h: int) -> Image:
         """
         Extract a subimage from the image.
 
@@ -211,7 +212,7 @@ class Image(DrawableObject):
         rect = pygame.Rect(x, y, w, h)
         return self.crop(rect)
 
-    def swap_color(self, from_color: Color, to_color: Color) -> "Image":
+    def swap_color(self, from_color: Color, to_color: Color) -> Image:
         """
         Replace all pixels of a given color with another color.
 
@@ -232,7 +233,7 @@ class Image(DrawableObject):
         del arr
         return self
 
-    def tint(self, color: Color, alpha: int = 128) -> "Image":
+    def tint(self, color: Color, alpha: int = 128) -> Image:
         """
         Tint the image with a color.
 
@@ -248,7 +249,7 @@ class Image(DrawableObject):
         self._image.blit(tint_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
         return self
 
-    def rotate(self, angle: float) -> "Image":
+    def rotate(self, angle: float) -> Image:
         """
         Rotate the image by a given angle.
 
@@ -264,7 +265,7 @@ class Image(DrawableObject):
         self._img_rect.topleft = topleft
         return self
 
-    def set_alpha(self, alpha: int) -> "Image":
+    def set_alpha(self, alpha: int) -> Image:
         """
         Set the alpha transparency of the image.
 
@@ -277,7 +278,7 @@ class Image(DrawableObject):
         self._image.set_alpha(alpha)
         return self
 
-    def set_colorkey(self, colorkey: Color) -> "Image":
+    def set_colorkey(self, colorkey: Color) -> Image:
         """
         Set the color key (transparent color) for the image.
 
@@ -323,7 +324,7 @@ class Image(DrawableObject):
         """
         pygame.image.save(self._image, filename)
 
-    def filter_grayscale(self) -> "Image":
+    def filter_grayscale(self) -> Image:
         """
         Convert the image to grayscale.
 
@@ -335,7 +336,7 @@ class Image(DrawableObject):
         self._image = pygame.image.frombytes(pil_img.tobytes(), pil_img.size, "RGBA").convert()
         return self
 
-    def filter_invert(self) -> "Image":
+    def filter_invert(self) -> Image:
         """
         Invert the image colors.
 
@@ -347,7 +348,7 @@ class Image(DrawableObject):
         self._image = pygame.image.frombytes(pil_img.tobytes(), pil_img.size, "RGBA").convert()
         return self
 
-    def filter_sharpen(self) -> "Image":
+    def filter_sharpen(self) -> Image:
         """
         Sharpen the image.
 
@@ -359,7 +360,7 @@ class Image(DrawableObject):
         self._image = pygame.image.frombytes(pil_img.tobytes(), pil_img.size, "RGBA").convert()
         return self
 
-    def filter_edge_enhance(self) -> "Image":
+    def filter_edge_enhance(self) -> Image:
         """
         Enhance edges in the image.
 
