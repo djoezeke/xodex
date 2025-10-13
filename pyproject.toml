@@ -9,7 +9,7 @@ description = "Python Game Development Engine (Pygame-based)."
 long_description = "A modern Customizable Pygame Game engine."
 long_description_content_type = "text/markdown"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 authors = [
   { name = "Sackey Ezekiel Etrue", email = "sackeyetrue@gmail.com" },
   {name = "Xodex Contributers"},

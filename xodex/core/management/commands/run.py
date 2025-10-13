@@ -30,10 +30,31 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         """
-        Add arguments to parser.
+        Add arguments to parser. Improved with more options and validation.
         """
+        parser.add_argument(
+            "--env",
+            choices=["dev", "prod", "test"],
+            default="dev",
+            help="Set the environment to run in (dev, prod, test). Default is dev.",
+        )
+        parser.add_argument(
+            "--reload",
+            action="store_true",
+            help="Enable auto-reload for development.",
+        )
+        parser.add_argument(
+            "--debug",
+            action="store_true",
+            help="Enable debug mode.",
+        )
+        parser.add_argument(
+            "--config",
+            type=str,
+            help="Path to a custom config file.",
+        )
 
     def handle(self, options):
         """
-        Handle the command.
+        Handle the command logic for 'run'.
         """
