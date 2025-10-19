@@ -1,0 +1,161 @@
+# Project information
+site_name: xodex
+site_url: https://github.com/djoezeke/xodex
+site_dir: site/xodex
+site_author: djoezeke
+site_description: xodex is an extremely.
+strict: true
+
+# Repository
+repo_url: https://github.com/djoezeke/xodex
+repo_name: djoezeke/xodex
+edit_uri: edit/main/docs/
+
+# Copyright
+copyright: Copyright &copy; 2025 Sackey Ezekiel Etrue
+
+# https://www.mkdocs.org/user-guide/configuration/#validation
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+# Configuration
+theme:
+  name: material
+  # logo: assets/logo-letter.svg
+  # favicon: assets/favicon.ico
+  # custom_dir: docs/overrides
+  features:
+    - announce.dismiss
+    # - search.highlight
+    # - search.share
+    # - search.suggest
+    - navigation.path
+    # - navigation.instant
+    - navigation.tracking
+    # - navigation.instant.prefetch
+    # - navigation.instant.progress
+    # - navigation.prune
+    - navigation.sections
+    - navigation.indexes
+    # - navigation.expand
+    - navigation.tracking
+    - navigation.footer
+    - navigation.top
+    # - header.autohide
+    - content.code.copy
+    - content.tabs.link
+    - content.code.annotate
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - content.footnote.tooltips
+    - content.tabs.link
+    - content.tooltips
+    - toc.follow
+    # - toc.integrate
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: assets/favicon.png
+  icon:
+    logo: logo
+
+# Additional configuration
+extra:
+  status:
+    new: Recently added
+    deprecated: Deprecated
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/djoezeke
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/djoezeke/xodex/
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/xodex/
+    - icon: fontawesome/brands/instagram
+      link: https://instagram.com/djoezeke
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/djoezeke
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.snippets:
+  - pymdownx.magiclink:
+  - attr_list:
+  - toc:
+      permalink: true
+      anchorlink: true
+      anchorlink_class: "toclink"
+  - md_in_html:
+  - pymdownx.inlinehilite:
+  - pymdownx.superfences:
+  - markdown.extensions.attr_list:
+  - pymdownx.keys:
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+
+# Hooks
+
+# Plugins
+plugins:
+  - search
+
+not_in_nav: |
+  /tutorials/**/*.md
+
+# Page tree
+nav:
+  - Introduction: index.md
+  - Getting started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - First steps: getting-started/first-steps.md
+      - Features: getting-started/features.md
+      - Getting help: getting-started/help.md
+  - Guides:
+      - guides/index.md
+      - Working on project: guides/project.md
+  - Concepts:
+      - concepts/index.md
+  - Reference:
+      - reference/index.md
+      - Commands: reference/cli.md
+      - Settings: reference/settings.md
+      - Environment variables: reference/environment.md
+      - Policies:
+          - reference/policies/index.md
+          - Versioning: reference/policies/versioning.md
+          - Platform support: reference/policies/platforms.md
+          - License: reference/policies/license.md
+  - Release Notes: release-notes.md
+  - Contributing: contributing.md
+  - Sponsorship: sponsorship.md

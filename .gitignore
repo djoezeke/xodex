@@ -230,5 +230,4 @@ uv.lock
 # Xodex build artifacts
 TODO.md
 
-docs/
-mkdocs.yml
+site/
