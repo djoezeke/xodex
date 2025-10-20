@@ -426,13 +426,15 @@ class BaseScene(ABC):
         """Runs When exiting scene."""
         if self._debug:
             logger.info(f"[{self.__class__.__name__}] on_exit called.")
-        self.on_exit(*args, **kwargs)
+        if hasattr(self, "on_exit"):
+            self.on_exit(*args, **kwargs)
 
     def _on_scene_last_exit_(self, *args, **kwargs) -> None:
         """Runs the last time the scene is exited."""
         if self._debug:
             logger.info(f"[{self.__class__.__name__}] on_last_exit called.")
-        self.on_last_exit(*args, **kwargs)
+        if hasattr(self, "on_last_exit"):
+            self.on_last_exit(*args, **kwargs)
 
     def _on_scene_enter_(self, *args, **kwargs) -> None:
         """Runs when entering Scene."""
@@ -441,41 +443,43 @@ class BaseScene(ABC):
             self._first_entered = True
         if self._debug:
             logger.info(f"[{self.__class__.__name__}] on_enter called.")
-        self.on_enter(*args, **kwargs)
+        if hasattr(self, "on_enter"):
+            self.on_enter(*args, **kwargs)
 
     def _on_scene_first_enter_(self, *args, **kwargs) -> None:
         """Runs the first time the scene is entered."""
         if self._debug:
             logger.info(f"[{self.__class__.__name__}] on_first_enter called.")
-        self.on_first_enter(*args, **kwargs)
+        if hasattr(self, "on_first_enter"):
+            self.on_first_enter(*args, **kwargs)
 
     # endregion
 
     # region Hooks
 
-    def on_enter(self, *args, **kwargs) -> None:
-        """
-        Runs when entering the scene.
-        Override in subclasses for custom behavior.
-        """
+    # def on_enter(self, *args, **kwargs) -> None:
+    #     """
+    #     Runs when entering the scene.
+    #     Override in subclasses for custom behavior.
+    #     """
 
-    def on_exit(self, *args, **kwargs) -> None:
-        """
-        Runs when exiting the scene.
-        Override in subclasses for custom behavior.
-        """
+    # def on_exit(self, *args, **kwargs) -> None:
+    #     """
+    #     Runs when exiting the scene.
+    #     Override in subclasses for custom behavior.
+    #     """
 
-    def on_first_enter(self, *args, **kwargs) -> None:
-        """
-        Runs the first time the scene is entered.
-        Override in subclasses for custom behavior.
-        """
+    # def on_first_enter(self, *args, **kwargs) -> None:
+    #     """
+    #     Runs the first time the scene is entered.
+    #     Override in subclasses for custom behavior.
+    #     """
 
-    def on_last_exit(self, *args, **kwargs) -> None:
-        """
-        Runs the last time the scene is exited.
-        Override in subclasses for custom behavior.
-        """
+    # def on_last_exit(self, *args, **kwargs) -> None:
+    #     """
+    #     Runs the last time the scene is exited.
+    #     Override in subclasses for custom behavior.
+    #     """
 
     def on_pause(self, *args, **kwargs) -> None:
         """

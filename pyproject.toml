@@ -106,7 +106,6 @@ select = [
 ]
 ignore = [
     "E501",  # ignore line length errors
-    "UP038",  # keep isinstance tuple
 ]
   
 [tool.ruff.lint.isort]

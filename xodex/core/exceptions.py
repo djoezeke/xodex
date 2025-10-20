@@ -54,9 +54,9 @@ class XodexError(Exception):
         Args:
             level (str): Logging level ('exception', 'error', 'warning', etc.)
         """
-        logger = get_xodex_logger(__name__)
-        log_func = getattr(logger, level, logger.exception)
-        log_func(f"{self.__class__.__name__}: {self}", exc_info=True)
+        # logger = get_xodex_logger(__name__)
+        # log_func = getattr(logger, level, logger.exception)
+        # log_func(f"{self.__class__.__name__}: {self}", exc_info=True)
 
     def __str__(self):
         base = super().__str__()

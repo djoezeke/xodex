@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 
-from pygame.event import Event
 import pygame
+from pygame.event import Event
 
 __all__ = ("SceneLayer",)
 
@@ -36,17 +37,17 @@ class BaseSceneLayer(ABC):
             event (pygame.event.Event): The event to handle.
         """
 
-    def on_attach(self, *args, **kwargs) -> None:
-        """
-        Runs when the layer is attached.
-        Override in subclasses for custom behavior.
-        """
+    # def on_attach(self, *args, **kwargs) -> None:
+    #     """
+    #     Runs when the layer is attached.
+    #     Override in subclasses for custom behavior.
+    #     """
 
-    def on_detach(self, *args, **kwargs) -> None:
-        """
-        Runs when detaching the layer.
-        Override in subclasses for custom behavior.
-        """
+    # def on_detach(self, *args, **kwargs) -> None:
+    #     """
+    #     Runs when detaching the layer.
+    #     Override in subclasses for custom behavior.
+    #    """
 
 
 class SceneLayer(BaseSceneLayer):

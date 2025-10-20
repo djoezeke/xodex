@@ -10,8 +10,6 @@ import pygame
 from pygame import Color
 from pygame import Surface
 
-# from xodex.contrib.objects.image import Image
-
 # --- GAME WINDOW ---
 # region Window
 
@@ -172,7 +170,7 @@ def loadgif(filename: str, surface=True) -> list[Surface]:
             if surface:
                 frames.append(pi2)
             else:
-                frames.append(Image(pi2))
+                frames.append(pi2)
             image.seek(image.tell() + 1)
     except EOFError:
         pass

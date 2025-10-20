@@ -1,11 +1,13 @@
 import os
+import sys
 
 import pygame
 import pytest
 from xodex.scene.base import BaseScene
 
-
 # Mock settings module for testing
+
+
 class MockSettings:
     WINDOW_SIZE = (800, 600)
     DEBUG = False
@@ -13,7 +15,6 @@ class MockSettings:
 
 
 os.environ["XODEX_SETTINGS_MODULE"] = "mock_settings"
-import sys
 
 sys.modules["mock_settings"] = MockSettings
 

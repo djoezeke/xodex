@@ -34,13 +34,13 @@ class DummyEventful(EventfulObject):
 
 def test_objects_append_and_type_check():
     objs = Objects()
-    l = DummyLogical()
-    d = DummyDrawable()
-    e = DummyEventful()
-    objs.append(l)
-    objs.append(d)
-    objs.append(e)
-    assert l in objs and d in objs and e in objs
+    logical = DummyLogical()
+    drawable = DummyDrawable()
+    eventful = DummyEventful()
+    objs.append(logical)
+    objs.append(drawable)
+    objs.append(eventful)
+    assert logical in objs and drawable in objs and eventful in objs
 
     # Should raise ValueError for wrong type
     with pytest.raises(ValueError):
@@ -49,55 +49,55 @@ def test_objects_append_and_type_check():
 
 def test_objects_extend_and_insert():
     objs = Objects()
-    l = DummyLogical()
-    d = DummyDrawable()
-    e = DummyEventful()
-    objs.extend([l, d])
-    assert l in objs and d in objs
-    objs.insert(1, e)
-    assert objs[1] is e
+    logical = DummyLogical()
+    drawable = DummyDrawable()
+    eventful = DummyEventful()
+    objs.extend([logical, drawable])
+    assert logical in objs and drawable in objs
+    objs.insert(1, eventful)
+    assert objs[1] is eventful
 
 
 def test_update_object_calls_logical():
     objs = Objects()
-    l = DummyLogical()
-    d = DummyDrawable()
-    objs.append(l)
-    objs.append(d)
+    logical = DummyLogical()
+    drawable = DummyDrawable()
+    objs.append(logical)
+    objs.append(drawable)
     objs.update_object(0.1)
-    assert l.updated
+    assert logical.updated
     # Drawable should not be updated
-    assert not hasattr(d, "updated") or not d.updated
+    assert not hasattr(drawable, "updated") or not drawable.updated
 
 
 def test_draw_object_calls_drawable():
     objs = Objects()
-    l = DummyLogical()
-    d = DummyDrawable()
-    objs.append(l)
-    objs.append(d)
+    logical = DummyLogical()
+    drawable = DummyDrawable()
+    objs.append(logical)
+    objs.append(drawable)
     surf = pygame.Surface((10, 10))
     objs.draw_object(surf)
-    assert d.drawn
+    assert drawable.drawn
     # Logical should not be drawn
-    assert not hasattr(l, "drawn") or not l.drawn
+    assert not hasattr(logical, "drawn") or not logical.drawn
 
 
 def test_handle_object_calls_eventful():
     objs = Objects()
-    e = DummyEventful()
-    objs.append(e)
+    eventful = DummyEventful()
+    objs.append(eventful)
     event = pygame.event.Event(pygame.USEREVENT)
     objs.handle_object(event)
-    assert e.handled
+    assert eventful.handled
 
 
 def test_objects_iadd():
     objs = Objects()
-    l = DummyLogical()
-    d = DummyDrawable()
-    objs += [l, d]
-    assert l in objs and d in objs
+    logical = DummyLogical()
+    drawable = DummyDrawable()
+    objs += [logical, drawable]
+    assert logical in objs and drawable in objs
 
 
 def test_objects_append_class_instantiates():

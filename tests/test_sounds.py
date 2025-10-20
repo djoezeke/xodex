@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pygame
 import pytest
+from xodex.core.exceptions import AlreadyRegistered
 from xodex.game.sounds import Sounds
 
 
@@ -29,8 +30,8 @@ def test_register_and_unregister_sound(sounds):
     fake_sound = MagicMock()
     sounds.register(fake_sound, "test")
     assert "test" in sounds.list_sounds()
-    with pytest.raises(Exception):
-        sounds.register(fake_sound, "test")  # AlreadyRegistered
+    with pytest.raises(AlreadyRegistered):
+        sounds.register(fake_sound, "test")
     sounds.unregister("test")
     assert "test" not in sounds.list_sounds()
 
