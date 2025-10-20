@@ -37,5 +37,5 @@ Notes
 - You can provide a `XODEX_SETTINGS_MODULE` environment variable to point to
   a different settings module for testing or CI.
 
-See also: [Working on projects](../guides/project.md) for how the settings
+See also: [Working on projects](../project.md) for how the settings
 fit into a scaffolded project.

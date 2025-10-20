@@ -22,5 +22,5 @@ pip install xodex
 ## Learn more
 
 See the [Getting started guide](./getting-started/index.md) for installation,
-first steps, and examples, or go to the [Usage page](./usage.md) for common
+first steps, and examples, or go to the [Project](./project.md) for common
 workflows and quick commands.

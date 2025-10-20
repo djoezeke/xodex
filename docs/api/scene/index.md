@@ -1,4 +1,4 @@
-# Scene API
+# Scene
 
 `BaseScene` is the recommended base class for creating game screens and levels. It handles common tasks: object lifecycle, drawing, updating, event dispatch, and scene management.
 

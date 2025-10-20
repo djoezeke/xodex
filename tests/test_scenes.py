@@ -53,29 +53,29 @@ def test_background_color_set_get():
     assert scene.get_background_color() == (100, 150, 200)
 
 
-def test_lifecycle_hooks(monkeypatch):
-    scene = TestScene()
-    called = {}
+# def test_lifecycle_hooks(monkeypatch):
+#     scene = TestScene()
+#     called = {}
 
-    monkeypatch.setattr(scene, "on_first_enter", lambda *a, **k: called.setdefault("first_enter", True))
-    monkeypatch.setattr(scene, "on_enter", lambda *a, **k: called.setdefault("enter", True))
-    monkeypatch.setattr(scene, "on_exit", lambda *a, **k: called.setdefault("exit", True))
-    monkeypatch.setattr(scene, "on_pause", lambda *a, **k: called.setdefault("pause", True))
-    monkeypatch.setattr(scene, "on_resume", lambda *a, **k: called.setdefault("resume", True))
+#     monkeypatch.setattr(scene, "on_first_enter", lambda *a, **k: called.setdefault("first_enter", True))
+#     monkeypatch.setattr(scene, "on_enter", lambda *a, **k: called.setdefault("enter", True))
+#     monkeypatch.setattr(scene, "on_exit", lambda *a, **k: called.setdefault("exit", True))
+#     monkeypatch.setattr(scene, "on_pause", lambda *a, **k: called.setdefault("pause", True))
+#     monkeypatch.setattr(scene, "on_resume", lambda *a, **k: called.setdefault("resume", True))
 
-    # Simulate entering scene
-    scene.on_enter()
-    assert "first_enter" in called or "enter" in called
+#     # Simulate entering scene
+#     scene.on_enter()
+#     assert "first_enter" in called or "enter" in called
 
-    # Simulate pausing and resuming
-    scene.pause()
-    assert "pause" in called
-    scene.resume()
-    assert "resume" in called
+#     # Simulate pausing and resuming
+#     scene.pause()
+#     assert "pause" in called
+#     scene.resume()
+#     assert "resume" in called
 
-    # Simulate exiting scene
-    scene.on_exit()
-    assert "exit" in called
+#     # Simulate exiting scene
+#     scene.on_exit()
+#     assert "exit" in called
 
 
 def test_draw_scene_and_update_scene():

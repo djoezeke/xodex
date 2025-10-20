@@ -78,4 +78,4 @@ ICON_PATH = None
 3. Run with `xodex run` during development.
 4. When ready, use `xodex build` (or your own packaging workflow) to create a distributable.
 
-For more detail on the API and object model see the [API Reference](../api/index.md).
+For more detail on the API and object model see the [Documentation](./api/index.md).

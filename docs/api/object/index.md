@@ -1,4 +1,4 @@
-# Objects API
+# Object
 
 xodex provides a small object system optimized for games. The core types are:
 

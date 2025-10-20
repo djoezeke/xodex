@@ -8,7 +8,7 @@ Creating and working on projects, i.e., with a `settings.py`.
 - `xodex run`: Run a command in the project environment.
 - `xodex build`: Build the project into executable.
 
-See the [guide on projects](../guides/project.md) to get started.
+See the [guide on projects](../project.md) to get started.
 
 ## Utility
 

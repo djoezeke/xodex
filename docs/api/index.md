@@ -1,4 +1,4 @@
-# API Reference
+# Documentation
 
 This section summarizes the most commonly extended classes in xodex and how to use them in your project.
 

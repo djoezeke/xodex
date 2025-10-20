@@ -19,7 +19,7 @@ Common commands (project may add more):
 - `xodex version` — Print the xodex version.
 - `xodex help <command>` — Show help for a specific command.
 
-See the usage guide for examples and workflows: [Usage](../usage.md)
+See the usage guide for examples and workflows: [Usage](../project.md)
 
 ### xodex shell
 
