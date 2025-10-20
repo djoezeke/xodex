@@ -12,10 +12,7 @@ import pygame
 from pygame.event import Event
 
 from xodex.conf import settings
-from xodex.game.sounds import Sounds
-from xodex.object import DrawableObject
-from xodex.object import EventfulObject
-from xodex.object import LogicalObject
+from xodex.object import Object
 from xodex.object import Objects
 from xodex.object.manager import ObjectsManager
 from xodex.utils.log import get_xodex_logger
@@ -26,7 +23,7 @@ if TYPE_CHECKING:
     from xodex.scene.manager import SceneManager
 
 
-__all__ = ("Scene",)
+__all__ = ("BaseScene", "Scene")
 
 
 class BaseScene(ABC):
@@ -96,7 +93,6 @@ class BaseScene(ABC):
         self._screen = pygame.Surface(self._size)
         self._object = ObjectsManager().get_objects()
         self._manager = SceneManager()
-        self._sounds = Sounds().reload_sounds()
         self._objects = Objects()
         self._paused = False
         self._background_color = (255, 255, 255)
@@ -182,12 +178,7 @@ class BaseScene(ABC):
         """Return Scene Manager."""
         return self._manager
 
-    @property
-    def sounds(self) -> Sounds:
-        """Return Sounds."""
-        return self._sounds.reload_sounds()
-
-    def get_object(self, object_name: str) -> DrawableObject | EventfulObject | LogicalObject | None:
+    def get_object(self, object_name: str) -> Object | None:
         """
         Get an object by name from the global object manager.
 

@@ -8,9 +8,6 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Callable
 
-from xodex.contrib.objects.animator import Animator
-from xodex.contrib.objects.image import Image
-from xodex.contrib.objects.text import XodexText
 from xodex.core.exceptions import AlreadyRegistered
 from xodex.core.exceptions import NotRegistered
 from xodex.core.exceptions import ObjectError
@@ -46,11 +43,6 @@ class BaseManager(Singleton):
     def __init__(self):
         self.__object_classes: dict[str, type[Object]] = {}
         self._user_hooks: dict[str, list[Callable]] = {}
-
-        # Register default objects
-        self.register(XodexText, "XodexText")
-        self.register(Image, "Image")
-        self.register(Animator, "Animator")
 
     # region Properties
 

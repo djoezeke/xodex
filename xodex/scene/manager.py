@@ -6,7 +6,6 @@ from typing import Any
 
 from pygame import Surface
 
-from xodex.contrib.scenes.xodex import XodexMainScene
 from xodex.core.exceptions import AlreadyRegistered
 from xodex.core.exceptions import NotRegistered
 from xodex.core.exceptions import SceneError
@@ -44,9 +43,6 @@ class BaseManager(Singleton):
         self.__scene_classes: dict[str, type[BaseScene]] = {}
         self.__scenes: list[BaseScene] = []
         self._user_hooks: dict[str, list[Callable]] = {}
-
-        # Register default scenes
-        self.register(XodexMainScene, "XodexMainScene")
 
     # region Properties
 

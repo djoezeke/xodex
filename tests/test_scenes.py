@@ -3,6 +3,7 @@ import sys
 
 import pygame
 import pytest
+from xodex.conf import settings
 from xodex.scene.base import BaseScene
 
 # Mock settings module for testing
@@ -11,12 +12,12 @@ from xodex.scene.base import BaseScene
 class MockSettings:
     WINDOW_SIZE = (800, 600)
     DEBUG = False
-    BACKGROUND_COLOR = (10, 20, 30)
 
 
 os.environ["XODEX_SETTINGS_MODULE"] = "mock_settings"
 
 sys.modules["mock_settings"] = MockSettings
+settings._setup()
 
 
 # Concrete implementation for testing
@@ -28,7 +29,7 @@ class TestScene(BaseScene):
 def test_scene_initialization():
     scene = TestScene()
     assert scene.size == (800, 600)
-    assert scene.get_background_color() == (10, 20, 30)
+    assert scene.get_background_color() == (255, 255, 255)
     assert not scene.is_paused
     assert isinstance(scene.screen, pygame.Surface)
 
