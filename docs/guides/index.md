@@ -1,8 +1,8 @@
-# Guides overview
+# Guides
 
-Check out one of the core guides to get started:
+Practical guides for working with xodex projects and common workflows.
 
-- [Creating and working on projects](./project.md)
+- [Working on project](./project.md)
+- [Flappy Bird Demo](../tutorials/flappy.md)
 
-Or, explore the [concept documentation](../concepts/index.md) for comprehensive breakdown of each
-feature.
+Choose a guide to get started with a real-world workflow.

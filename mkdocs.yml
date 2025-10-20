@@ -3,7 +3,7 @@ site_name: xodex
 site_url: https://github.com/djoezeke/xodex
 site_dir: site/xodex
 site_author: djoezeke
-site_description: xodex is an extremely.
+site_description: xodex is an extensible, lightweight Python game engine built on Pygame. This documentation includes usage guides, a quickstart, and an API reference for extending the engine.
 strict: true
 
 # Repository
@@ -129,23 +129,29 @@ markdown_extensions:
 plugins:
   - search
 
-not_in_nav: |
-  /tutorials/**/*.md
-
 # Page tree
 nav:
   - Introduction: index.md
+  - Usage: usage.md
   - Getting started:
       - getting-started/index.md
       - Installation: getting-started/installation.md
       - First steps: getting-started/first-steps.md
       - Features: getting-started/features.md
       - Getting help: getting-started/help.md
+  - Tutorials:
+      - tutorials/index.md
+      - Flappy: tutorials/flappy.md
+      - Project: tutorials/project.md
+      - Flappy (experimental): tutorials/flapp/README.md
   - Guides:
       - guides/index.md
       - Working on project: guides/project.md
-  - Concepts:
-      - concepts/index.md
+  - Concepts: concepts/index.md
+  - API Reference:
+      - API: api/index.md
+      - Objects: api/object.md
+      - Scenes: api/scene.md
   - Reference:
       - reference/index.md
       - Commands: reference/cli.md

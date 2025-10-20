@@ -1,12 +1,26 @@
 # xodex
 
+xodex is a lightweight, extensible game engine framework built on top of
+Pygame. It provides a small, focused set of tools for managing game projects,
+defining scenes, and composing objects with clearly separated responsibilities
+(drawing, logic updates, and event handling).
+
 ## Highlights
 
-## Installation
+- Minimal, composable object model (Drawable, Logical, Eventful)
+- Scene lifecycle and object manager for simple game structure
+- Management CLI for scaffolding and running projects
 
-## Projects
+## Quick installation
+
+Install from PyPI:
+
+```
+pip install xodex
+```
 
 ## Learn more
 
-See the [first steps](./getting-started/first-steps.md) or jump straight to the
-[guides](./guides/index.md) to start using xodex.
+See the [Getting started guide](./getting-started/index.md) for installation,
+first steps, and examples, or go to the [Usage page](./usage.md) for common
+workflows and quick commands.

@@ -1,43 +1,32 @@
 # CLI Reference
 
-## xodex
+## xodex CLI
 
-An extreamely great pygame based python game engine.
+xodex is a small management CLI that helps you run, build, and manage xodex projects. Use the `xodex` command from a project directory to run commands from the project's `project/management/commands` or the bundled commands.
 
-<h3 >Usage</h3>
-
-```
-xodex [OPTIONS] <COMMAND>
-```
-
-<h3>Commands</h3>
-
-<dl>
-<dt><a href="#xodex-shell"><code>xodex shell</code></a></dt><dd><p>Run Iteractive shell</p></dd>
-<dt><a href="#xodex-run"><code>xodex run</code></a></dt><dd><p>Run a project </p></dd>
-<dt><a href="#xodex-init"><code>xodex init</code></a></dt><dd><p>Create a new project</p></dd>
-<dt><a href="#xodex-version"><code>xodex version</code></a></dt><dd><p>show xodex's version</p></dd>
-<dt><a href="#xodex-build"><code>xodex build</code></a></dt><dd><p>Build project into executable</p></dd>
-<dt><a href="#xodex-help"><code>xodex help</code></a></dt><dd><p>Display documentation for a command</p></dd>
-</dl>
-
-## xodex shell
-
-Run Interactive shell
-
-<h3 >Usage</h3>
+Usage
 
 ```
-xodex shell [OPTIONS] <COMMAND>
+xodex [OPTIONS] <COMMAND> [ARGS]
 ```
 
-<h3 >Commands</h3>
+Common commands (project may add more):
 
-<dl>
-    <dt>
-        <a href="#xodex-shell-object">
-            <code>xodex shell object</code>
-        </a>
-    </dt>
-    <dd><p>Make all register object accessible in shell</p></dd>
-</dl>
+- `xodex run` — Run the current project.
+- `xodex init <name>` — Create a new xodex project scaffold.
+- `xodex shell` — Open an interactive shell with the project's objects loaded.
+- `xodex build` — Build the project into a distributable/executable.
+- `xodex version` — Print the xodex version.
+- `xodex help <command>` — Show help for a specific command.
+
+See the usage guide for examples and workflows: [Usage](../usage.md)
+
+### xodex shell
+
+`xodex shell` opens a developer REPL. Available subcommands vary by project, an example:
+
+```
+xodex shell object    # expose registered objects into the shell
+```
+
+The CLI uses `BaseCommand` implementations (see `xodex.core.management.command.BaseCommand`) for argument parsing. Custom commands should subclass `BaseCommand` and implement `add_arguments()` and `handle()`.

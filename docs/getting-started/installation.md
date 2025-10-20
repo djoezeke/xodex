@@ -1,5 +1,9 @@
 # Installing xodex
 
+## Stable Version
+
+## Old Version
+
 ## Installation methods
 
 Install xodex with package manager of choice.
