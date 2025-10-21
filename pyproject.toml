@@ -72,7 +72,6 @@ docs = [
 
 [tool.uv]
 package = true 
-required-version = ">=0.8.6"
 default-groups = ["dev", "docs"]
 
 [tool.uv.build-backend]
@@ -107,11 +106,16 @@ select = [
 ignore = [
     "E501",  # ignore line length errors
 ]
-  
+
+
 [tool.ruff.lint.isort]
 force-single-line = true
 order-by-type = false
 combine-as-imports = true
+split-on-trailing-comma = true
+known-first-party = ["xodex"]
+known-third-party = ["pygame"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 # Configure Ruff's formatter
 [tool.ruff.format]

@@ -21,8 +21,6 @@ xodex supports and is tested against the following Python versions:
 
 xodex supports and is tested against the following Python versions:
 
-- 3.8
-- 3.9
 - 3.10
 - 3.11
 - 3.12
