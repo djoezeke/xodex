@@ -1,5 +1,6 @@
 import pygame
 import pytest
+
 from xodex.object import DrawableObject
 from xodex.object import EventfulObject
 from xodex.object import LogicalObject

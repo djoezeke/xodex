@@ -10,6 +10,7 @@ from importlib.util import find_spec
 from rich.console import Console
 from rich.table import Table
 from rich.theme import Theme
+
 from xodex.core.management.command import BaseCommand
 
 console = Console(
@@ -236,7 +237,17 @@ class XodexGenerator:
 
                 # Detect binary files by extension (simple heuristic)
                 is_binary = any(
-                    old_path.endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".exe", ".dll"]
+                    old_path.endswith(ext)
+                    for ext in [
+                        ".png",
+                        ".jpg",
+                        ".jpeg",
+                        ".gif",
+                        ".bmp",
+                        ".ico",
+                        ".exe",
+                        ".dll",
+                    ]
                 )
                 try:
                     if is_binary:
@@ -366,17 +377,38 @@ class StartCommand(BaseCommand):
         parser.add_argument("-o", "--output", default=None, help="Output directory for the new project.")
         parser.add_argument("-l", "--list", action="store_true", help="List available templates.")
         parser.add_argument("--interactive", action="store_true", help="Prompt on file conflicts.")
-        parser.add_argument("--dry-run", action="store_true", help="Preview changes without writing files.")
-        parser.add_argument("--force", action="store_true", help="Force overwrite of existing files.")
-        parser.add_argument("--extra-files", action="store_true", default=True, help="Add extra files like .gitignore.")
         parser.add_argument(
-            "--no-extra-files", dest="extra_files", action="store_false", help="Do not add extra files."
+            "--dry-run",
+            action="store_true",
+            help="Preview changes without writing files.",
+        )
+        parser.add_argument("--force", action="store_true", help="Force overwrite of existing files.")
+        parser.add_argument(
+            "--extra-files",
+            action="store_true",
+            default=True,
+            help="Add extra files like .gitignore.",
+        )
+        parser.add_argument(
+            "--no-extra-files",
+            dest="extra_files",
+            action="store_false",
+            help="Do not add extra files.",
         )
         parser.add_argument("--exclude", nargs="*", default=None, help="Glob patterns to exclude.")
         parser.add_argument("--include", nargs="*", default=None, help="Glob patterns to include.")
         parser.add_argument("--rename", nargs="*", default=None, help="File renaming mapping: src=dest.")
-        parser.add_argument("--template-ext", default=".tpl", help="Template file extension (default: .tpl).")
-        parser.add_argument("--file-perm", nargs="*", default=None, help="File permissions: filename=mode (octal).")
+        parser.add_argument(
+            "--template-ext",
+            default=".tpl",
+            help="Template file extension (default: .tpl).",
+        )
+        parser.add_argument(
+            "--file-perm",
+            nargs="*",
+            default=None,
+            help="File permissions: filename=mode (octal).",
+        )
         parser.add_argument("-c", "--context", nargs="*", help="Extra context variables: key=value.")
 
     def handle(self, options):
@@ -446,7 +478,10 @@ class StartCommand(BaseCommand):
 
         template_dir = Path(__file__).parent.parent.parent.parent / "conf" / "template"
         if not template_dir.exists():
-            console.print(f"[warning]No templates directory found at '{template_dir}'.", style="warning")
+            console.print(
+                f"[warning]No templates directory found at '{template_dir}'.",
+                style="warning",
+            )
             return
         table = Table(title="Available Templates", show_header=True, header_style="bold magenta")
         table.add_column("Template Name", style="cyan")

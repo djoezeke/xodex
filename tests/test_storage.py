@@ -2,6 +2,7 @@ import os
 import pickle
 
 import pytest
+
 from xodex.game.storage import Storage
 
 
@@ -43,7 +44,10 @@ def test_json_save_and_load(temp_storage_dir):
     s.load()
     assert s.value == 42
     # File should exist
-    path = os.path.join(Storage.data_path, s.filename + ".jxox" if not s.filename.endswith(".jxox") else s.filename)
+    path = os.path.join(
+        Storage.data_path,
+        s.filename + ".jxox" if not s.filename.endswith(".jxox") else s.filename,
+    )
     assert os.path.exists(path) or os.path.exists(os.path.join(Storage.data_path, s.filename))
 
 
@@ -56,7 +60,10 @@ def test_binary_save_and_load(temp_storage_dir):
     s.load()
     assert s.value == 99
     # File should exist
-    path = os.path.join(Storage.data_path, s.filename + ".bxox" if not s.filename.endswith(".bxox") else s.filename)
+    path = os.path.join(
+        Storage.data_path,
+        s.filename + ".bxox" if not s.filename.endswith(".bxox") else s.filename,
+    )
     assert os.path.exists(path) or os.path.exists(os.path.join(Storage.data_path, s.filename))
 
 

@@ -8,8 +8,8 @@ Example:
 Registering Object On Creation.
 
     ```python
-    from xodex.objects.manager import register
-    from xodex.objects import LogicalObject, DrawableObject, EventfulObject
+    from xodex.object import register
+    from xodex.object import LogicalObject, DrawableObject, EventfulObject
 
     # Register a button object with default name (class name)
     @register
@@ -25,14 +25,14 @@ Registering Object On Creation.
 Registering Existing Objects.
 
     ```python
-    from xodex.objects.manager import register
-    from .text import Text
+    from xodex.object import register
+    from .mytext import MyText
 
     # Register a text object with default name (class name)
-    register(Text)
+    register(MyText)
 
     # Register a text object with a custom name
-    register(Text,name="text")
+    register(MyText,name="mytext")
     ```
 
 How it works:
@@ -43,5 +43,9 @@ How it works:
 See the Xodex documentation for more advanced usage and patterns.
 """
 
+from xodex.contrib.objects import XodexText
+from xodex.object import register
 
 # Register your {{ project_name }} Objects here.
+
+register(XodexText, "XodexText")

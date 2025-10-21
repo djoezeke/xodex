@@ -91,29 +91,3 @@ CUSTOM_SETTINGS = {
 
 # Main Scene
 MAIN_SCENE = "XodexMainScene"
-
-# --- Documentation ---
-"""
-Settings Reference:
-
-- FPS: Target frames per second.
-- WIDTH, HEIGHT: Window size in pixels.
-- FULLSCREEN: Set to True for fullscreen mode.
-- VSYNC: Enable vertical sync.
-- GRAVITY: Gravity constant for physics.
-- MAX_SPEED: Maximum speed for moving objects.
-- DEBUG: Enable debug mode (shows extra info, disables some optimizations).
-- SHOW_FPS: Display FPS counter on screen.
-- ASSET_DIR: Root directory for all assets.
-- MUSIC_VOLUME, SFX_VOLUME: Default audio volumes.
-- KEY_BINDINGS: Dict of action names to keys.
-- ENABLE_NETWORK: Enable networking features.
-- ENABLE_PARTICLE_SYSTEM: Enable particle effects.
-- ENABLE_SCREEN_SHAKE: Enable camera shake effect.
-- ENABLE_POST_PROCESSING: Enable advanced visual effects.
-
-Tips:
-- You can override any setting here in your local or production environment.
-- Add your own custom settings to CUSTOM_SETTINGS and access them in your code.
-- For more details, see the Xodex documentation or ask for help in the community!
-"""

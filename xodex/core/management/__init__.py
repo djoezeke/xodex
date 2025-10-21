@@ -145,7 +145,10 @@ class ManagementUtility:
         """
         Print help for all available commands using rich formatting.
         """
-        console.print("'[bold]xodex help <subcommand>[/bold]' for help on a specific subcommand.", style="help")
+        console.print(
+            "'[bold]xodex help <subcommand>[/bold]' for help on a specific subcommand.",
+            style="help",
+        )
         commands = Table(box=None)
         commands.add_column("Commands:", header_style="group", style="option")
         commands.add_column(style="description")
@@ -162,9 +165,18 @@ class ManagementUtility:
         options.add_row("-q, --quiet", "Use quiet output.")
         options.add_row("-v, --verbose", "Use verbose output.")
         options.add_row("    --no-color", "Don't colorize the command output.")
-        options.add_row("    --directory", "Change to the given directory prior to running the command.")
-        options.add_row("    --project", "Run the command within the given project directory [env: XODEX_PROJECT=].")
-        options.add_row("    --settings", "The path to a `settings.py` configuration [env: XODEX_SETTINGS=].")
+        options.add_row(
+            "    --directory",
+            "Change to the given directory prior to running the command.",
+        )
+        options.add_row(
+            "    --project",
+            "Run the command within the given project directory [env: XODEX_PROJECT=].",
+        )
+        options.add_row(
+            "    --settings",
+            "The path to a `settings.py` configuration [env: XODEX_SETTINGS=].",
+        )
         options.add_row("-h, --help", "Display the concise help for this command.")
         options.add_row("-V, --version", "Show the xodex version number and exit.")
 
@@ -216,7 +228,10 @@ class ManagementUtility:
             "--project",
             help=("Run the command within the given project directory [env: XODEX_PROJECT=]."),
         )
-        parser.add_argument("--settings", help="The path to a `settings.py` configuration [env: XODEX_SETTINGS=]")
+        parser.add_argument(
+            "--settings",
+            help="The path to a `settings.py` configuration [env: XODEX_SETTINGS=]",
+        )
         parser.add_argument(
             "-V",
             "--version",

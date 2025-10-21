@@ -104,7 +104,11 @@ class Image(DrawableObject):
 
     @classmethod
     async def async_load(
-        cls, path: str, pos: tuple[int, int] = (0, 0), alpha: int = None, colorkey: Color = None
+        cls,
+        path: str,
+        pos: tuple[int, int] = (0, 0),
+        alpha: int = None,
+        colorkey: Color = None,
     ) -> Image:
         """
         Asynchronously load an image from disk.
@@ -399,7 +403,14 @@ class MovingImage(Image):
     - Speed and direction control.
     """
 
-    def __init__(self, image: str | Surface, pos: tuple[int, int], win_width: int, win_height: int, speed: int = 3):
+    def __init__(
+        self,
+        image: str | Surface,
+        pos: tuple[int, int],
+        win_width: int,
+        win_height: int,
+        speed: int = 3,
+    ):
         super().__init__(image, pos)
         self.move_x = True
         self.move_y = True
@@ -463,7 +474,7 @@ class MovingImage(Image):
         self.vel_y = speed
 
 
-class SpriteSheet(Image):
+class Sprite(Image):
     """
     Image subclass for handling sprite sheets.
 
@@ -478,7 +489,12 @@ class SpriteSheet(Image):
     """
 
     def __init__(
-        self, image: str | Surface, frame_width: int, frame_height: int, pos: tuple[int, int] = (0, 0), **kwargs
+        self,
+        image: str | Surface,
+        frame_width: int,
+        frame_height: int,
+        pos: tuple[int, int] = (0, 0),
+        **kwargs,
     ):
         super().__init__(image, pos, **kwargs)
         self.frame_width = frame_width

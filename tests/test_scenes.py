@@ -3,6 +3,7 @@ import sys
 
 import pygame
 import pytest
+
 from xodex.conf import settings
 from xodex.scene.base import BaseScene
 

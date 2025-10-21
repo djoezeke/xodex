@@ -8,8 +8,8 @@ Example:
 Registering Scene On Creation.
 
     ```python
-    from xodex.scenes.manager import register
-    from xodex.scenes import Scene
+    from xodex.scene import register
+    from xodex.scene import Scene
 
     # Register a menu scene with default name (class name)
     @register
@@ -25,7 +25,7 @@ Registering Scene On Creation.
 Registering Existing Scene.
 
     ```python
-    from xodex.scenes.manager import register
+    from xodex.scene import register
     from .menu_scene import MenuScene
 
     # Register a menu scene with default name (class name)
@@ -43,5 +43,9 @@ How it works:
 See the Xodex documentation for more advanced scene management and transitions.
 """
 
+from xodex.contrib.scenes import XodexMainScene
+from xodex.scene import register
 
 # Register your {{ project_name }} Scenes here.
+
+register(XodexMainScene, "XodexMainScene")

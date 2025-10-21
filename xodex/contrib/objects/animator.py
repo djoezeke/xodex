@@ -471,7 +471,15 @@ class SpriteSheetAnimator(Animator):
         anim = SpriteSheetAnimator(sheet, 32, 32, rows=4, cols=4, frame_duration=80)
     """
 
-    def __init__(self, sheet: Image, frame_width: int, frame_height: int, rows: int, cols: int, **kwargs):
+    def __init__(
+        self,
+        sheet: Image,
+        frame_width: int,
+        frame_height: int,
+        rows: int,
+        cols: int,
+        **kwargs,
+    ):
         frames = []
         for row in range(rows):
             for col in range(cols):
@@ -494,7 +502,8 @@ class MultiAnimator(Animator):
         self._animations = animations
         self._current = default or next(iter(animations))
         super().__init__(
-            self._animations[self._current]._frames, frame_duration=self._animations[self._current]._frame_duration
+            self._animations[self._current]._frames,
+            frame_duration=self._animations[self._current]._frame_duration,
         )
 
     def set_animation(self, name: str):

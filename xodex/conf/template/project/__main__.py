@@ -1,7 +1,6 @@
 """{{ project_name_upper }} project Main Game Loop"""
 
-from xodex.game.game import Game
+from xodex.game import run
 
 if __name__ == "__main__":
-    game = Game("{{ project_name }}")
-    game.main_loop()
+    run("{{ project_name }}")

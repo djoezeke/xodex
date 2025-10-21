@@ -43,7 +43,12 @@ class BaseStorage(JsonSerializer, JsonDeserializer, BinarySerializer, BinaryDese
     autosave: bool = False
     autoload: bool = True
 
-    def __init__(self, filename: str | None = None, data_path: str | None = None, binary: bool | None = None):
+    def __init__(
+        self,
+        filename: str | None = None,
+        data_path: str | None = None,
+        binary: bool | None = None,
+    ):
         """
         Initialize the storage.
 

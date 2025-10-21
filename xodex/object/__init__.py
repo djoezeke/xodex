@@ -4,7 +4,6 @@ from xodex.object.base import LogicalObject
 from xodex.object.base import Object
 from xodex.object.manager import ObjectsManager
 from xodex.object.manager import register
-from xodex.object.objects import Objects
 
 __all__ = (
     "make_xodex_object",
@@ -13,7 +12,6 @@ __all__ = (
     "EventfulObject",
     "LogicalObject",
     "register",
-    "Objects",
     "Object",
 )
 

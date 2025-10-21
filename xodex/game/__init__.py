@@ -440,7 +440,7 @@ def run(project=None, on_setup_success=None, on_setup_failure=None, async_mode=F
     if not settings.configured:
         settings._setup()
     game = Game()
-    # game.setup()
+    game.setup()
     if async_mode:
         import asyncio
 

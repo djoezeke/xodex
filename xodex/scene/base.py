@@ -13,8 +13,8 @@ from pygame.event import Event
 
 from xodex.conf import settings
 from xodex.object import Object
-from xodex.object import Objects
 from xodex.object.manager import ObjectsManager
+from xodex.object.objects import Objects
 from xodex.utils.log import get_xodex_logger
 
 logger = get_xodex_logger(__name__)
@@ -255,7 +255,11 @@ class BaseScene(ABC):
             event = self._event_queue.pop(0)
             self.handle_scene(event)
 
-    def filter_objects(self, predicate: Callable[[Any], bool] | None = None, obj_type: type | None = None) -> list:
+    def filter_objects(
+        self,
+        predicate: Callable[[Any], bool] | None = None,
+        obj_type: type | None = None,
+    ) -> list:
         """
         Filter objects in the scene by a predicate or type.
 

@@ -30,10 +30,19 @@ class SpriteSheet:
 
     @overload
     def __init__(
-        self, image: str | pygame.Surface, frame_width: int = 64, frame_height: int = 80, num_frames: int = None
+        self,
+        image: str | pygame.Surface,
+        frame_width: int = 64,
+        frame_height: int = 80,
+        num_frames: int = None,
     ): ...
 
-    def __init__(self, image: str | pygame.Surface, frame_size: tuple[int, int] = (64, 80), num_frames: int = None):
+    def __init__(
+        self,
+        image: str | pygame.Surface,
+        frame_size: tuple[int, int] = (64, 80),
+        num_frames: int = None,
+    ):
         self._frames: list[Image] = [Image(img) for img in splitsheet(image, frame_size, num_frames)]
 
     def __call__(self):
