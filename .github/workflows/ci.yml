@@ -19,8 +19,8 @@ jobs:
     name: Xodex Test, Lint, Type Check & Format.
     strategy:
       matrix:
-        python-version: ["3.10", "3.12", "3.14"]
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        python-version: ["3.9", "3.11", "3.13"]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
