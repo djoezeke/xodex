@@ -3,120 +3,139 @@ title: Build Flappy
 description: A step-by-step tutorial building a minimal Flappy Bird clone with xodex
 ---
 
-# Flappy Bird Tutorial
+# Flappy Bird tutorial (improved)
 
-This tutorial walks through building a minimal Flappy Bird-style game using
-xodex's scene and object model. It focuses on the essential game loop: drawing,
-updating, and event handling.
+This tutorial shows how to build a minimal Flappy Bird clone using the xodex
+engine. It expands the existing step-by-step guide with clearer contracts,
+complete code sketches (based on the reference flappy clone), common edge
+cases, and practical "how to run" instructions.
 
-Sections:
+Target audience: developers comfortable with Python and basic game loops.
 
-- Project scaffold
-- Game assets and settings
-- Implementing the `GameScene`
-- Creating the `Bird` and `Pipe` objects
-- Simple collision detection and scoring
-- Packaging and next steps
+What you'll get from this tutorial
 
-Prerequisites:
+- A small contract describing the objects and their responsibilities.
+- Complete, corrected examples for the bird, pipes, scoring and scenes.
+- Notes about edge cases and testing.
+- Quick steps to create a runnable project skeleton using the xodex template.
 
-- Python 3.11+
-- pygame installed
-- Basic familiarity with Python and game loops
+Quick contract (inputs/outputs)
 
-## 1 — Scaffold the project
+- Inputs: keyboard (space/up) or mouse/touch for flap; window size from
+  settings.
+- Outputs: rendered game frame, sounds (wing/point/hit), score integer.
+- Data shapes: objects expose methods perform_update(deltatime), perform_draw(surface),
+  handle_event(event) and a `rect` (pygame.Rect) for collision.
 
-Create a new xodex project or use the template shipped with xodex:
+Edge cases to consider
 
-```console
-xodex init flappy
-cd flappy
+- Running at variable FPS: use delta-time in physics calculations.
+- Window resize: choose fixed game coordinate system (WIDTH/HEIGHT in
+  settings) or scale contents explicitly.
+- Audio unavailable: guard sound playback so missing files don't crash.
+- Asset paths: prefer project-relative paths and provide helpful error messages.
+
+Checklist (what we'll cover)
+
+1. Project scaffold and settings
+2. Implement objects: Background, Floor, Pipe, Pipes manager, Bird/Flappy, Score
+3. Implement scenes: MainScene (menu), GameScene (play), OverScene (game over)
+4. Collision detection, scoring and sound hooks
+5. Run instructions and optional testing notes
+
+Minimal project scaffold
+
+Scaffold a new project from the xodex template (recommended):
+
+1. Create a folder and use the xodex template shipped with this repo:
+
+   - Copy the `xodex/template/project/` directory into a new folder `flappy/`.
+   - Edit `flappy/settings.py` and `flappy/objects.py` per the examples below.
+
+Should get you will typically see:
+
+```
+.
+├── flappy
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── settings.py
+│   ├── objects
+│   │	├── __init__.py
+│   │	├── score.py
+│   │	├── flappy.py
+│   │	└── background.py
+│   └── scenes
+│    	├── __init__.py
+│    	├── mainscene.py
+│    	├── gamescene.py
+│    	└── overscene.py
+├── Assets
+│   ├── sounds
+│   │	├── die.wav
+│   │	├── hit.wav
+│   │	├── wing.wav
+│   │	├── point.wav
+│   │	└── swoosh.wav
+│   └── images
+│    	├── 0.png
+│    	├── 1.png
+│    	├── 2.png
+│    	├── 3.png
+│    	├── 4.png
+│    	├── 5.png
+│    	├── 6.png
+│    	├── 7.png
+│    	├── 8.png
+│    	├── 9.png
+│    	├── base.png
+│    	├── message.png
+│    	├── gameover.png
+│    	├── pipe-red.png
+│    	├── pipe-green.png
+│    	├── background-day.png
+│    	├── background-night.png
+│    	├── redbird-downflap.png
+│    	├── redbird-midflap.png
+│    	├── redbird-upflap.png
+│    	├── bluebird-downflap.png
+│    	├── bluebird-midflap.png
+│    	├── bluebird-upflap.png
+│    	├── yellowbird-downflap.png
+│    	├── yellowbird-midflap.png
+│    	├── yellowbird-upflap.png
+│    	└── overscene.py
+├── LICENSE
+├── README.md
+├── manage.py
+└── requirements.txt
 ```
 
-Place assets (images/sounds) under `project/assets/` and configure paths in
-`project/settings.py`.
-
-## 2 — Settings example
-
-Add or adapt the following in `project/settings.py`:
+2. A minimal `settings.py` useful for the tutorial:
 
 ```python
-FPS = 60
+# --- Window & Display ---
+FPS = 30
 WIDTH = 288
 HEIGHT = 512
 WINDOW_SIZE = (WIDTH, HEIGHT)
 TITLE = "Flappy - xodex tutorial"
-ASSETS = {
-	'bird': 'assets/bird.png',
-	'pipe': 'assets/pipe.png',
-}
+MAIN_SCENE = "MainScene"
 ```
 
-## 3 — Implement GameScene
+Run tips
 
-Create a `GameScene` that yields objects in `_generate_objects_` and manages
-pause/resume and snapshotting:
+- Install dependencies from the provided `requirements.txt` (pygame, xodex
+  dependencies).
+- Start the game with your project `manage.py` or the CLI command from the
+  template (for a scaffolded project this is `xodex run` or `python -m flappy`).
 
-```python
-from xodex.scene.base import BaseScene
+If you'd like, I can now:
 
-class GameScene(BaseScene):
-	def _generate_objects_(self):
-		from project.objects import Bird, PipeManager
-		yield Bird()
-		yield PipeManager()
+- Update the three tutorial pages in `docs/tutorials/flappy/` with full
+  corrected examples and clearer explanations (objects.md, scenes.md and this
+  index). (recommended)
+- Or generate a runnable `project/` sample using the xodex template with
+  complete source and lightweight placeholder assets.
 
-	def on_enter(self):
-		# reset timers, score or preload sounds
-		pass
-```
-
-## 4 — Bird object (Drawable + Logical + Eventful)
-
-Create a `Bird` by combining responsibilities. Implement draw, update and
-event handling (jump on key press):
-
-```python
-from xodex.object.base import DrawableObject, LogicalObject, EventfulObject
-import pygame
-
-class Bird(DrawableObject, LogicalObject, EventfulObject):
-	def __init__(self):
-		self.y = 200
-		self.vy = 0
-		self.image = pygame.image.load('project/assets/bird.png')
-
-	def perform_update(self, deltatime, *args, **kwargs):
-		self.vy += 900 * deltatime
-		self.y += self.vy * deltatime
-
-	def perform_draw(self, surface, *args, **kwargs):
-		surface.blit(self.image, (50, int(self.y)))
-
-	def handle_event(self, event, *args, **kwargs):
-		if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-			self.vy = -250
-```
-
-## 5 — Pipes and collision
-
-Implement a simple `PipeManager` that yields pipe pairs, moves them left, and
-checks collision with the `Bird`. On collision, call scene's `pause()` or
-transition to a Game Over scene.
-
-## 6 — Scoring and polish
-
-- Count pipes passed for score.
-- Add sound effects using `xodex.game.sounds.Sounds`.
-- Use `Scene.export_image()` to create screenshots for debugging.
-
-## 7 — Run and iterate
-
-Start the game during development with:
-
-```console
-xodex run
-```
-
-That's a compact plan. The full example is a good follow-up if you want me to
-generate a runnable `project/` sample (code + assets placeholders + tests).
+Which should I do next? (I'll proceed to update the docs if you don't say otherwise.)

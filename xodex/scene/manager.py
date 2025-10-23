@@ -176,7 +176,8 @@ class BaseManager(Singleton):
     def clear(self) -> None:
         """Remove all scenes and clear the stack."""
         for s in self.__scenes:
-            s.on_last_exit()
+            if hasattr(s, "on_last_exit"):
+                s.on_last_exit()
         self.__scenes.clear()
         logger.info("Cleared all scenes from stack.")
 
@@ -188,7 +189,8 @@ class BaseManager(Singleton):
             scene: Scene name (str) or instance (BaseScene).
         """
         for s in self.__scenes:
-            s.on_last_exit()
+            if hasattr(s, "on_last_exit"):
+                s.on_last_exit()
         if isinstance(scene, str):
             scene = self.get_scene_class(scene)(*args, **kwargs)
         elif not isinstance(scene, BaseScene):

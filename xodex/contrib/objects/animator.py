@@ -7,17 +7,14 @@ Supports looping, ping-pong, reverse, and callbacks on finish.
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING
 
 import pygame
 from pygame import Surface
 
+from xodex.contrib.objects.image import Image
 from xodex.object.base import DrawableObject
 from xodex.object.base import EventfulObject
 from xodex.object.base import LogicalObject
-
-if TYPE_CHECKING:
-    from xodex.contrib.objects.image import Image
 
 
 class Animator(DrawableObject, EventfulObject, LogicalObject):
