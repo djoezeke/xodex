@@ -8,9 +8,38 @@ on:
       - "v*" # Push events to matching v*, i.e. v1.0.0
 
 jobs:
+  release-build:
+    name: Build Xodex.
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11", "3.13"]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Install Package dependencies
+        run: |
+          uv sync --frozen
+
+      - name: Build distributions
+        run: |
+          uv build
+          uv run twine check dist/*
+
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    needs:
+      - release-build
 
     permissions:
       id-token: write
@@ -21,21 +50,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
+      - name: Download all artifacts
+        uses: actions/download-artifact@v6
+        with:
+          path: dist/
+          merge-multiple: true
 
-      - name: Install Python 3.13
-        run: uv python install 3.13
-
-      - name: Build Xodex
-        run: uv build
-
-      # Check that basic features work and we didn't miss to include crucial files
-      - name: Xodex (wheel)
-        run: uv run --isolated --no-project --with dist/*.whl tests/*.py
-
-      - name: Xodex (source distribution)
-        run: uv run --isolated --no-project --with dist/*.tar.gz tests/*.py
+      - name: Get version
+        id: ver
+        run: echo "VER=${GITHUB_REF_NAME#'refs/tags/'}" >> $GITHUB_OUTPUT
 
       - name: Generate release attestation
         uses: actions/attest-build-provenance@v3.0.0
@@ -43,13 +66,12 @@ jobs:
           subject-path: "dist/*"
 
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          name: Xodex ${{ github.ref }} - python release
-          tag_name: ${{ github.ref }}
-          prerelease: ${{ contains(github.ref, 'dev') }}
+          name: Xodex ${{ steps.ver.outputs.VER }} release
+          tag_name: ${{ contains(steps.ver.outputs.VER, 'dev') }}
+          prerelease: ${{ contains(steps.ver.outputs.VER, 'dev') }}
           target_commitish: ${{ github.ref_name }}
           generate_release_notes: true
           files: dist/*
