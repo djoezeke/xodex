@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Install uv
-        uses: astral-sh/setup-uv@6
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
           enable-cache: true
@@ -72,7 +72,7 @@ jobs:
 
     steps:
       - name: Retrieve release distributions
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: release-dists
           path: dist/
@@ -91,9 +91,9 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@5
+      - uses: actions/checkout@v5
       - name: Download artifacts
-        uses: actions/download-artifact@5
+        uses: actions/download-artifact@v5
         with:
           name: documentation
           path: site/
@@ -104,7 +104,7 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       - name: Install uv
-        uses: astral-sh/setup-uv@6
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
           enable-cache: true

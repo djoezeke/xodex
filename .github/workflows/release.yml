@@ -2,37 +2,54 @@ name: Release Xodex
 
 on:
   push:
+    # Sequence of patterns matched against refs/tags
     tags:
-      # Publish on any tag starting with a `v`, e.g., v1.2.3
-      - v*
+      # Publish on any tag starting with a `v`, e.g., v1.0.0
+      - "v*" # Push events to matching v*, i.e. v1.0.0
 
 jobs:
-  pypi:
-    name: Publish to PyPI
+  release:
+    name: Create Release
     runs-on: ubuntu-latest
-    # Environment and permissions trusted publishing.
-    environment:
-      # Create this environment in the GitHub repository under Settings -> Environments
-      name: pypi_test
+
     permissions:
       id-token: write
-      contents: read
+      contents: write
+      attestations: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
       - name: Install uv
         uses: astral-sh/setup-uv@v6
+
       - name: Install Python 3.13
         run: uv python install 3.13
+
       - name: Build Xodex
         run: uv build
+
       # Check that basic features work and we didn't miss to include crucial files
       - name: Xodex (wheel)
-        run: uv run --isolated --no-project --with dist/*.whl tests/*.py examples/*.py
+        run: uv run --isolated --no-project --with dist/*.whl tests/*.py
+
       - name: Xodex (source distribution)
-        run: uv run --isolated --no-project --with dist/*.tar.gz tests/*.py examples/*.py
-      - name: Publish Xodex
-        run: uv publish
-        # The part below with testpypi only because it's a demo repo, remove the next two lines for production usage
-        env:
-          UV_PUBLISH_URL: https://test.pypi.org/legacy/
+        run: uv run --isolated --no-project --with dist/*.tar.gz tests/*.py
+
+      - name: Generate release attestation
+        uses: actions/attest-build-provenance@v3.0.0
+        with:
+          subject-path: "dist/*"
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: Xodex ${{ github.ref }} - python release
+          tag_name: ${{ github.ref }}
+          prerelease: ${{ contains(github.ref, 'dev') }}
+          target_commitish: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: dist/*
