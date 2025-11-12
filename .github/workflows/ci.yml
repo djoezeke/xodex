@@ -8,6 +8,7 @@ on:
     branches:
       - main
       - dev
+
   pull_request:
     branches: ["main", "dev"]
 
@@ -24,8 +25,10 @@ jobs:
         os: [ubuntu-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v5
+      
       - name: Set up Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v6
         with:

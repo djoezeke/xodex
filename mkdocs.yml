@@ -3,7 +3,7 @@ site_name: xodex
 site_url: https://github.com/djoezeke/xodex
 site_dir: site/xodex
 site_author: djoezeke
-site_description: xodex is an extensible, lightweight Python game engine built on Pygame. This documentation includes usage guides, a quickstart, and an API reference for extending the engine.
+site_description: A simple framework for building complex interactive applications..
 strict: true
 
 # Repository

@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Upload Xodex
+name: Publish Xodex
 
 on:
   release:
@@ -17,15 +17,22 @@ permissions:
 
 jobs:
   publish-build:
-    runs-on: ubuntu-latest
+    name: Build Xodex Distributions & Documentation.
+
+    strategy:
+      matrix:
+        python-version: ["3.13"]
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install uv
+      - name: Set Uv & Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.13"
+          python-version: ${{ matrix.python-version }}
           enable-cache: true
 
       - name: Install Package dependencies
@@ -51,9 +58,13 @@ jobs:
           path: site/
 
   pypi-publish:
-    runs-on: ubuntu-latest
+    name: Publish Xodex to PyPI.
+
     needs:
       - publish-build
+
+    runs-on: ubuntu-latest
+
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
@@ -83,15 +94,19 @@ jobs:
           packages-dir: dist/
 
   docs-publish:
-    runs-on: ubuntu-latest
+    name: Publish Documentation to GitHub Pages.
+
     needs:
       - publish-build
 
     permissions:
       contents: write
 
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
+
       - name: Download artifacts
         uses: actions/download-artifact@v5
         with:
