@@ -6,6 +6,8 @@ Provides:
 - Base object types: DrawableObject, EventfulObject, LogicalObject.
 """
 
+from __future__ import annotations
+
 from collections.abc import Iterable
 
 from pygame import Surface

@@ -29,6 +29,8 @@ Author: djoezeke
 License: See LICENSE file.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import sys

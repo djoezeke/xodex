@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from xodex.contrib.objects.animator import Animator
 from xodex.contrib.objects.animator import Anime
 from xodex.contrib.objects.animator import MultiAnimator

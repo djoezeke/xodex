@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from xodex.contrib.scenes.blur import BlurScene
 from xodex.contrib.scenes.blur import BoxBlurScene
 from xodex.contrib.scenes.blur import GaussianBlurScene

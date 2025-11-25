@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from xodex.object.base import DrawableObject
 from xodex.object.base import EventfulObject
 from xodex.object.base import LogicalObject

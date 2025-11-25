@@ -11,6 +11,8 @@ Features:
 - Ready for use with __all__ for clean imports
 """
 
+from __future__ import annotations
+
 from xodex.utils.version import vernum
 
 __all__ = "__version__"

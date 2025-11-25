@@ -1,5 +1,7 @@
 """Management"""
 
+from __future__ import annotations
+
 import argparse
 import importlib
 import os
@@ -267,7 +269,8 @@ class ManagementUtility:
                 command_obj.execute(self.argv)
 
 
-def execute_from_command_line(argv: list[str] = None):
+# The CLI entry point of xodex.
+def execute_from_command_line(argv: list[str] = None) -> int:
     """Run Management Utility."""
     os.environ["XODEX_VERSION"] = str(vernum)
     utility = ManagementUtility(argv)
