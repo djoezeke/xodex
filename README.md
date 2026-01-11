@@ -23,28 +23,28 @@
   - [⚙️ Installation](#-installation)
   - [🤖 Usage](#🤖-usage)
   - [🧪 Testing](#🧪-testing)
-- [📌 Project Roadmap](#-project-roadmap)
+  <!-- - [📌 Project Roadmap](#-project-roadmap) -->
 - [🔰 Contributing](#-contributing)
 - [🙌 Acknowledgments](#-acknowledgments)
 - [📃 License](#-license)
 
 </details>
  
-## 📍 Overview
+<!-- ## 📍 Overview -->
 
-## 👾 Features
+<!-- ## 👾 Features -->
 
-## 🚀 Getting Started
+<!-- ## 🚀 Getting Started -->
 
-## ☑️ Prerequisites
+<!-- ## ☑️ Prerequisites -->
 
-## ⚙️ Installation
+<!-- ## ⚙️ Installation -->
 
-## 🤖 Usage
+<!-- ## 🤖 Usage -->
 
-## 🧪 Testing
+<!-- ## 🧪 Testing -->
 
-## 📌 Project Roadmap
+<!-- ## 📌 Project Roadmap -->
 
 ## 🔰 Contributing
 

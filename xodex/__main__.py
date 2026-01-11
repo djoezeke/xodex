@@ -14,8 +14,13 @@ How it works:
 
 See the Xodex documentation for a full list of available commands and options.
 
+ Resources:
+ - Homepage ................... https://github.com/djoezeke/xodex
+ - Releases & changelog ....... https://github.com/djoezeke/xodex/releases
+ - Issues & support ........... https://github.com/djoezeke/xodex/issues
+
 Author: Sackey Ezekiel Etrue (https://github.com/djoezeke) & Xodex Contributors
-License: MIT
+License: MIT License (see LICENSE for details).
 """
 
 from __future__ import annotations

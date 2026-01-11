@@ -9,6 +9,12 @@ Features:
 - Provides version tuple and comparison utilities
 - Includes package metadata for introspection
 - Ready for use with __all__ for clean imports
+
+Resources:
+ - Homepage ................... https://github.com/djoezeke/xodex
+ - Releases & changelog ....... https://github.com/djoezeke/xodex/releases
+ - Issues & support ........... https://github.com/djoezeke/xodex/issues
+
 """
 
 from __future__ import annotations

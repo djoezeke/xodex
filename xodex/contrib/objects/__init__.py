@@ -11,6 +11,10 @@ from xodex.contrib.objects.spritesheet import SheetAnimator
 from xodex.contrib.objects.spritesheet import SpriteSheet
 from xodex.contrib.objects.text import XodexText
 
+# TODO : Add particles
+# TODO : Add tilemap
+# TODO : Add tilemap
+
 __all__ = (
     "XodexText",
     "MovingImage",
