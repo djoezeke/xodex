@@ -17,34 +17,49 @@
 <details><summary>Table of Contents</summary>
 
 - [📍 Overview](#-overview)
-- [👾 Features](#-features)
 - [🚀 Getting Started](#-getting-started)
-  - [☑️ Prerequisites](#-prerequisites)
   - [⚙️ Installation](#-installation)
-  - [🤖 Usage](#🤖-usage)
-  - [🧪 Testing](#🧪-testing)
-  <!-- - [📌 Project Roadmap](#-project-roadmap) -->
+  - [🤖 Example](#-example)
+  - [☑️ Dependencies](#-dependencies)
 - [🔰 Contributing](#-contributing)
-- [🙌 Acknowledgments](#-acknowledgments)
+<!-- - [🙌 Acknowledgments](#-acknowledgments) -->
 - [📃 License](#-license)
 
 </details>
  
-<!-- ## 📍 Overview -->
+## 📍 Overview
 
-<!-- ## 👾 Features -->
+xodex is a library for building
 
-<!-- ## 🚀 Getting Started -->
+**Documentation**: <a href="https://github.io/djoezeke/xodex" target="_blank">https://github.io/djoezeke/xodex</a>
 
-<!-- ## ☑️ Prerequisites -->
+**Source Code**: <a href="https://github.com/djoezeke/xodex" target="_blank">https://github.com/djoezeke/xodex</a>
 
-<!-- ## ⚙️ Installation -->
+## 🚀 Getting Started
 
-<!-- ## 🤖 Usage -->
+## ⚙️ Installation
 
-<!-- ## 🧪 Testing -->
+Install using `pip`:
 
-<!-- ## 📌 Project Roadmap -->
+```shell
+$ pip install xodex
+```
+
+This will install xodex with minimal dependencies.
+
+```shell
+$ pip install 'xodex[standard]'
+```
+
+## 🤖 Example
+
+## ☑️ Dependencies
+
+**xodex** stands on the shoulders of a giant. Its only internal required dependency is <a href="" class="external-link" target="_blank">Pygame</a>.
+
+By default it also comes with extra standard dependencies:
+
+- <a href="https://rich.readthedocs.io/en/stable/index.html" class="external-link" target="_blank"><code>rich</code></a>: to show nicely formatted texts automatically.
 
 ## 🔰 Contributing
 
@@ -87,15 +102,7 @@
 </p>
 </details>
 
----
-
-## 🙌 Acknowledgments
-
-### References
-
-### More Reading
-
----
+<!-- ## 🙌 Acknowledgments -->
 
 ## 📃 License
 
